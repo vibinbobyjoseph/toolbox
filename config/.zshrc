@@ -59,6 +59,42 @@ alias cp='cp -i'
 # Quick navigation
 alias ..='cd ..'
 alias ...='cd ../..'
+alias myip="curl http://ipecho.net/plain; echo"
+alias tm='open -a TextMate'
+
+##billing alias
+alias alertme="osascript -e 'display notification \"Build Finished\" with title \"Alert\"' && afplay /System/Library/PrivateFrameworks/ScreenReader.framework/Versions/A/Resources/Sounds/ActionsAvailable.aiff"
+alias exportgen="export MAVEN_OPTS=\"-Xms512m -Xmx24g\""
+alias mvnut='exportgen && mvn -Punit-tests -Dskip.jacoco=true -DauditingOn=false clean test'
+alias mvnq='time (exportgen && mvn -T12C -Paspectj clean install -Ddocker.skip -Ddependency-check.skip=true; alertme)'
+alias mvnd='time (exportgen && mvn -T12C -Paspectj clean install -Ddependency-check.skip=true; alertme)'
+alias mvnp='mvn -s ~/.m2/settings-p.xml ';
+#alias gendb='cd ~/Documents/code/code-si/billing/billing-data-populator && mvn exec:java -DlocalMode=true -Duser.timezone=Europe/London -DdatabaseName=billing_temp -DdatabasePort=3338; alertme'
+alias cddb='cd ~/Documents/code/code-si/billing/billing-database/src/main/resources/db/billing'
+#alias docker-compose='docker compose'
+
+#utility server aliases
+alias int='awsi ssh int-utility-server'
+alias prod='awsi ssh prod-utility-server'
+alias uat='awsi ssh uat-utility-server'
+alias cvt='awsi ssh cvt-utility-server'
+alias onb='awsi ssh onb-utility-server'
+alias dev='awsi ssh dev-utility-server'
+alias stag='awsi ssh stag-utility-server'
+alias ucbefore='awsi ssh uc-before-utility-server'
+alias ucafter='awsi ssh uc-after-utility-server'
+alias demo='awsi ssh demo-utility-server'
+
+#Miscellaneous commands
+alias awsi="/Users/vibin.joseph/Code/si/elevate/awsi/awsi.rb"
+alias awslocal='aws --endpoint-url=http://localhost:4566'
+alias awsp='aws --profile personal'
+alias amq='docker run -d --rm -it -p 61617:61616 -p 8162:8161 symptoma/activemq:latest'
+alias ecrlogin='aws ecr get-login-password --region eu-west-2 --profile billing-prod | docker login --username AWS --password-stdin 257041628308.dkr.ecr.eu-west-2.amazonaws.com'
+
+# ===== Billing Scripts  =====
+source /Users/vibin.joseph/Code/si/elevate/billing_scripts/dockerdb.sh
+source /Users/vibin.joseph/Code/si/elevate/billing_scripts/run_java_projects.sh
 
 # ===== History settings =====
 HISTSIZE=100000
@@ -104,8 +140,14 @@ function chpwd() { print -Pn "\e]7;file://$HOST$PWD\a" }
 # ===== For Claude to work  =====
 export PATH="$HOME/.local/bin:$PATH"
 
+# ===== For AWSI to work  =====
+PATH=$PATH:/usr/local/sessionmanagerplugin/bin:/opt/homebrew/opt/mysql-client/bin
+
 # ===== SDKMAN (Java Version Manager) =====
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 # SDKMAN modifies PATH and needs to run after all other PATH modifications
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# opencode
+export PATH=/Users/vibin.joseph/.opencode/bin:$PATH
