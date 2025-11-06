@@ -55,6 +55,7 @@ fi
 alias rm='rm -i'
 alias mv='mv -i'
 alias cp='cp -i'
+alias vi='nvim'
 
 # Quick navigation
 alias ..='cd ..'

@@ -18,8 +18,8 @@ config.font_size = 14.0
 config.color_scheme = 'Gruvbox Dark'
 
 -- Transparency & blur
-config.window_background_opacity = 0.95
-config.macos_window_background_blur = 10
+--  config.window_background_opacity = 0.97
+-- config.macos_window_background_blur = 10
 
 -- Window padding
 config.window_padding = {
@@ -107,9 +107,9 @@ config.keys = {
   { key = '_', mods = 'CMD|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
   
   -- Navigate panes (vim-style hjkl)
-  { key = 'h', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
-  { key = 'j', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
-  { key = 'k', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
+  { key = 'j', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
+  { key = 'k', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
+  { key = 'i', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
   { key = 'l', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right' },
   
   -- Close pane
