@@ -9,7 +9,7 @@ fi
 # ===== Oh My Zsh =====
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""                      # Starship handles the prompt
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf)
+plugins=(git z zsh-autosuggestions zsh-syntax-highlighting fzf)
 source "$ZSH/oh-my-zsh.sh"
 
 # ===== Starship Prompt =====
@@ -62,6 +62,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias myip="curl http://ipecho.net/plain; echo"
 alias tm='open -a TextMate'
+alias brewupdate='brew update && brew upgrade && brew upgrade --cask && brew cleanup && brew doctor'
 
 ##billing alias
 alias alertme="osascript -e 'display notification \"Build Finished\" with title \"Alert\"' && afplay /System/Library/PrivateFrameworks/ScreenReader.framework/Versions/A/Resources/Sounds/ActionsAvailable.aiff"
@@ -71,7 +72,7 @@ alias mvnq='time (exportgen && mvn -T12C -Paspectj clean install -Ddocker.skip -
 alias mvnd='time (exportgen && mvn -T12C -Paspectj clean install -Ddependency-check.skip=true; alertme)'
 alias mvnp='mvn -s ~/.m2/settings-p.xml ';
 #alias gendb='cd ~/Documents/code/code-si/billing/billing-data-populator && mvn exec:java -DlocalMode=true -Duser.timezone=Europe/London -DdatabaseName=billing_temp -DdatabasePort=3338; alertme'
-alias cddb='cd ~/Documents/code/code-si/billing/billing-database/src/main/resources/db/billing'
+alias cddb='cd ~/Code/si/elevate/billing/billing-database/src/main/resources/db/billing'
 #alias docker-compose='docker compose'
 
 #utility server aliases
@@ -144,11 +145,11 @@ export PATH="$HOME/.local/bin:$PATH"
 # ===== For AWSI to work  =====
 PATH=$PATH:/usr/local/sessionmanagerplugin/bin:/opt/homebrew/opt/mysql-client/bin
 
+# opencode
+export PATH=/Users/vibin.joseph/.opencode/bin:$PATH
+
 # ===== SDKMAN (Java Version Manager) =====
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 # SDKMAN modifies PATH and needs to run after all other PATH modifications
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# opencode
-export PATH=/Users/vibin.joseph/.opencode/bin:$PATH

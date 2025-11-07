@@ -126,6 +126,9 @@ config.keys = {
   
   -- Quick select (URLs, file paths, hashes)
   { key = ' ', mods = 'CMD|SHIFT', action = wezterm.action.QuickSelect },
+
+  -- Clear scrollback
+  { key = 'k', mods = 'CMD', action = wezterm.action.ClearScrollback 'ScrollbackAndViewport' },
 }
 
 return config

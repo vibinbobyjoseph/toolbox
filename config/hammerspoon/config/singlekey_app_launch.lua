@@ -6,9 +6,9 @@
 local singleKeyApps = {
     -- § key (keycode 10) for iTerm
     [10] = {
-        app = "iTerm",
-        alternateNames = {"iTerm2"}, -- Alternative app names to check
-        description = "iTerm"
+        app = "WezTerm",
+        alternateNames = {"WezTerm"}, -- Alternative app names to check
+        description = "WezTerm"
     },
     
     -- F13 key for Notion

@@ -8,40 +8,21 @@ local hyperKey = {"ctrl", "shift", "option", "command"}
 -- OR specify URLs to open in specific browsers
 local appList = {
 	-- Browsers
-	["1"] = {app = "Chrome", path = "/Applications/Google Chrome.app"},
+	["1"] = {app = "Chrome", path = "/Applications/Microsoft Edge.app"},
 	["2"] = {app = "Firefox", path = "/Applications/Firefox.app"},
-	
-	-- IDEs
-	["j"] = {app = "IntelliJ", path = "/Applications/IntelliJ IDEA.app"},
+    ["3"] = {app = "Teams", path = "/Applications/Microsoft Teams.app"},
+	["c"] = {app = "Claude", path = "/Applications/Claude.app"},
+    ["g"] = {app = "ChatGPT", path = "/Applications/ChatGPT.app"},
+	["i"] = {app = "IntelliJ", path = "/Applications/IntelliJ IDEA.app"},
+	["n"] = {app = "Notion", path = "/Applications/Notion.app"},
+    ["o"] = {app = "Outlook", path = "/Applications/Microsoft Outlook.app"},
+	["m"] = {app = "Mail", path = "/Applications/Mail.app"},
+	["p"] = {app = "1Password", path = "/Applications/1Password.app"},
+	["s"] = {app = "Sourcetree", path = "/Applications/Sourcetree.app"},
 	["t"] = {app = "TablePlus", path = "/Applications/TablePlus.app"},
 	["v"] = {app = "VS Code", path = "/Applications/Visual Studio Code.app"},
 	["x"] = {app = "TextMate", path = "/Applications/TextMate.app"},
-
-    -- AI
-	["f1"] = {app = "ChatGPT", path = "/Applications/ChatGPT.app"},
-	["f2"] = {app = "Claude", path = "/Applications/Claude.app"},
-	["f3"] = {
-		type = "url",
-		url = "https://chat.deepseek.com/",
-		browser = "Firefox",
-		description = "Deepseek"
-	},
-	["f4"] = {
-		type = "url",
-		url = "https://www.perplexity.ai/",
-		browser = "Firefox",
-		description = "Perplexity"
-	},
-
-	-- Communication
-	["m"] = {app = "Mail", path = "/Applications/Mail.app"},
-	["s"] = {app = "Slack", path = "/Applications/Slack.app"},
 	["w"] = {app = "WhatsApp", path = "/Applications/WhatsApp.app"},
-	
-	-- Productivity
-	["g"] = {app = "Sourcetree", path = "/Applications/Sourcetree.app"},
-	["n"] = {app = "Notion", path = "/Applications/Notion.app"},
-	["p"] = {app = "1Password", path = "/Applications/1Password.app"}
 }
 
 -- Function to launch a URL in a specific browser
