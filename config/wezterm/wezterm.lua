@@ -111,6 +111,12 @@ config.keys = {
   { key = 'k', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
   { key = 'i', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
   { key = 'l', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right' },
+
+  -- Navigate panes (arrow keys)
+  { key = 'LeftArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
+  { key = 'DownArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
+  { key = 'UpArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
+  { key = 'RightArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right' },
   
   -- Close pane
   { key = 'x', mods = 'CMD|SHIFT', action = wezterm.action.CloseCurrentPane { confirm = true } },

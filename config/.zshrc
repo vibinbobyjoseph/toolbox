@@ -105,7 +105,12 @@ HISTFILE=~/.zsh_history
 setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY EXTENDED_HISTORY
 
 # ===== Completion & quality-of-life =====
-autoload -Uz compinit && compinit -u
+autoload -Uz compinit
+if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null) ]; then
+  compinit
+else
+  compinit -C
+fi
 
 # Case-insensitive completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
@@ -151,5 +156,6 @@ export PATH=/Users/vibin.joseph/.opencode/bin:$PATH
 # ===== SDKMAN (Java Version Manager) =====
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 # SDKMAN modifies PATH and needs to run after all other PATH modifications
+export SDKMAN_OFFLINE_MODE=true
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

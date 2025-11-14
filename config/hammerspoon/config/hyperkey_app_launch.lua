@@ -16,7 +16,7 @@ local appList = {
 	["i"] = {app = "IntelliJ", path = "/Applications/IntelliJ IDEA.app"},
 	["n"] = {app = "Notion", path = "/Applications/Notion.app"},
     ["o"] = {app = "Outlook", path = "/Applications/Microsoft Outlook.app"},
-	["m"] = {app = "Mail", path = "/Applications/Mail.app"},
+	["m"] = {app = "Mail", path = "/System/Applications/Mail.app"},
 	["p"] = {app = "1Password", path = "/Applications/1Password.app"},
 	["s"] = {app = "Sourcetree", path = "/Applications/Sourcetree.app"},
 	["t"] = {app = "TablePlus", path = "/Applications/TablePlus.app"},
@@ -32,13 +32,13 @@ local function launchURL(url, browser, key, description)
         ["Chrome"] = "com.google.Chrome",
         ["Safari"] = "com.apple.Safari"
     }
-    
+
     local bundleID = browserBundle[browser]
     if not bundleID then
         hs.alert.show("Unsupported browser: " .. browser .. " (Key: " .. key .. ")")
         return
     end
-    
+
     -- Use hs.urlevent.openURLWithBundle to open URL in specific browser
     local success = hs.urlevent.openURLWithBundle(url, bundleID)
     if success then
@@ -55,7 +55,7 @@ local function launchApp(appName, key, customPath)
         hs.alert.show("Error: No app name specified (Key: " .. key .. ")")
         return
     end
-    
+
     local app
     if customPath then
         -- Try to launch the app from the specified custom path
@@ -103,7 +103,7 @@ end
 -- Catch all key presses with the hyper key and check for unmapped keys
 hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
     local keyPressed = hs.keycodes.map[event:getKeyCode()]
-    
+
     -- Only handle the case if a hyper key is held down
     if hs.fnutils.contains(hyperKey, keyPressed) == false and appList[keyPressed] == nil then
         -- Show an alert if no mapping is found
