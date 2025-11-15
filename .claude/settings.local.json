@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(STARSHIP_CONFIG=/Users/vibin.joseph/Code/jcl/toolbox/config/starship.toml starship prompt:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
