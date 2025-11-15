@@ -54,531 +54,478 @@ netstat -tulpn       # List ports
 
 ## Table of Contents
 
-- [1. File System Structure and
-  Description](#LinuxNotes-1.FileSystemStructureandDesc)
+- [1. File System Structure and Description](#1-file-system-structure-and-description)
 
-- [2. Linux File System and
-  Permissions](#LinuxNotes-2.LinuxFileSystemandPermissi)
+- [2. Getting Help](#2-getting-help)
 
-  - [2.1. File Types](#LinuxNotes-2.1.FileTypes)
+- [3. Linux File System and Permissions](#3-linux-file-system-and-permissions)
 
-  - [2.2. Links](#LinuxNotes-2.2.Links)
+  - [3.1. File Types](#31-file-types)
 
-    - [2.2.1. Hard link](#LinuxNotes-2.2.1.Hardlink)
+  - [3.2. Links](#32-links)
 
-    - [2.2.2. Soft Link](#LinuxNotes-2.2.2.SoftLink)
+    - [3.2.1. Hard link](#321-hard-link)
 
-  - [2.3. File Permissions](#LinuxNotes-2.3.FilePermissions)
+    - [3.2.2. Soft Link](#322-soft-link)
 
-    - [2.3.1. Standard
-      Permissions](#LinuxNotes-2.3.1.StandardPermissions)
+  - [3.3. File Permissions](#33-file-permissions)
 
-    - [2.3.2. umask](#LinuxNotes-2.3.2.umask)
+    - [3.3.1. Standard Permissions](#331-standard-permissions)
 
-    - [2.3.3. Special Permissions](#LinuxNotes-2.3.3.SpecialPermissions)
+    - [3.3.2. umask](#332-umask)
 
-    - [2.3.4. Access Control List
-      (ACLs)](#LinuxNotes-2.3.4.AccessControlList(ACLs)
+    - [3.3.3. Special Permissions](#333-special-permissions)
 
-    - [2.3.5. Changing Ownership](#LinuxNotes-2.3.5.ChangingOwnership)
+    - [3.3.4. Access Control List (ACLs)](#334-access-control-list-acls)
 
-- [3. Essential File Management
-  Commands](#LinuxNotes-3.EssentialFileManagementCom)
+    - [3.3.5. Changing Ownership](#335-changing-ownership)
 
-  - [3.1. File and Directory
-    Operations](#LinuxNotes-3.1.FileandDirectoryOperatio)
+- [4. Essential File Management Commands](#4-essential-file-management-commands)
 
-    - [3.1.1. ls Command](#LinuxNotes-3.1.1.lsCommand)
+  - [4.1. File and Directory Operations](#41-file-and-directory-operations)
 
-    - [3.1.2. cd Command](#LinuxNotes-3.1.2.cdCommand)
+    - [4.1.1. ls Command](#411-ls-command)
 
-    - [3.1.3. cp Command](#LinuxNotes-3.1.3.cpCommand)
+    - [4.1.2. cd Command](#412-cd-command)
 
-    - [3.1.4. rm Command](#LinuxNotes-3.1.4.rmCommand)
+    - [4.1.3. cp Command](#413-cp-command)
 
-    - [3.1.5. mv Command](#LinuxNotes-3.1.5.mvCommand)
+    - [4.1.4. rm Command](#414-rm-command)
 
-    - [3.1.6. mkdir Command](#LinuxNotes-3.1.6.mkdirCommand)
+    - [4.1.5. mv Command](#415-mv-command)
 
-    - [3.1.7. rmdir Command](#LinuxNotes-3.1.7.rmdirCommand)
+    - [4.1.6. mkdir Command](#416-mkdir-command)
 
-    - [3.1.8. file Command](#LinuxNotes-3.1.8.fileCommand)
+    - [4.1.7. rmdir Command](#417-rmdir-command)
 
-    - [3.1.9. tree Command](#LinuxNotes-3.1.9.treeCommand)
+    - [4.1.8. file Command](#418-file-command)
 
-    - [3.1.10. truncate Command](#LinuxNotes-3.1.10.truncateCommand)
+    - [4.1.9. tree Command](#419-tree-command)
 
-    - [3.1.11. split Command](#LinuxNotes-3.1.11.splitCommand)
+    - [4.1.10. truncate Command](#4110-truncate-command)
 
-    - [3.1.12. pwd Command](#LinuxNotes-3.1.12.pwdCommand)
+    - [4.1.11. split Command](#4111-split-command)
 
-    - [3.1.13. stat Command](#LinuxNotes-3.1.13.statCommand)
+    - [4.1.12. pwd Command](#4112-pwd-command)
 
-  - [3.2. Viewing and Processing File
-    Contents](#LinuxNotes-3.2.ViewingandProcessingFile)
+    - [4.1.13. stat Command](#4113-stat-command)
 
-    - [3.2.1. cat Command](#LinuxNotes-3.2.1.catCommand)
+  - [4.2. Viewing and Processing File Contents](#42-viewing-and-processing-file-contents)
 
-    - [3.2.2. tac Command](#LinuxNotes-3.2.2.tacCommand)
+    - [4.2.1. cat Command](#421-cat-command)
 
-    - [3.2.3. more and less
-      Commands](#LinuxNotes-3.2.3.moreandlessCommands)
+    - [4.2.2. tac Command](#422-tac-command)
 
-    - [3.2.4. head Command](#LinuxNotes-3.2.4.headCommand)
+    - [4.2.3. more and less Commands](#423-more-and-less-commands)
 
-    - [3.2.5. tail Command](#LinuxNotes-3.2.5.tailCommand)
+    - [4.2.4. head Command](#424-head-command)
 
-    - [3.2.6. wc Command](#LinuxNotes-3.2.6.wcCommand)
+    - [4.2.5. tail Command](#425-tail-command)
 
-  - [3.3. Finding files](#LinuxNotes-3.3.Findingfiles)
+    - [4.2.6. wc Command](#426-wc-command)
 
-    - [3.3.1. find Command](#LinuxNotes-3.3.1.findCommand)
+  - [4.3. Finding files](#43-finding-files)
 
-    - [3.3.2. locate Command](#LinuxNotes-3.3.2.locateCommand)
+    - [4.3.1. find Command](#431-find-command)
 
-- [4. Getting Help](#LinuxNotes-4.GettingHelp)
+    - [4.3.2. locate Command](#432-locate-command)
 
-- [5. Important command-line
-  features](#LinuxNotes-5.Importantcommand-linefeatu)
+- [5. Important command-line features](#5-important-command-line-features)
 
-  - [5.1. Wildcards](#LinuxNotes-5.1.Wildcards)
+  - [5.1. Wildcards](#51-wildcards)
 
-  - [5.2. Input and Output
-    redirection](#LinuxNotes-5.2.InputandOutputredirectio)
+  - [5.2. Input and Output redirection](#52-input-and-output-redirection)
 
-  - [5.3. Separators for Multiple
-    Commands](#LinuxNotes-5.3.SeparatorsforMultipleCom)
+  - [5.3. Separators for Multiple Commands](#53-separators-for-multiple-commands)
 
-  - [5.4. Command History](#LinuxNotes-5.4.CommandHistory)
+  - [5.4. Command History](#54-command-history)
 
-  - [5.5. Up and Down Arrows](#LinuxNotes-5.5.UpandDownArrows)
+  - [5.5. Up and Down Arrows](#55-up-and-down-arrows)
 
-  - [5.6. Recursive Search (Ctrl +
-    R)](#LinuxNotes-5.6.RecursiveSearch(Ctrl+R))
+  - [5.6. Recursive Search (Ctrl + R)](#56-recursive-search-ctrl-r)
 
-  - [5.7. Editing Commands](#LinuxNotes-5.7.EditingCommands)
+  - [5.7. Editing Commands](#57-editing-commands)
 
-  - [5.8. Tab Completion](#LinuxNotes-5.8.TabCompletion)
+  - [5.8. Tab Completion](#58-tab-completion)
 
-- [6. Text Processing and
-  Transformation](#LinuxNotes-6.TextProcessingandTransform)
+- [6. Text Processing and Transformation](#6-text-processing-and-transformation)
 
-  - [6.1. Essential command-line utilities for text
-    processing](#LinuxNotes-6.1.Essentialcommand-lineuti)
+  - [6.1. Essential command-line utilities for text processing](#61-essential-command-line-utilities-for-text-processing)
 
-    - [6.1.1. cut Command](#LinuxNotes-6.1.1.cutCommand)
+    - [6.1.1. cut Command](#611-cut-command)
 
-    - [6.1.2. awk Command](#LinuxNotes-6.1.2.awkCommand)
+    - [6.1.2. awk Command](#612-awk-command)
 
-    - [6.1.3. grep Command](#LinuxNotes-6.1.3.grepCommand)
+    - [6.1.3. grep Command](#613-grep-command)
 
-    - [6.1.4. sort Command](#LinuxNotes-6.1.4.sortCommand)
+    - [6.1.4. sort Command](#614-sort-command)
 
-    - [6.1.5. uniq Command](#LinuxNotes-6.1.5.uniqCommand)
+    - [6.1.5. uniq Command](#615-uniq-command)
 
-    - [6.1.6. sed command](#LinuxNotes-6.1.6.sedcommand)
+    - [6.1.6. sed command](#616-sed-command)
 
-- [7. File Comparison](#LinuxNotes-7.FileComparison)
+- [7. File Comparison](#7-file-comparison)
 
-- [8. Compress and UnCompress
-  Files](#LinuxNotes-8.CompressandUnCompressFiles)
+- [8. Compress and UnCompress Files](#8-compress-and-uncompress-files)
 
-- [9. Managing Users](#LinuxNotes-9.ManagingUsers)
+- [9. Managing Users](#9-managing-users)
 
-  - [9.1. User Account
-    Management](#LinuxNotes-9.1.UserAccountManagement)
+  - [9.1. User Account Management](#91-user-account-management)
 
-    - [9.1.1. User Account
-      Commands](#LinuxNotes-9.1.1.UserAccountCommands)
+    - [9.1.1. User Account Commands](#911-user-account-commands)
 
-    - [9.1.2. Group Management
-      Commands](#LinuxNotes-9.1.2.GroupManagementCommand)
+    - [9.1.2. Group Management Commands](#912-group-management-commands)
 
-    - [9.1.3. Password Management](#LinuxNotes-9.1.3.PasswordManagement)
+    - [9.1.3. Password Management](#913-password-management)
 
-    - [9.1.4. Home Directories](#LinuxNotes-9.1.4.HomeDirectories)
+    - [9.1.4. Home Directories](#914-home-directories)
 
-    - [9.1.5. Temporary User
-      Accounts](#LinuxNotes-9.1.5.TemporaryUserAccounts)
+    - [9.1.5. Temporary User Accounts](#915-temporary-user-accounts)
 
-    - [9.1.6. Enable Password
-      Aging](#LinuxNotes-9.1.6.EnablePasswordAging)
+    - [9.1.6. Enable Password Aging](#916-enable-password-aging)
 
-    - [9.1.7. Tips](#LinuxNotes-9.1.7.Tips)
+    - [9.1.7. Tips](#917-tips)
 
-  - [9.2. Switch Users and super user
-    Access](#LinuxNotes-9.2.SwitchUsersandsuperuserA)
+  - [9.2. Switch Users and super user Access](#92-switch-users-and-super-user-access)
 
-    - [9.2.1. Switching Users](#LinuxNotes-9.2.1.SwitchingUsers)
+    - [9.2.1. Switching Users](#921-switching-users)
 
-    - [9.2.2. Sudo Access](#LinuxNotes-9.2.2.SudoAccess)
+    - [9.2.2. Sudo Access](#922-sudo-access)
 
-    - [9.2.3. Granting Sudo Access to a
-      User](#LinuxNotes-9.2.3.GrantingSudoAccesstoaU)
+    - [9.2.3. Granting Sudo Access to a User](#923-granting-sudo-access-to-a-user)
 
-  - [9.3. Monitoring Users](#LinuxNotes-9.3.MonitoringUsers)
+  - [9.3. Monitoring Users](#93-monitoring-users)
 
-  - [9.4. Communicating with other
-    users](#LinuxNotes-9.4.Communicatingwithotherus)
+  - [9.4. Communicating with other users](#94-communicating-with-other-users)
 
-- [10. System and Service
-  Management](#LinuxNotes-10.SystemandServiceManagemen)
+- [10. System and Service Management](#10-system-and-service-management)
 
-  - [10.1. Important Terms](#LinuxNotes-10.1.ImportantTerms)
+  - [10.1. Important Terms](#101-important-terms)
 
-  - [10.2. systemd](#LinuxNotes-10.2.systemd)
+  - [10.2. systemd](#102-systemd)
 
-    - [10.2.1. Key Features](#LinuxNotes-10.2.1.KeyFeatures)
+    - [10.2.1. Key Features](#1021-key-features)
 
-    - [10.2.2. How systemd Works](#LinuxNotes-10.2.2.HowsystemdWorks)
+    - [10.2.2. How systemd Works](#1022-how-systemd-works)
 
-    - [10.2.3. Unit Types in
-      systemd](#LinuxNotes-10.2.3.UnitTypesinsystemd)
+    - [10.2.3. Unit Types in systemd](#1023-unit-types-in-systemd)
 
-    - [10.2.4. Important Components of
-      systemd](#LinuxNotes-10.2.4.ImportantComponentsof)
+    - [10.2.4. Important Components of systemd](#1024-important-components-of-systemd)
 
-  - [10.3. systemd commands](#LinuxNotes-10.3.systemdcommands)
+  - [10.3. systemd commands](#103-systemd-commands)
 
-  - [10.4. Creating a Systemd
-    Service](#LinuxNotes-10.4.CreatingaSystemdService)
+  - [10.4. Creating a Systemd Service](#104-creating-a-systemd-service)
 
-  - [10.5. Creating a Systemd
-    Timer](#LinuxNotes-10.5.CreatingaSystemdTimer)
+  - [10.5. Creating a Systemd Timer](#105-creating-a-systemd-timer)
 
-    - [10.5.1. Service Unit
-      (\*.service)](#LinuxNotes-10.5.1.ServiceUnit(*.service)
+    - [10.5.1. Service Unit (**\*.service**)](#1051-service-unit-service)
 
-    - [10.5.2. Timer Unit
-      (\*.timer)](#LinuxNotes-10.5.2.TimerUnit(*.timer))
+    - [10.5.2. Timer Unit (**\*.timer**)](#1052-timer-unit-timer)
 
-  - [10.6. Creating a Systemd
-    Mount](#LinuxNotes-10.6.CreatingaSystemdMount)
+  - [10.6. Creating a Systemd Mount](#106-creating-a-systemd-mount)
 
-  - [10.7. Creating a Systemd
-    Path](#LinuxNotes-10.7.CreatingaSystemdPath)
+  - [10.7. Creating a Systemd Path](#107-creating-a-systemd-path)
 
-  - [10.8. Creating Other systemd
-    Units](#LinuxNotes-10.8.CreatingOthersystemdUni)
+  - [10.8. Creating Other systemd Units](#108-creating-other-systemd-units)
 
-- [11. Process Management](#LinuxNotes-11.ProcessManagement)
+  - [10.9. systemd-analyze Command](#109-systemd-analyze-command)
 
-  - [11.1. ps Command](#LinuxNotes-11.1.psCommand)
+    - [10.9.1. Key Features](#1091-key-features)
 
-  - [11.2. top Command](#LinuxNotes-11.2.topCommand)
+- [11. Process Management](#11-process-management)
 
-    - [11.2.1. Key Features:](#LinuxNotes-11.2.1.KeyFeatures:)
+  - [11.1. ps Command](#111-ps-command)
 
-    - [11.2.2. Interactive
-      Commands](#LinuxNotes-11.2.2.InteractiveCommands)
+  - [11.2. top Command](#112-top-command)
 
-    - [11.2.3. Alternatives](#LinuxNotes-11.2.3.Alternatives)
+    - [11.2.1. Key Features:](#1121-key-features)
 
-  - [11.3. kill Command](#LinuxNotes-11.3.killCommand)
+    - [11.2.2. Interactive Commands](#1122-interactive-commands)
 
-    - [11.3.1. Commonly Used
-      Signals](#LinuxNotes-11.3.1.CommonlyUsedSignals)
+    - [11.2.3. Alternatives](#1123-alternatives)
 
-    - [11.3.2. Advanced Use Cases](#LinuxNotes-11.3.2.AdvancedUseCases)
+  - [11.3. kill Command](#113-kill-command)
 
-  - [11.4. nice/renice](#LinuxNotes-11.4.nice/renice)
+    - [11.3.1. Commonly Used Signals](#1131-commonly-used-signals)
 
-- [12. Scheduling Tasks](#LinuxNotes-12.SchedulingTasks)
+    - [11.3.2. Advanced Use Cases](#1132-advanced-use-cases)
 
-  - [12.1. crontab](#LinuxNotes-12.1.crontab)
+  - [11.4. nice/renice](#114-nicerenice)
 
-    - [12.1.1. Common Options](#LinuxNotes-12.1.1.CommonOptions)
+- [12. Scheduling Tasks](#12-scheduling-tasks)
 
-    - [12.1.2. Special Strings in
-      Crontab](#LinuxNotes-12.1.2.SpecialStringsinCront)
+  - [12.1. crontab](#121-crontab)
 
-    - [12.1.3. Managing Crontab](#LinuxNotes-12.1.3.ManagingCrontab)
+    - [12.1.1. Common Options](#1211-common-options)
 
-    - [12.1.4. Log and Debugging](#LinuxNotes-12.1.4.LogandDebugging)
+    - [12.1.2. Special Strings in Crontab](#1212-special-strings-in-crontab)
 
-    - [12.1.5. Crontab File
-      Format:](#LinuxNotes-12.1.5.CrontabFileFormat:)
+    - [12.1.3. Managing Crontab](#1213-managing-crontab)
 
-    - [12.1.6. Examples](#LinuxNotes-12.1.6.Examples)
+    - [12.1.4. Log and Debugging](#1214-log-and-debugging)
 
-  - [12.2. at](#LinuxNotes-12.2.at)
+    - [12.1.5. Crontab File Format](#1215-crontab-file-format)
 
-  - [12.3. anacron](#LinuxNotes-12.3.anacron)
+    - [12.1.6. Examples](#1216-examples)
 
-    - [12.3.1. Key Features of
-      Anacron](#LinuxNotes-12.3.1.KeyFeaturesofAnacron)
+  - [12.2. at](#122-at)
 
-- [13. Shell](#LinuxNotes-13.Shell)
+  - [12.3. anacron](#123-anacron)
 
-  - [13.1. Types of Shells](#LinuxNotes-13.1.TypesofShells)
+    - [12.3.1. Key Features of Anacron](#1231-key-features-of-anacron)
 
-  - [13.2. Key Features](#LinuxNotes-13.2.KeyFeatures)
+- [13. Shell](#13-shell)
 
-  - [13.3. How a Shell Works](#LinuxNotes-13.3.HowaShellWorks)
+  - [13.1. Types of Shells](#131-types-of-shells)
 
-  - [13.4. Useful Commands](#LinuxNotes-13.4.UsefulCommands)
+  - [13.2. Key Features](#132-key-features)
 
-  - [13.5. Shell Scripting](#LinuxNotes-13.5.ShellScripting)
+  - [13.3. How a Shell Works](#133-how-a-shell-works)
 
-    - [13.5.1. Why Use Shell
-      Scripting?](#LinuxNotes-13.5.1.WhyUseShellScripting?)
+  - [13.4. Useful Commands](#134-useful-commands)
 
-    - [13.5.2. Basic Structure of a Shell
-      Script](#LinuxNotes-13.5.2.BasicStructureofaShel)
+  - [13.5. Shell Scripting](#135-shell-scripting)
 
-    - [13.5.3. Key Concepts](#LinuxNotes-13.5.3.KeyConcepts)
+    - [13.5.1. Why Use Shell Scripting?](#1351-why-use-shell-scripting)
 
-  - [13.6. Aliases](#LinuxNotes-13.6.Aliases)
+    - [13.5.2. Basic Structure of a Shell Script](#1352-basic-structure-of-a-shell-script)
 
-    - [13.6.1. Types of Aliases](#LinuxNotes-13.6.1.TypesofAliases)
+    - [13.5.3. Key Concepts](#1353-key-concepts)
 
-    - [13.6.2. Useful Commands](#LinuxNotes-13.6.2.UsefulCommands)
+  - [13.6. Aliases](#136-aliases)
 
-  - [13.7. Managing Jobs in a
-    Shell](#LinuxNotes-13.7.ManagingJobsinaShell)
+    - [13.6.1. Types of Aliases](#1361-types-of-aliases)
 
-    - [13.7.1. Ctlr+Z](#LinuxNotes-13.7.1.Ctlr+Z)
+    - [13.6.2. Useful Commands](#1362-useful-commands)
 
-    - [13.7.2. jobs](#LinuxNotes-13.7.2.jobs)
+  - [13.7. Managing Jobs in a Shell](#137-managing-jobs-in-a-shell)
 
-    - [13.7.3. bg (Background)](#LinuxNotes-13.7.3.bg(Background))
+    - [13.7.1. Ctlr+Z](#1371-ctlrz)
 
-    - [13.7.4. fg (Foreground)](#LinuxNotes-13.7.4.fg(Foreground))
+    - [13.7.2. jobs](#1372-jobs)
 
-    - [13.7.5. nohup](#LinuxNotes-13.7.5.nohup)
+    - [13.7.3. bg (Background)](#1373-bg-background)
 
-    - [13.7.6. disown](#LinuxNotes-13.7.6.disown)
+    - [13.7.4. fg (Foreground)](#1374-fg-foreground)
 
-    - [13.7.7. nohup vs. disown](#LinuxNotes-13.7.7.nohupvs.disown)
+    - [13.7.5. nohup](#1375-nohup)
 
-- [14. Terminal](#LinuxNotes-14.Terminal)
+    - [13.7.6. disown](#1376-disown)
 
-  - [14.1. tty vs pts](#LinuxNotes-14.1.ttyvspts)
+    - [13.7.7. nohup vs. disown](#1377-nohup-vs-disown)
 
-- [15. File System](#LinuxNotes-15.FileSystem)
+  - [13.8. script Command](#138-script-command)
 
-  - [15.1. Native File Systems](#LinuxNotes-15.1.NativeFileSystems)
+  - [13.9. Environment Variables](#139-environment-variables)
 
-    - [15.1.1. Ext2](#LinuxNotes-15.1.1.Ext2)
+- [14. Terminal](#14-terminal)
 
-    - [15.1.2. Ext3](#LinuxNotes-15.1.2.Ext3)
+  - [14.1. tty vs pts](#141-tty-vs-pts)
 
-    - [15.1.3. Ext4](#LinuxNotes-15.1.3.Ext4)
+- [15. File System](#15-file-system)
 
-    - [15.1.4. XFS](#LinuxNotes-15.1.4.XFS)
+  - [15.1. Native File Systems](#151-native-file-systems)
 
-    - [15.1.5. Btrfs](#LinuxNotes-15.1.5.Btrfs)
+    - [15.1.1. Ext2](#1511-ext2)
 
-    - [15.1.6. ReiserFS](#LinuxNotes-15.1.6.ReiserFS)
+    - [15.1.2. Ext3](#1512-ext3)
 
-    - [15.1.7. swap](#LinuxNotes-15.1.7.swap)
+    - [15.1.3. Ext4](#1513-ext4)
 
-  - [15.2. Virtual File Systems](#LinuxNotes-15.2.VirtualFileSystems)
+    - [15.1.4. XFS](#1514-xfs)
 
-    - [15.2.1. tmpfs](#LinuxNotes-15.2.1.tmpfs)
+    - [15.1.5. Btrfs](#1515-btrfs)
 
-    - [15.2.2. devtmpfs](#LinuxNotes-15.2.2.devtmpfs)
+    - [15.1.6. ReiserFS](#1516-reiserfs)
 
-    - [15.2.3. efivarfs](#LinuxNotes-15.2.3.efivarfs)
+    - [15.1.7. swap](#1517-swap)
 
-  - [15.3. Network File Systems](#LinuxNotes-15.3.NetworkFileSystems)
+  - [15.2. Virtual File Systems](#152-virtual-file-systems)
 
-    - [15.3.1. NFS](#LinuxNotes-15.3.1.NFS)
+    - [15.2.1. tmpfs](#1521-tmpfs)
 
-    - [15.3.2. Samba (CIFS/SMB)](#LinuxNotes-15.3.2.Samba(CIFS/SMB))
+    - [15.2.2. devtmpfs](#1522-devtmpfs)
 
-  - [15.4. Non-Native File Systems (Foreign File
-    Systems)](#LinuxNotes-15.4.Non-NativeFileSystems(F)
+    - [15.2.3. efivarfs](#1523-efivarfs)
 
-    - [15.4.1. FAT32 (vfat):](#LinuxNotes-15.4.1.FAT32(vfat):)
+  - [15.3. Network File Systems](#153-network-file-systems)
 
-    - [15.4.2. exFAT:](#LinuxNotes-15.4.2.exFAT:)
+    - [15.3.1. NFS](#1531-nfs)
 
-    - [15.4.3. HFS (Hierarchical File
-      System):](#LinuxNotes-15.4.3.HFS(HierarchicalFileS)
+    - [15.3.2. Samba (CIFS/SMB)](#1532-samba-cifssmb)
 
-    - [15.4.4. HFS+ (HFS Plus):](#LinuxNotes-15.4.4.HFS+(HFSPlus):)
+  - [15.4. Non-Native File Systems (Foreign File Systems)](#154-non-native-file-systems-foreign-file-systems)
 
-    - [15.4.5. APFS (Apple File
-      System):](#LinuxNotes-15.4.5.APFS(AppleFileSystem))
+    - [15.4.1. FAT32 (vfat)](#1541-fat32-vfat)
 
-- [16. Disk Management](#LinuxNotes-16.DiskManagement)
+    - [15.4.2. exFAT](#1542-exfat)
 
-  - [16.1. du Command](#LinuxNotes-16.1.duCommand)
+    - [15.4.3. HFS (Hierarchical File System)](#1543-hfs-hierarchical-file-system)
 
-  - [16.2. df Command](#LinuxNotes-16.2.dfCommand)
+    - [15.4.4. HFS+ (HFS Plus)](#1544-hfs-hfs-plus)
 
-  - [16.3. fdisk Command](#LinuxNotes-16.3.fdiskCommand)
+    - [15.4.5. APFS (Apple File System)](#1545-apfs-apple-file-system)
 
-  - [16.4. mkfs Command](#LinuxNotes-16.4.mkfsCommand)
+- [16. Disk Management](#16-disk-management)
 
-  - [16.5. lsblk Command](#LinuxNotes-16.5.lsblkCommand)
+  - [16.1. du Command](#161-du-command)
 
-  - [16.6. blkid Command](#LinuxNotes-16.6.blkidCommand)
+  - [16.2. df Command](#162-df-command)
 
-  - [16.7. fsck Command](#LinuxNotes-16.7.fsckCommand)
+  - [16.3. fdisk Command](#163-fdisk-command)
 
-  - [16.8. dd Command](#LinuxNotes-16.8.ddCommand)
+  - [16.4. mkfs Command](#164-mkfs-command)
 
-  - [16.9. wipefs](#LinuxNotes-16.9.wipefs)
+  - [16.5. lsblk Command](#165-lsblk-command)
 
-  - [16.10. mount Command](#LinuxNotes-16.10.mountCommand)
+  - [16.6. blkid Command](#166-blkid-command)
 
-  - [16.11. fstab](#LinuxNotes-16.11.fstab)
+  - [16.7. fsck Command](#167-fsck-command)
 
-- [17. System Information](#LinuxNotes-17.SystemInformation)
+  - [16.8. dd Command](#168-dd-command)
 
-  - [17.1. dmesg Command](#LinuxNotes-17.1.dmesgCommand)
+  - [16.9. wipefs](#169-wipefs)
 
-  - [17.2. iostat Command](#LinuxNotes-17.2.iostatCommand)
+  - [16.10. mount Command](#1610-mount-command)
 
-  - [17.3. vmstat Command](#LinuxNotes-17.3.vmstatCommand)
+  - [16.11. fstab](#1611-fstab)
 
-  - [17.4. free Command](#LinuxNotes-17.4.freeCommand)
+- [17. System Information](#17-system-information)
 
-  - [17.5. lsof Command](#LinuxNotes-17.5.lsofCommand)
+  - [17.1. dmesg Command](#171-dmesg-command)
 
-  - [17.6. Other sysinfo
-    Commands](#LinuxNotes-17.6.OthersysinfoCommands)
+  - [17.2. iostat Command](#172-iostat-command)
 
-- [18. Networking](#LinuxNotes-18.Networking)
+  - [17.3. vmstat Command](#173-vmstat-command)
 
-  - [18.1. netstat Command](#LinuxNotes-18.1.netstatCommand)
+  - [17.4. free Command](#174-free-command)
 
-  - [18.2. ss Command](#LinuxNotes-18.2.ssCommand)
+  - [17.5. lsof Command](#175-lsof-command)
 
-  - [18.3. ip Command](#LinuxNotes-18.3.ipCommand)
+  - [17.6. Other sysinfo Commands](#176-other-sysinfo-commands)
 
-  - [18.4. ping Command](#LinuxNotes-18.4.pingCommand)
+  - [17.7. date Command](#177-date-command)
 
-  - [18.5. ifconfig Command](#LinuxNotes-18.5.ifconfigCommand)
+  - [17.8. timedatectl Command](#178-timedatectl-command)
 
-  - [18.6. tcpDump](#LinuxNotes-18.6.tcpDump)
+  - [17.9. bc Command](#179-bc-command)
 
-  - [18.7. nslookup](#LinuxNotes-18.7.nslookup)
+  - [17.10. cal Command](#1710-cal-command)
 
-  - [18.8. dig](#LinuxNotes-18.8.dig)
+- [18. Networking](#18-networking)
 
-  - [18.9. traceroute](#LinuxNotes-18.9.traceroute)
+  - [18.1. netstat Command](#181-netstat-command)
 
-  - [18.10. nmap](#LinuxNotes-18.10.nmap)
+  - [18.2. ss Command](#182-ss-command)
 
-  - [18.11. Other Network
-    Commands](#LinuxNotes-18.11.OtherNetworkCommands)
+  - [18.3. ip Command](#183-ip-command)
 
-- [19. Log Monitoring](#LinuxNotes-19.LogMonitoring)
+  - [18.4. ping Command](#184-ping-command)
 
-- [20. Environment Variables](#LinuxNotes-20.EnvironmentVariables)
+  - [18.5. ifconfig Command](#185-ifconfig-command)
 
-- [21. ssh](#LinuxNotes-21.ssh)
+  - [18.6. tcpDump](#186-tcpdump)
 
-  - [21.1. Common Use Cases](#LinuxNotes-21.1.CommonUseCases)
+  - [18.7. nslookup](#187-nslookup)
 
-  - [21.2. ssh config](#LinuxNotes-21.2.sshconfig)
+  - [18.8. dig](#188-dig)
 
-  - [21.3. Generating SSH Keys](#LinuxNotes-21.3.GeneratingSSHKeys)
+  - [18.9. traceroute](#189-traceroute)
 
-  - [21.4. SSH Tunnels and
-    Proxies](#LinuxNotes-21.4.SSHTunnelsandProxies)
+  - [18.10. nmap](#1810-nmap)
 
-  - [21.5. Security Tips](#LinuxNotes-21.5.SecurityTips)
+  - [18.11. Other Network Commands](#1811-other-network-commands)
 
-- [22. Terminal Multiplexers](#LinuxNotes-22.TerminalMultiplexers)
+- [19. Log Monitoring](#19-log-monitoring)
 
-  - [22.1. screen](#LinuxNotes-22.1.screen)
+- [20. ssh](#20-ssh)
 
-  - [22.2. tmux](#LinuxNotes-22.2.tmux)
+  - [21.1. Common Use Cases](#211-common-use-cases)
 
-- [23. File Transfer And
-  Download](#LinuxNotes-23.FileTransferAndDownload)
+  - [21.2. ssh config](#212-ssh-config)
 
-  - [23.1. wget Command](#LinuxNotes-23.1.wgetCommand)
+  - [21.3. Generating SSH Keys](#213-generating-ssh-keys)
 
-  - [23.2. curl Command](#LinuxNotes-23.2.curlCommand)
+  - [21.4. SSH Tunnels and Proxies](#214-ssh-tunnels-and-proxies)
 
-  - [23.3. aria2c Command](#LinuxNotes-23.3.aria2cCommand)
+  - [21.5. Security Tips](#215-security-tips)
 
-  - [23.4. scp Command](#LinuxNotes-23.4.scpCommand)
+- [21. Terminal Multiplexers](#21-terminal-multiplexers)
 
-  - [23.5. rsync Command](#LinuxNotes-23.5.rsyncCommand)
+  - [22.1. screen](#221-screen)
 
-- [24. Package Managers](#LinuxNotes-24.PackageManagers)
+  - [22.2. tmux](#222-tmux)
 
-  - [24.1. Ubuntu/Debian](#LinuxNotes-24.1.Ubuntu/Debian)
+- [22. File Transfer And Download](#22-file-transfer-and-download)
 
-  - [24.2. Fedora/RHEL/CentOS](#LinuxNotes-24.2.Fedora/RHEL/CentOS)
+  - [23.1. wget Command](#231-wget-command)
 
-- [25. Other Important Commands and
-  Utils](#LinuxNotes-25.OtherImportantCommandsand)
+  - [23.2. curl Command](#232-curl-command)
 
-  - [25.1. date Command](#LinuxNotes-25.1.dateCommand)
+  - [23.3. aria2c Command](#233-aria2c-command)
 
-  - [25.2. timedatectl Command](#LinuxNotes-25.2.timedatectlCommand)
+  - [23.4. scp Command](#234-scp-command)
 
-  - [25.3. bc Command](#LinuxNotes-25.3.bcCommand)
+  - [23.5. rsync Command](#235-rsync-command)
 
-  - [25.4. cal Command](#LinuxNotes-25.4.calCommand)
+- [23. Package Managers](#23-package-managers)
 
-  - [25.5. script Command](#LinuxNotes-25.5.scriptCommand)
+  - [23.1. Ubuntu/Debian](#231-ubuntudebian)
 
-- [26. tuned service](#LinuxNotes-26.tunedservice)
+  - [23.2. Fedora/RHEL/CentOS](#232-fedorarhelcentos)
 
-- [27. System Security](#LinuxNotes-27.SystemSecurity)
+- [24. tuned service](#24-tuned-service)
 
-  - [27.1. OS Hardening](#LinuxNotes-27.1.OSHardening)
+- [25. System Security](#25-system-security)
 
-  - [27.2. Firewall](#LinuxNotes-27.2.Firewall)
+  - [25.1. OS Hardening](#251-os-hardening)
 
-    - [27.2.1. iptables](#LinuxNotes-27.2.1.iptables)
+  - [25.2. Firewall](#252-firewall)
 
-    - [27.2.2. nftables](#LinuxNotes-27.2.2.nftables)
+    - [27.2.1. iptables](#2721-iptables)
 
-    - [27.2.3. firewalld](#LinuxNotes-27.2.3.firewalld)
+    - [27.2.2. nftables](#2722-nftables)
 
-    - [27.2.4. fail2ban](#LinuxNotes-27.2.4.fail2ban)
+    - [27.2.3. firewalld](#2723-firewalld)
 
-- [28. Swap Space](#LinuxNotes-28.SwapSpace)
+    - [27.2.4. fail2ban](#2724-fail2ban)
 
-- [29. System States](#LinuxNotes-29.SystemStates)
+- [26. Swap Space](#26-swap-space)
 
-  - [29.1. Power States](#LinuxNotes-29.1.PowerStates)
+- [27. System States](#27-system-states)
 
-  - [29.2. Run Levels](#LinuxNotes-29.2.RunLevels)
+  - [27.1. Power States](#271-power-states)
 
-- [30. Advanced Topics](#LinuxNotes-30.AdvancedTopics)
+  - [28.2. Run Levels](#282-run-levels)
 
-  - [30.1. NFS](#LinuxNotes-30.1.NFS)
+- [28. Advanced Topics](#28-advanced-topics)
 
-    - [30.1.1. How NFS Works](#LinuxNotes-30.1.1.HowNFSWorks)
+  - [28.1. NFS](#281-nfs)
 
-    - [30.1.2. Setting Up NFS](#LinuxNotes-30.1.2.SettingUpNFS)
+    - [28.1.1. How NFS Works](#2811-how-nfs-works)
 
-  - [30.2. Logical Volume Management
-    (LVM)](#LinuxNotes-30.2.LogicalVolumeManagement)
+    - [28.1.2. Setting Up NFS](#2812-setting-up-nfs)
 
-  - [30.3. SELinux](#LinuxNotes-30.3.SELinux)
+  - [28.2. Logical Volume Management (LVM)](#282-logical-volume-management-lvm)
 
-    - [30.3.1. How SELinux Works](#LinuxNotes-30.3.1.HowSELinuxWorks)
+  - [28.3. SELinux](#283-selinux)
 
-    - [30.3.2. SELinux Modes](#LinuxNotes-30.3.2.SELinuxModes)
+    - [28.3.1. How SELinux Works](#2831-how-selinux-works)
 
-    - [30.3.3. SELinux Policy
-      Types](#LinuxNotes-30.3.3.SELinuxPolicyTypes)
+    - [28.3.2. SELinux Modes](#2832-selinux-modes)
 
-    - [30.3.4. Key SELinux
-      Concepts](#LinuxNotes-30.3.4.KeySELinuxConcepts)
+    - [28.3.3. SELinux Policy Types](#2833-selinux-policy-types)
 
-    - [30.3.5. SELinux Tools](#LinuxNotes-30.3.5.SELinuxTools)
+    - [28.3.4. Key SELinux Concepts](#2834-key-selinux-concepts)
 
-  - [30.4. systemd-analyze
-    Command](#LinuxNotes-30.4.systemd-analyzeCommand)
+    - [28.3.5. SELinux Tools](#2835-selinux-tools)
 
-    - [30.4.1. Key Features](#LinuxNotes-30.4.1.KeyFeatures)
+  - [28.4. Other Advance Features/Services](#284-other-advance-featuresservices)
 
-  - [30.5. Other Advance
-    Features/Services](#LinuxNotes-30.5.OtherAdvanceFeatures/Se)
+- [29. Further Notes to read](#29-further-notes-to-read)
 
-- [31. Further Notes to read](#LinuxNotes-31.FurtherNotestoread)
+- [30. Command Index (Alphabetical)](#30-command-index-alphabetical)
+
 
 # **1. File System Structure and Description**
 
@@ -802,9 +749,34 @@ netstat -tulpn       # List ports
 - /lib64: Contains 64-bit shared libraries required by system programs
   and binaries. It is typically used on 64-bit systems.
 
-# **2. Linux File System and Permissions**
+# **2. Getting Help**
 
-## **2.1. File Types**
+- whatis \<command\> → display one-line manual page descriptions.
+
+- man \<command\> → displays detailed documentation for commands and
+  programs.
+
+- info \<command\> → Provides a more comprehensive and structured
+  documentation than man.
+
+- \<command\> --help → Many commands provide a summary of usage and
+  options with the —help flag
+
+- apropos keyword → searches for commands related to a specific keyword
+
+- which \<command\> → locates the path of an executable command
+
+- whereis \<command\> → Locates the binary, source, and manual files for
+  a command
+
+- tldr \<command\> → A simplified and community-driven manual for common
+  commands.
+
+- cheat \<command\> → Displays useful examples for commands.
+
+# **3. Linux File System and Permissions**
+
+## **3.1. File Types**
 
 In Linux, files are categorized based on their functionality and
 behavior. The first character in the output of ls -l , in the file’s
@@ -834,13 +806,13 @@ srwxr-xr-x 1 josephv 0 Dec 14 13:18 textmate-501.sock
 Note: Files that begin with a dot (.) and are hidden from regular ls
 output.
 
-## **2.2. Links**
+## **3.2. Links**
 
 Links allow multiple references to a single file or directory, enabling
 flexibility in how files are accessed and managed. Linux supports two
 main types of links:
 
-### **2.2.1. Hard link**
+### **3.2.1. Hard link**
 
 A hard link is an additional name for an existing file. Both the
 original file and its hard link point to the same inode (the data
@@ -862,7 +834,7 @@ file does not delete the data as long as at least one hard link exists.
 
 - ls -li : → list inode-number of a files
 
-### **2.2.2. Soft Link**
+### **3.2.2. Soft Link**
 
 A soft link (aka symbolic link) is a shortcut or pointer to another file
 or directory. It is a separate file containing the path to the target
@@ -879,9 +851,9 @@ if the target is deleted, the soft link becomes broken (dangling).
 
   - Soft links are distinct files and have their own inodes.
 
-## **2.3. File Permissions**
+## **3.3. File Permissions**
 
-### 2.3.1. Standard Permissions
+### 3.3.1. Standard Permissions
 
 Control who can access and perform specific operations on files and
 directories
@@ -924,7 +896,7 @@ directories
 
     - 7 rwx Read + Write + Execute
 
-### 2.3.2. umask
+### 3.3.2. umask
 
 The umask command in Linux is used to control the default permissions
 for new files and directories created by the user. It specifies the
@@ -949,7 +921,7 @@ default system-wide permissions.
 
 - echo "umask 0022" \>\> ~/.zshrc → for permanent change
 
-### 2.3.3. Special Permissions
+### 3.3.3. Special Permissions
 
 - setuid (s on owner)
 
@@ -1041,7 +1013,7 @@ drwxrwxrwt 10 root root 4096 Jan 4 10:00 /tmp
     the interpreter (e.g., /bin/bash), which runs with the privileges of
     the user who invoked the script.
 
-### **2.3.4. Access Control List (ACLs)**
+### **3.3.4. Access Control List (ACLs)**
 
 Advanced mechanism for specifying permissions on files and directories
 beyond the standard user, group, and others model. They allow
@@ -1070,7 +1042,7 @@ or groups on the same file or directory.
 
 - setfacl -b /path/to/file → Removes all entries
 
-### **2.3.5. Changing Ownership**
+### **3.3.5. Changing Ownership**
 
 Ownership of files and directories can be modified using the chown and
 chgrp commands.
@@ -1084,11 +1056,11 @@ chgrp commands.
 **Note:** the user will need to login again after creation of a new
 group
 
-# **3. Essential File Management Commands**
+# **4. Essential File Management Commands**
 
-## **3.1. File and Directory Operations**
+## **4.1. File and Directory Operations**
 
-### 3.1.1. ls Command
+### 4.1.1. ls Command
 
 used to list files and directories within a file system. It is one of
 the most frequently used commands for navigating and managing files in a
@@ -1126,7 +1098,7 @@ terminal.
 
 - ls --color - enables color coding to distinguish between file types
 
-### 3.1.2. cd Command
+### 4.1.2. cd Command
 
 used to navigate between directories in Linux.
 
@@ -1144,7 +1116,7 @@ used to navigate between directories in Linux.
 
 - cd ../.. → move two levels up
 
-### 3.1.3. cp Command
+### 4.1.3. cp Command
 
 Duplicate file contents from a source to a destination
 
@@ -1177,7 +1149,7 @@ Duplicate file contents from a source to a destination
 - cp -a dir1 /path/to/destination/ → copy a directory while preserving
   attributes
 
-### 3.1.4. rm Command
+### 4.1.4. rm Command
 
 Remove files, directories, and symbolic links permanently without moving
 them to a trash or recycle bin
@@ -1199,7 +1171,7 @@ them to a trash or recycle bin
 
 - rm -rf /path/to/directory → remove a directory that is not empty (⚠️ EXTREMELY DANGEROUS)
 
-### 3.1.5. mv Command
+### 4.1.5. mv Command
 
 Move files and directories from one location to another or to rename
 them
@@ -1225,7 +1197,7 @@ them
 
 - mv !(\*.txt) /destination/ → move all files except a specific type
 
-### 3.1.6. mkdir Command
+### 4.1.6. mkdir Command
 
 Create directories
 
@@ -1242,7 +1214,7 @@ Create directories
 Note: New directory inherits the permissions of the parent directory,
 unless specified with -m.
 
-### 3.1.7. rmdir Command
+### 4.1.7. rmdir Command
 
 Remove empty directories. It is a simple and safe utility, as it will
 not delete a directory unless it is completely empty.
@@ -1253,7 +1225,7 @@ not delete a directory unless it is completely empty.
 - rmdir -p path/to/directory1 path/to/directory2 → remove specific
   directories recursively
 
-### 3.1.8. file Command
+### 4.1.8. file Command
 
 Determine the type of a file. It analyzes the file’s content, rather
 than just relying on its extension, to provide an accurate description
@@ -1273,7 +1245,7 @@ of the file type.
 If the file doesn’t match any patterns in the magic database, the result
 may be vague (e.g., “data”).
 
-### 3.1.9. tree Command
+### 4.1.9. tree Command
 
 Display the structure of directories and files in a hierarchical
 tree-like format. It’s a helpful utility for visualizing directory
@@ -1293,7 +1265,7 @@ contents, especially when dealing with complex structures.
 
 - tree -I "node_modules\|\*.log" → exclude specific files or directories
 
-### 3.1.10. truncate Command
+### 4.1.10. truncate Command
 
 used to shrink or extend the size of a file to a specified length. It
 can create empty files or modify the size of existing ones without
@@ -1311,7 +1283,7 @@ permanently lost.
 - truncate -s 0 file.txt → clears the content in a file but the file
   still exists
 
-### 3.1.11. split Command
+### 4.1.11. split Command
 
 used to split large files into smaller chunks or pieces. This is
 especially useful when working with very large files that need to be
@@ -1341,7 +1313,7 @@ divided into manageable sizes for easier handling, storage, or transfer.
 - cat x\* \> reassembled_file → To reassemble split files back into the
   original file.
 
-### 3.1.12. pwd Command
+### 4.1.12. pwd Command
 
 Display the absolute path of the current directory in which the user is
 working
@@ -1351,7 +1323,7 @@ working
 - pwd -P → print the current directory, and resolve all symlinks (i.e.
   show the "physical" path)
 
-### 3.1.13. stat Command
+### 4.1.13. stat Command
 
 Display detailed information about a file or file system. Unlike
 commands like ls, which provide basic information, stat offers
@@ -1368,9 +1340,9 @@ ownership, and file permissions.
 - stat --printf="File Size: %s bytes\nAccess Time: %x\n" example.txt →
   custom output formatting
 
-## **3.2. Viewing and Processing File Contents**
+## **4.2. Viewing and Processing File Contents**
 
-### 3.2.1. cat Command
+### 4.2.1. cat Command
 
 view, create, concatenate, and manipulate files
 
@@ -1392,7 +1364,7 @@ view, create, concatenate, and manipulate files
 - cat -n /path/to/file/-\> print the contents of a file with line
   numbers
 
-### 3.2.2. tac Command
+### 4.2.2. tac Command
 
 Reverse of the cat command. It reads files line by line but outputs them
 in reverse order, displaying the last line first and the first line
@@ -1408,7 +1380,7 @@ last.
 - tac -r -s "\[0-9\]+" file.txt → Use regular expression as a separator;
   in this case treats any numeric sequence as the separator
 
-### 3.2.3. more and less Commands
+### 4.2.3. more and less Commands
 
 View the contents of a file or output one screen at a time. less is more
 powerful than more.
@@ -1437,7 +1409,7 @@ powerful than more.
 
   - q → quit
 
-### 3.2.4. head Command
+### 4.2.4. head Command
 
 used to display the first few lines of a file
 
@@ -1445,7 +1417,7 @@ used to display the first few lines of a file
 
 - head -n 5 file.txt → display the first 5 lines
 
-### 3.2.5. tail Command
+### 4.2.5. tail Command
 
 used to display the last few lines of a file.
 
@@ -1455,7 +1427,7 @@ used to display the last few lines of a file.
 
 - tail -f file.txt → monitor a file in real-time.
 
-### 3.2.6. wc Command
+### 4.2.6. wc Command
 
 stands for **word count**. It is used to count and display information
 about a file or input, such as the number of lines, words, characters,
@@ -1473,9 +1445,9 @@ or bytes.
 
 - wc -L lorem.txt → Display the length of the longest line.
 
-## **3.3. Finding files**
+## **4.3. Finding files**
 
-### **3.3.1. find Command**
+### **4.3.1. find Command**
 
 search for files and directories within the filesystem based on various
 criteria such as name, type, size, modification time, and permissions.
@@ -1520,7 +1492,7 @@ the filesystem directly.
 - find /path/to/start -type d -user username → find directories owned by
   a specific user
 
-### 3.3.2. locate Command
+### 4.3.2. locate Command
 
 quickly find files and directories by searching a pre-built database of
 file paths typically /var/lib/mlocate/mlocate.db, which contains a
@@ -1547,31 +1519,6 @@ nearly instantaneous because it queries the pre-built database.
 
   - The database may not include paths you don’t have permission to
     access. Run sudo locate for a broader search.
-
-# **4. Getting Help**
-
-- whatis \<command\> → display one-line manual page descriptions.
-
-- man \<command\> → displays detailed documentation for commands and
-  programs.
-
-- info \<command\> → Provides a more comprehensive and structured
-  documentation than man.
-
-- \<command\> --help → Many commands provide a summary of usage and
-  options with the —help flag
-
-- apropos keyword → searches for commands related to a specific keyword
-
-- which \<command\> → locates the path of an executable command
-
-- whereis \<command\> → Locates the binary, source, and manual files for
-  a command
-
-- tldr \<command\> → A simplified and community-driven manual for common
-  commands.
-
-- cheat \<command\> → Displays useful examples for commands.
 
 # **5. Important command-line features**
 
@@ -1807,7 +1754,7 @@ command or **Ctrl + R** again to search for the next match.
 manipulate and analyze structured text data. It processes input line by
 line and operates based on patterns and actions.
 
-**Built-in Variables**
+#### Built-in Variables
 
 - NR Current record number (line number).
 
@@ -1821,7 +1768,7 @@ line and operates based on patterns and actions.
 
 - ORS Output record separator (default: newline).
 
-**Common Use Cases**
+#### Common Use Cases
 
 - awk '{print \$1, \$3}' file.txt → Prints the 1st and 3rd fields from
   each line of file.txt
@@ -1910,7 +1857,7 @@ expressions) in files or streams and prints matching lines.
 
 - grep -C10 keyword file → show 10 lines before and after a match
 
-**grep vs egrep**
+#### grep vs egrep
 
 - grep: Pattern Type: Basic Regular Expressions (BRE).In BRE, some
   special characters (like ?, +, {}, \|, ()) need to be escaped with a
@@ -2091,7 +2038,7 @@ make file transfers more efficient.
 | zip | .zip | Archives and compresses together |
 | tar | .tar, .tar.gz, .tar.bz2 | Combines multiple files into one archive; works with compression |
 
-**Essential Commands**
+#### Essential Commands
 
 - gzip
 
@@ -2864,7 +2811,7 @@ WantedBy=timers.target
 
 - sudo systemctl status myscript.timer → verify the timer is running
 
-**Useful Timer Directives**
+#### Useful Timer Directives
 
 Here are some useful timer directives you can use in the \[Timer\]
 section:
@@ -2968,6 +2915,45 @@ ExecStart=/bin/bash /path/to/backup.sh
 - **Creating a Systemd Scope \***
 
 - **Creating a Systemd Device \***
+
+## 10.9. systemd-analyze Command
+
+The systemd-analyze command is a diagnostic and troubleshooting tool
+provided by the **systemd** init system. It is primarily used to analyze
+and optimize the Linux boot process, but it also provides insights into
+system performance related to services and dependencies.
+
+### 10.9.1. Key Features
+
+- systemd-analyze → Displays the time taken by each stage of the boot
+  process, including:
+
+  - **Firmware** initialization (BIOS/UEFI)
+
+  - **Kernel** initialization.
+
+  - **Initrd** (Initial RAM Disk) setup.
+
+  - Startup of **services** and units.
+
+- systemd-analyze plot \> boot-process.svg → Creates a graphical
+  visualization of the boot process. Useful for identifying slow
+  services or units.
+
+- systemd-analyze critical-chain → Displays a timeline of the most
+  time-consuming units during boot, arranged in a critical chain.
+
+- systemd-analyze blame → Lists all services and units that were started
+  during boot, sorted by the time they took to start.
+
+- systemd-analyze verify /lib/systemd/system/ssh.service → Checks unit
+  files for syntax and configuration errors.
+
+- systemd-analyze dot network.target \| dot -Tsvg \> dependencies.svg →
+  Displays the dependency tree of a specific unit.
+
+- systemd-analyze security sshd.service → Analyzes the security
+  hardening features of a specific service.
 
 # 11. Process Management
 
@@ -3190,7 +3176,7 @@ You can use predefined strings for common schedules:
 - \* \* \* \* \* /path/to/script.sh \> /path/to/logfile 2\>&1 → redirect
   output to a file for debugging
 
-### 12.1.5. Crontab File Format:
+### 12.1.5. Crontab File Format
 
 A crontab file consists of **fields** specifying the schedule followed
 by the command to be executed:
@@ -3679,7 +3665,7 @@ commands, making them shorter or easier to remember.
 
 ## 13.7. Managing Jobs in a Shell
 
-**Ctrl+Z, bg, fg, jobs, nohup, disown**
+#### Ctrl+Z, bg, fg, jobs, nohup, disown
 
 The Ctrl+Z, bg, and fg commands in Linux are used for managing jobs in
 the shell. They allow you to pause, background, or bring jobs to the
@@ -3784,8 +3770,83 @@ the shell is closed or the user logs out.
 
   - Used after a job is already running.
 
-  - Removes the process from the shell’s job table, optionally marking
+  - Removes the process from the shell's job table, optionally marking
     it immune to SIGHUP.
+
+## 13.8. script Command
+
+Used to record a terminal session. It captures all input and output
+displayed in the terminal during the session and saves it to a file.
+This can be useful for logging commands, debugging, documenting
+processes, or sharing terminal sessions with others.
+
+- script session.log → start recording to a file
+
+- script -a session.log → append to an existing file
+
+- script -c "ls -l" session.log → record the output of a command
+
+- script -f session.log → writes the output to the file immediately,
+  rather than buffering it.
+
+- exit or Ctrl+D→ exit script
+
+## 13.9. Environment Variables
+
+Environment variables are dynamic values that the operating system and
+applications use to store system-wide or session-specific settings.
+These variables influence the behavior of processes running on a system
+by providing configuration details, such as paths to directories,
+usernames, system settings, or application-specific parameters.
+
+Common Environment Variables:
+
+- PATH: Defines directories where executable programs are located.
+
+- HOME: Indicates the user's home directory.
+
+- USER: Stores the username of the current user.
+
+- SHELL: Specifies the default shell for the user (e.g., /bin/bash).
+
+- LANG: Sets the language and locale for the system.
+
+- PWD: Contains the current working directory.
+
+- OLDPWD: Stores the previous working directory.
+
+- TERM: Defines the terminal type (e.g., xterm, linux).
+
+- EDITOR: Specifies the default text editor (e.g., vim, nano).
+
+- LOGNAME: Stores the user's login name.
+
+- HOSTNAME: Contains the system's hostname.
+
+Common Use Cases:
+
+- printenv or env → list all variables
+
+- echo \$VARIABLE_NAME → view a specific variable
+
+- temporary definition and export a variable for a shell
+
+  - VARIABLE_NAME=value && export VARIABLE_NAME
+
+- persistent definition (for all sessions)
+
+  - Add the variable to one of the following files:
+
+  - User-Specific: ~/.bashrc, ~/.bash_profile, or ~/.zshrc.
+
+  - System-wide: /etc/environment, /etc/profile, or /etc/bash.bashrc.
+
+- export PATH=\$PATH:/new/directory→ Append to a variable
+
+- export PATH=/new/directory:\$PATH → prepend to a variable
+
+- unset VARIABLE_NAME → unsetting variable; removing from the current
+  session
 
 # 14. Terminal
 
@@ -3839,7 +3900,7 @@ how Linux handles terminals and sessions.
 
     - Screen or tmux sessions.
 
-**Commands**
+#### Commands
 
 - tty → command to identify the current terminal
 
@@ -4006,7 +4067,7 @@ Used to access files over a network.
 
 Linux supports file systems from other operating systems
 
-### 15.4.1. FAT32 (vfat):
+### 15.4.1. FAT32 (vfat)
 
 - Common on USB drives, SD cards, and older Windows systems.
 
@@ -4014,7 +4075,7 @@ Linux supports file systems from other operating systems
 
 - Linux Driver: vfat.
 
-### 15.4.2. exFAT:
+### 15.4.2. exFAT
 
 - Designed for flash storage with no 4 GB file size limit.
 
@@ -4022,19 +4083,19 @@ Linux supports file systems from other operating systems
 
 - Linux Driver: exfat or kernel-native exfat module (since Linux 5.4).
 
-### 15.4.3. HFS (Hierarchical File System):
+### 15.4.3. HFS (Hierarchical File System)
 
 - Legacy macOS file system.
 
 - Linux Driver: hfs.
 
-### 15.4.4. HFS+ (HFS Plus):
+### 15.4.4. HFS+ (HFS Plus)
 
 - Main file system for macOS before APFS.
 
 - Linux Driver: hfsplus.
 
-### 15.4.5. APFS (Apple File System):
+### 15.4.5. APFS (Apple File System)
 
 - Current macOS file system, designed for SSDs.
 
@@ -4053,7 +4114,7 @@ individual files and directories.
 Running du without any options displays the disk usage of all
 directories and subdirectories starting from the current directory.
 
-**Options**
+#### Options
 
 - du -h → display sizes in a human-readable format (eg: KB, MB, GB, TB)
 
@@ -4069,7 +4130,7 @@ directories and subdirectories starting from the current directory.
 
 - du --exclude=PATTERN → exclude files matching a specific pattern
 
-**Common Use Cases**
+#### Common Use Cases
 
 - du -h --max-depth=1 --exclude="./Library" \| sort -h → identify large
   directories
@@ -4086,7 +4147,7 @@ The df command in Linux is used to report the amount of disk space
 available on file systems. It displays information about the total
 space, used space, and available space for each mounted file system.
 
-**Key Columns in the Output**
+#### Key Columns in the Output
 
 | Column     | Description                                                |
 |------------|------------------------------------------------------------|
@@ -4132,7 +4193,7 @@ It supports a variety of partition table formats, including the MBR
 > - Wrong partition changes can make your system unbootable
 > - Verify device names with `lsblk` before proceeding
 
-**Common Uses**
+#### Common Uses
 
 - Viewing the partition table of a disk.
 
@@ -4144,7 +4205,7 @@ It supports a variety of partition table formats, including the MBR
 
 - Writing changes to the disk.
 
-**Basic Commands within fdisk Interactive Mode**
+#### Basic Commands within fdisk Interactive Mode
 
 Once you enter the interactive mode by running fdisk /dev/sdX (where
 /dev/sdX is your disk), you can use the following commands:
@@ -4163,7 +4224,7 @@ Once you enter the interactive mode by running fdisk /dev/sdX (where
 
 - q → Quit without saving changes.
 
-**Precautions**
+#### Precautions
 
 - Always back up your data before making changes to disk partitions.
 
@@ -4190,7 +4251,7 @@ mkfs.xfs , mkfs.vfat, etc.
 > - Creating a filesystem on the wrong device can destroy your OS
 > - Never run mkfs on a mounted filesystem
 
-**Examples:**
+#### Examples
 
 - mkfs.ext4 /dev/sdX1 → create an ext4 file system on /dev/sdX1
 
@@ -4212,7 +4273,7 @@ mkfs.xfs , mkfs.vfat, etc.
 
 - -b \<block-size\> → Specify block size for the file system.
 
-**Key Points**
+#### Key Points
 
 - mkfs command effectively formats the partition as part of the process
   of creating a file system.
@@ -4407,7 +4468,7 @@ Important Notes
 
   - A certain number of mounts have occurred (configurable via tune2fs).
 
-**Force fsck at boot time**
+#### Force fsck at boot time
 
 - sudo tune2fs -C 100 /dev/sdXn → -C 100: Sets the mount count to a
   value exceeding the maximum allowed mount count, forcing a check.
@@ -4450,7 +4511,7 @@ manipulating raw data.
 > - One typo can destroy all your data irreversibly
 > - NEVER run `dd` commands without understanding them completely
 
-**Basic Syntax**
+#### Basic Syntax
 
 - dd if=\<input_file\> of=\<output_file\> \[options\]
 
@@ -4459,7 +4520,7 @@ manipulating raw data.
 
 - of= Specifies the output file or device.
 
-**Common Use Cases**
+#### Common Use Cases
 
 - sudo dd if=/dev/sda of=/path/to/disk_image.img bs=4M status=progress →
   Create an exact copy (image) of a disk
@@ -4512,7 +4573,7 @@ manipulating raw data.
 - dd if=/dev/zero of=zeroed_file.txt bs=1M count=100 → create a zeroed
   file
 
-**Caution**
+#### Caution
 
 - dd can overwrite data if misused. Be very careful when specifying if
   and of options, especially with devices (/dev/sda vs /dev/sdb).
@@ -4537,7 +4598,7 @@ no file system is present.
 - Prevents accidental overwriting of important file systems by enabling
   signature management.
 
-**Examples:**
+#### Examples
 
 - wipefs /dev/sda1 → Lists all existing file system signatures on
   /dev/sda1.
@@ -4553,7 +4614,7 @@ no file system is present.
 - wipefs -a -f /dev/sda1 → Removes all file system signatures, even if
   the device is in use or mounted (use cautiously).
 
-**Use Cases**
+#### Use Cases
 
 - Remove old file system signatures to prepare a device for new
   partitions or file systems.
@@ -4563,7 +4624,7 @@ no file system is present.
 - Make a device appear as though it has no file system for testing or
   reinitialization.
 
-**Notes**
+#### Notes
 
 - Removing file system signatures with wipefs does not delete the actual
   data on the disk. However, access to the data may become difficult or
@@ -4589,7 +4650,7 @@ system, is called unmounting (done with the umount command).
 
 - View currently mounted file systems.
 
-**Useful Commands**
+#### Useful Commands
 
 - mount → Displays all currently mounted file systems.
 
@@ -4625,7 +4686,7 @@ It is consulted during boot to automatically mount file systems.
 
 - Ensures consistent mounting behavior across reboots.
 
-**Structure and Format**
+#### Structure and Format
 
 - File System: Device or remote file system to mount (e.g., /dev/sda1,
   UUID, LABEL, or network path).
@@ -4678,7 +4739,7 @@ kernel-related issues.
 - dmesg --fascility=FACILITY → Filters messages by facility (eg: kernel,
   user, daemon)
 
-**Common Use Cases**
+#### Common Use Cases
 
 - dmesg \| grep -i usb → check hardware detection after plugging a usb
   device
@@ -4690,7 +4751,7 @@ kernel-related issues.
 
 - dmesg -w → run continuously to monitor activity in real time
 
-**dmesg vs Log Files**
+#### dmesg vs Log Files
 
 - dmesg shows only kernel messages and recent activity in the kernel
   ring buffer.
@@ -4712,7 +4773,7 @@ and the CPU. It provides valuable insights into how the system’s storage
 devices and processors are being utilized, helping diagnose performance
 bottlenecks related to disk or CPU usage.
 
-**Default Behaviour**
+#### Default Behaviour
 
 - When run without options, iostat displays CPU statistics and I/O
   statistics for all devices.
@@ -4720,7 +4781,7 @@ bottlenecks related to disk or CPU usage.
 - It shows data since the system was last booted, not for the current
   moment unless you specify an interval.
 
-**Common Use Cases**
+#### Common Use Cases
 
 - iostat → show cput statistics and I/O statistics for all devices since
   boot
@@ -4746,7 +4807,7 @@ processes, paging, block I/O, traps, and CPU activity. It’s a useful
 tool for understanding the overall health of your system and diagnosing
 performance issues.
 
-**Comparison: vmstat vs iostat**
+#### Comparison: vmstat vs iostat
 
 - vmstat: Focuses on virtual memory, CPU, and system performance.
 
@@ -4758,7 +4819,7 @@ information about the system’s memory usage. It provides details about
 the total, used, free, shared, buffer/cache, and available memory on the
 system, both for physical memory (RAM) and swap space.
 
-**Common Use Cases:**
+#### Common Use Cases
 
 - free → basic memory usage
 
@@ -4788,7 +4849,7 @@ debugging system processes and file usage.
 
 - Identify resource leaks in applications.
 
-**Examples**
+#### Examples
 
 - lsof → list all open files
 
@@ -4871,6 +4932,93 @@ debugging system processes and file usage.
     version information for Red Hat-based distributions (e.g., Red Hat
     Enterprise Linux, CentOS, AlmaLinux, or Rocky Linux).
 
+## 17.7. date Command
+
+The date **command** in Linux is used to display or set the system date
+and time. It is a straightforward tool for working with time-related
+information and allows for formatting the output or modifying the system
+clock.
+
+- date → display the current date and time
+
+- date "+%Y-%m-%d" → date in custom format
+
+- date "+%H:%M:%S" → time custom format
+
+- date "+%Y-%m-%d %H:%M:%S" → full date and time in custom format
+
+- sudo date "2024-12-28 16:00:00" → set the system date and time
+
+- date -u → display the UTC time
+
+## 17.8. timedatectl Command
+
+The timedatectl command is a utility in Linux systems that allows you to
+manage and configure the system clock, time zone, and NTP (Network Time
+Protocol) synchronization. It is part of the **systemd** suite of tools,
+and is commonly used on modern Linux distributions that use systemd for
+system management.
+
+Common Commands
+
+- timedatectl → display the current date, time, time zone and NTP
+  synchronisation status
+
+- sudo timedatectl set-timezone Europe/London → change the system's time
+  zone, use the set-timezone option:
+
+- timedatectl list-timezones → list available time zones
+
+- sudo timedatectl set-ntp true → enable/disable NTP synchronisation
+
+- sudo timedatectl set-time '2024-12-28 15:00:00' → set the system clock
+  manually
+
+- sudo timedatectl set-time '2024-12-28' → set only the system date
+
+## 17.9. bc Command
+
+The bc command in Linux is a command-line calculator and a programming
+language for arithmetic operations. It supports basic arithmetic,
+advanced mathematical functions, and user-defined variables. It's
+especially useful for precision-based calculations and can handle
+operations with floating-point numbers.
+
+- bc → launch bc in interactive mode
+
+- echo "10 + 5" \| bc → perform basic arithmetic
+
+- echo "scale=3; 10/3" \| bc → set precision
+
+- echo "scale=4; sqrt(25)" \| bc -l → load the math library with -l for
+  functions like s, c, a (sine, cosine, arctangent), sqrt (square root),
+  etc.
+
+- echo "scale=2; s(3.14159/4)" \| bc -l → sine function
+
+- echo "ibase=2; 1010" \| bc → binary to decimal
+
+- echo "obase=16; 255" \| bc → decimal to hexadecimal
+
+- echo "x=5; y=10; x\*y" \| bc → use variables
+
+## 17.10. cal Command
+
+The cal command in Linux is used to display a simple calendar on the
+terminal. It's a lightweight tool that shows the current month, any
+specified month or year, and supports features like highlighting the
+current day or calculating specific calendar dates.
+
+- cal → display the current month
+
+- cal 2024 → display the specific year
+
+- cal 12 2024 → display the specific month and year
+
+- cal -3 → display three months (pervious, current, next)
+
+- cal -B 2 -A 2 → display months before and after
+
 # 18. Networking
 
 ## **18.1. netstat Command**
@@ -4884,7 +5032,7 @@ more. It is particularly useful for troubleshooting networking issues,
 monitoring network performance, and identifying open ports or active
 connections on a system.
 
-**Common Use Cases**
+#### Common Use Cases
 
 - netstat -a → Displays all active network connections, including TCP
   and UDP, in all states (LISTEN, ESTABLISHED, etc.).
@@ -4917,7 +5065,7 @@ command and is the recommended tool for inspecting network connections
 in modern Linux systems. It is part of the iproute2 package, which is
 standard on most Linux distributions.
 
-**Key Features of ss**
+#### Key Features of ss
 
 - ss is faster than netstat, as it directly retrieves data from the
   kernel, making it more efficient.
@@ -4929,7 +5077,7 @@ standard on most Linux distributions.
   listening ports, socket statistics, and even detailed per-protocol
   information.
 
-**Common Use Cases:**
+#### Common Use Cases
 
 - ss -tuln → display TCP and UDP connections that are listening, along
   with the associated program names and processID
@@ -5183,7 +5331,7 @@ details of remote devices.
 
 - for more advance use cases read manual
 
-**Use Cases**
+#### Use Cases
 
 - Discover active devices in a network.
 
@@ -5195,7 +5343,7 @@ details of remote devices.
 
 - Audit firewall rules.
 
-**Tips**
+#### Tips
 
 - Always use nmap on networks and systems you own or have explicit
   permission to scan.
@@ -5264,64 +5412,7 @@ some applications may store logs in custom locations.
 - /var/log/Xorg.0.log: Stores logs related to the X11 server, including
   display driver issues.
 
-# **20. Environment Variables**
-
-Environment variables are dynamic values that the operating system and
-applications use to store system-wide or session-specific settings.
-These variables influence the behavior of processes running on a system
-by providing configuration details, such as paths to directories,
-usernames, system settings, or application-specific parameters.
-
-Common Environment Variables:
-
-- PATH: Defines directories where executable programs are located.
-
-- HOME: Indicates the user’s home directory.
-
-- USER: Stores the username of the current user.
-
-- SHELL: Specifies the default shell for the user (e.g., /bin/bash).
-
-- LANG: Sets the language and locale for the system.
-
-- PWD: Contains the current working directory.
-
-- OLDPWD: Stores the previous working directory.
-
-- TERM: Defines the terminal type (e.g., xterm, linux).
-
-- EDITOR: Specifies the default text editor (e.g., vim, nano).
-
-- LOGNAME: Stores the user’s login name.
-
-- HOSTNAME: Contains the system’s hostname.
-
-Common Use Cases:
-
-- printenv or env → list all variables
-
-- echo \$VARIABLE_NAME → view a specific variable
-
-- temporary definition and export a variable for a shell
-
-  - VARIABLE_NAME=value && export VARIABLE_NAME
-
-- persistent definition (for all sessions)
-
-  - Add the variable to one of the following files:
-
-  - User-Specific: ~/.bashrc, ~/.bash_profile, or ~/.zshrc.
-
-  - System-wide: /etc/environment, /etc/profile, or /etc/bash.bashrc.
-
-- export PATH=\$PATH:/new/directory→ Append to a variable
-
-- export PATH=/new/directory:\$PATH → prepend to a variable
-
-- unset VARIABLE_NAME → unsetting variable; removing from the current
-  session
-
-# **21. ssh**
+# **20. ssh**
 
 A protocol and tool used to securely access and manage remote systems
 over an encrypted connection. It replaces older, insecure protocols like
@@ -5421,7 +5512,7 @@ proxy
 - Enable Firewall Rules: Restrict access to the SSH port using firewalls
   like ufw or iptables.
 
-# 22. Terminal Multiplexers
+# 21. Terminal Multiplexers
 
 ## **22.1. screen**
 
@@ -5444,7 +5535,7 @@ sessions, or multitasking in a terminal environment.
 
 - Configurable key bindings, screen titles, and session behaviors.
 
-**Common Commands**
+#### Common Commands
 
 - screen → open a new screen session
 
@@ -5520,7 +5611,7 @@ Navigating within tmux
 
 - Ctrl + b, then , → Prompts for a new name for the current window.
 
-# 23. File Transfer And Download
+# 22. File Transfer And Download
 
 ## **23.1. wget Command**
 
@@ -5652,7 +5743,7 @@ multiple segments and download them concurrently to maximize download
 speed. It is particularly useful for downloading large files, batch
 downloads, and BitTorrent seeding.
 
-**Key Features**
+#### Key Features
 
 - **Multi-Protocol Support**: HTTP, HTTPS, FTP, BitTorrent, and
   Metalink.
@@ -5808,7 +5899,7 @@ Common Examples:
 - rsync -av --exclude="\*.log" --exclude="temp/" /source/ /destination/
   → excludes files matching the \*.log and the directory /temp
 
-# **24. Package Managers**
+# **23. Package Managers**
 
 A **package manager** is a tool that simplifies the process of
 installing, upgrading, configuring, and managing software packages on a
@@ -5816,7 +5907,7 @@ system. It is an essential part of modern operating systems, especially
 Linux distributions, providing a centralized and consistent way to
 handle software.
 
-**Key Functions of Package Managers**
+#### Key Functions of Package Managers
 
 - **Install Software**: Downloads and installs software from
   repositories.
@@ -5845,7 +5936,7 @@ handle software.
 | Zypper          | openSUSE        | sudo zypper install package_name |
 | RPM             | Red Hat, CentOS | sudo rpm -ivh package_name.rpm   |
 
-## **24.1. Ubuntu/Debian**
+## **23.1. Ubuntu/Debian**
 
 **APT (Advanced Package Tool)** is a package management system used
 primarily on Debian-based Linux distributions, including **Ubuntu**,
@@ -5905,7 +5996,7 @@ Tips
 
 - Note\* : Investigate installed packages; resilio sync
 
-## **24.2. Fedora/RHEL/CentOS**
+## **23.2. Fedora/RHEL/CentOS**
 
 DNF (Dandified Yum) is the next-generation package manager for RPM-based
 Linux distributions, such as Fedora, RHEL (Red Hat Enterprise Linux),
@@ -5938,114 +6029,7 @@ Common Commands
 
 - dnf history Displays the history of DNF transactions.
 
-# **25. Other Important Commands and Utils**
-
-## **25.1. date Command**
-
-The date **command** in Linux is used to display or set the system date
-and time. It is a straightforward tool for working with time-related
-information and allows for formatting the output or modifying the system
-clock.
-
-- date → display the current date and time
-
-- date "+%Y-%m-%d" → date in custom format
-
-- date "+%H:%M:%S" → time custom format
-
-- date "+%Y-%m-%d %H:%M:%S" → full date and time in custom format
-
-- sudo date "2024-12-28 16:00:00" → set the system date and time
-
-- date -u → display the UTC time
-
-## **25.2. timedatectl Command**
-
-The timedatectl command is a utility in Linux systems that allows you to
-manage and configure the system clock, time zone, and NTP (Network Time
-Protocol) synchronization. It is part of the **systemd** suite of tools,
-and is commonly used on modern Linux distributions that use systemd for
-system management.
-
-Common Commands
-
-- timedatectl → display the current date, time, time zone and NTP
-  synchronisation status
-
-- sudo timedatectl set-timezone Europe/London → change the system’s time
-  zone, use the set-timezone option:
-
-- timedatectl list-timezones → list available time zones
-
-- sudo timedatectl set-ntp true → enable/disable NTP synchronisation
-
-- sudo timedatectl set-time '2024-12-28 15:00:00' → set the system clock
-  manually
-
-- sudo timedatectl set-time '2024-12-28' → set only the system date
-
-## **25.3. bc Command**
-
-The bc command in Linux is a command-line calculator and a programming
-language for arithmetic operations. It supports basic arithmetic,
-advanced mathematical functions, and user-defined variables. It’s
-especially useful for precision-based calculations and can handle
-operations with floating-point numbers.
-
-- bc → launch bc in interactive mode
-
-- echo "10 + 5" \| bc → perform basic arithmetic
-
-- echo "scale=3; 10/3" \| bc → set precision
-
-- echo "scale=4; sqrt(25)" \| bc -l → load the math library with -l for
-  functions like s, c, a (sine, cosine, arctangent), sqrt (square root),
-  etc.
-
-- echo "scale=2; s(3.14159/4)" \| bc -l → sine function
-
-- echo "ibase=2; 1010" \| bc → binary to decimal
-
-- echo "obase=16; 255" \| bc → decimal to hexadecimal
-
-- echo "x=5; y=10; x\*y" \| bc → use variables
-
-## 25.4. cal Command
-
-The cal command in Linux is used to display a simple calendar on the
-terminal. It’s a lightweight tool that shows the current month, any
-specified month or year, and supports features like highlighting the
-current day or calculating specific calendar dates.
-
-- cal → display the current month
-
-- cal 2024 → display the specific year
-
-- cal 12 2024 → display the specific month and year
-
-- cal -3 → display three months (pervious, current, next)
-
-- cal -B 2 -A 2 → display months before and after
-
-## 25.5. script Command
-
-Used to record a terminal session. It captures all input and output
-displayed in the terminal during the session and saves it to a file.
-This can be useful for logging commands, debugging, documenting
-processes, or sharing terminal sessions with others.
-
-- script session.log → start recording to a file
-
-- script -a session.log → append to an existing file
-
-- script -c "ls -l" session.log → record the output of a command
-
-- script -f session.log → writes the output to the file immediately,
-  rather than buffering it.
-
-- exit or Ctrl+D→ exit script
-
-# **26. tuned service**
+# **24. tuned service**
 
 **Tuned** is a Linux daemon and a collection of tools designed to
 optimize and manage system performance profiles dynamically. It adjusts
@@ -6074,7 +6058,7 @@ system components.
 - **Monitoring and Adaptive Optimization**: Monitors hardware usage and
   applies adjustments in real-time to match the workload.
 
-**Basic Commands**
+#### Basic Commands
 
 - tuned-adm active → Displays the currently active profile.
 
@@ -6093,9 +6077,9 @@ system components.
 - Create custom profile in sudo vi /etc/tuned/my-profile/tuned.conf and
   activate it using tuned-adm profile my-profile
 
-# **27. System Security**
+# **25. System Security**
 
-## **27.1. OS Hardening**
+## **25.1. OS Hardening**
 
 **OS Hardening** refers to the process of securing an operating system
 by reducing its attack surface and minimising vulnerabilities. This is
@@ -6233,7 +6217,7 @@ potential threats.
 
 > sudo lynis audit system
 
-## 27.2. Firewall
+## 25.2. Firewall
 
 A **firewall** is a security system designed to monitor, filter, and
 control incoming and outgoing network traffic based on predetermined
@@ -6241,7 +6225,7 @@ security rules. Its primary purpose is to protect computers, servers,
 and networks from unauthorized access, cyberattacks, and other security
 threats while allowing legitimate communication.
 
-**Types of Firewalls**
+#### Types of Firewalls
 
 - **Network Firewalls**: Protect entire networks by filtering traffic at
   the network perimeter. Typically hardware-based or software running on
@@ -6254,7 +6238,7 @@ threats while allowing legitimate communication.
 - **Cloud Firewalls**: Offered by cloud providers to secure virtual
   infrastructure in cloud environments.
 
-**How Firewalls Work**
+#### How Firewalls Work
 
 Firewalls act as gatekeepers that enforce a set of rules to determine
 whether to **allow** or **block** traffic. These rules are based on
@@ -6269,7 +6253,7 @@ factors such as:
 
 - **Traffic Direction**: Specify rules for inbound or outbound traffic.
 
-**Firewall Techniques**
+#### Firewall Techniques
 
 - **Packet Filtering**: Examines individual packets of data for
   source/destination IPs, ports, and protocols. Basic and efficient but
@@ -6286,7 +6270,7 @@ factors such as:
   deep packet inspection, intrusion detection/prevention, and
   application awareness.
 
-**Common Firewall Tools in Linux**
+#### Common Firewall Tools in Linux
 
 - iptables → a command-line utility for managing Netfliter, a packet
   filtering framework in the Linux kernel.
@@ -6365,7 +6349,7 @@ control over network traffic.
 
     - **LOG**: Log the packet details.
 
-**Basic Commands**
+#### Basic Commands
 
 - sudo iptables -L -v → view current rules
 
@@ -6398,7 +6382,7 @@ Introduced in Linux kernel 3.13 (2014), nftables improves performance,
 scalability, and usability over iptables, while retaining backward
 compatibility through translation layers like iptables-nft.
 
-**Key Features**
+#### Key Features
 
 - **Unified Framework**:
 
@@ -6429,7 +6413,7 @@ compatibility through translation layers like iptables-nft.
   - Allows tracking and filtering based on the state of connections
     (e.g., NEW, ESTABLISHED, INVALID).
 
-**Basic Structure**
+#### Basic Structure
 
 - **Tables**:
 
@@ -6460,7 +6444,7 @@ compatibility through translation layers like iptables-nft.
   - Allow grouping of multiple values (e.g., IP addresses, ports) to
     simplify rules.
 
-**Basic Commands**
+#### Basic Commands
 
 - sudo nft list ruleset view rules
 
@@ -6481,7 +6465,7 @@ compatibility through translation layers like iptables-nft.
 - iptables-save \| iptables-translate \> rules.nft && nft -f rules.nft →
   convert existing iptables rules to nftables sysntax
 
-**Advantages of nftables over iptables**
+#### Advantages of nftables over iptables
 
 - **Simpler Syntax**:
 
@@ -6553,7 +6537,7 @@ distributions such as Fedora, CentOS, and RHEL.
   - Supports advanced rules like port forwarding, masquerading, and
     custom chains.
 
-**Basic Commands**
+#### Basic Commands
 
 - sudo firewall-cmd --get-active-zones → view active zones
 
@@ -6588,7 +6572,7 @@ distributions such as Fedora, CentOS, and RHEL.
   firewall-cmd --reload → add a rule to allow traffic from a specific
   IP.
 
-**Configuration Files**
+#### Configuration Files
 
 Firewalld stores its configuration files under /etc/firewalld/. Key
 directories include:
@@ -6614,7 +6598,7 @@ or nftables) to temporarily or permanently block offending IP addresses.
 It is highly configurable, lightweight, and can protect various
 services, including SSH, web servers, FTP servers, and more.
 
-**How Does Fail2Ban Work?**
+#### How Does Fail2Ban Work?
 
 - **Monitoring Logs**:
 
@@ -6638,7 +6622,7 @@ services, including SSH, web servers, FTP servers, and more.
   - Offending IP addresses are banned for a configurable period. Bans
     can also be made permanent if needed.
 
-**Features of Fail2Ban**
+#### Features of Fail2Ban
 
 - **Automatic Banning**:
 
@@ -6670,14 +6654,14 @@ services, including SSH, web servers, FTP servers, and more.
 
   - Works seamlessly with iptables, nftables, and other firewalls.
 
-**Basic Configuration**
+#### Basic Configuration
 
 - Default configuration: /etc/fail2ban/jail.conf
 
 - It’s recommended to create a local copy to override defaults:
   /etc/fail2ban/jail.local
 
-# 28. Swap Space
+# 26. Swap Space
 
 **Swap space** in Linux is a dedicated area on a storage device (disk or
 SSD) that acts as virtual memory. When the system’s physical RAM (Random
@@ -6686,7 +6670,7 @@ data from RAM to the swap space to free up RAM for active processes.
 This helps maintain system stability and prevents programs from crashing
 when memory is insufficient.
 
-**Types of Swap Space**
+#### Types of Swap Space
 
 - **Swap Partition**:
 
@@ -6702,7 +6686,7 @@ when memory is insufficient.
   - Useful for systems where creating a separate partition is not
     feasible.
 
-**Comparison Table**
+#### Comparison Table
 
 | **Aspect** | **Swap Partition** | **Swap Space** |
 |----|----|----|
@@ -6714,7 +6698,7 @@ when memory is insufficient.
 | Risk of Deletion | Very low | Can be accidentally deleted or moved |
 | Disk Space Utilisation | Potentially wastes space | More efficient use of disk space |
 
-**Advantages of Swap Space**
+#### Advantages of Swap Space
 
 - **Memory Management**: Acts as an overflow for RAM, preventing “out of
   memory” errors.
@@ -6725,7 +6709,7 @@ when memory is insufficient.
 - **Hibernate Support**: Swap is used to store the contents of RAM when
   the system is put into hibernation.
 
-**How Much Swap Space Should You Allocate?**
+#### How Much Swap Space Should You Allocate?
 
 - For systems with **less than 2 GB RAM**: Swap should be at least equal
   to RAM.
@@ -6735,7 +6719,7 @@ when memory is insufficient.
 - For systems with **more than 8 GB RAM**: Swap is often minimal (2-4
   GB), unless hibernation is used.
 
-**Configuring Swap Space**
+#### Configuring Swap Space
 
 - swapon --show && free -h → check existing swap space
 
@@ -6769,7 +6753,7 @@ when memory is insufficient.
 
   - /swapfile none swap sw 0 0 → for swapfile
 
-**Adjusting the Swappiness**
+#### Adjusting the Swappiness
 
 - Swappiness determines how aggressively the kernel swaps. Value ranges
   from 0 (minimum swapping) to 100 (maximum swapping).
@@ -6797,9 +6781,9 @@ when memory is insufficient.
   default priority value based on the order in which the swap spaces are
   activated.
 
-# **29. System States**
+# **27. System States**
 
-## 29.1. Power States
+## 27.1. Power States
 
 - shutdown: Gracefully shuts down or reboots the system after notifying
   logged-in users and processes.
@@ -6836,7 +6820,7 @@ when memory is insufficient.
 
   - sudo systemctl halt
 
-## **29.2. Run Levels**
+## **28.2. Run Levels**
 
 System run levels in Linux (and Unix-like operating systems) are
 predefined states that a system can operate in. Each run level
@@ -6849,7 +6833,7 @@ replaced the concept of “run levels” with **targets**. Despite this, the
 term “run level” is still used for historical and conceptual
 understanding.
 
-**Traditional Run Levels**
+#### Traditional Run Levels
 
 - sudo init 0 → system halt (shutdown)
 
@@ -6867,7 +6851,7 @@ understanding.
 
 - sudo init 6 → reboot
 
-**Run Levels in systemd**
+#### Run Levels in systemd
 
 With **systemd**, the concept of run levels is replaced by **targets**,
 which are more flexible and descriptive. Targets achieve similar goals
@@ -6883,7 +6867,7 @@ as run levels but are not limited to numerical values.
 
 - reboot.target → reboot the system
 
-**Commands**
+#### Commands
 
 - systemctl get-default → view the current target (run-level)
 
@@ -6894,16 +6878,16 @@ as run levels but are not limited to numerical values.
 
 - systemctl list-units --type=target → list available targets
 
-# **30. Advanced Topics**
+# **28. Advanced Topics**
 
-## **30.1. NFS**
+## **28.1. NFS**
 
 **Network File System (NFS)** is a distributed file system protocol that
 allows users to access files over a network as if they were located on
 their local system. It enables seamless file sharing and resource access
 between systems in a network.
 
-### **30.1.1. How NFS Works**
+### **28.1.1. How NFS Works**
 
 - **NFS Server**: Exports directories over the network.
 
@@ -6916,7 +6900,7 @@ between systems in a network.
 - **RPC (Remote Procedure Call)**: NFS relies on RPC mechanisms to
   manage requests.
 
-### **30.1.2. Setting Up NFS**
+### **28.1.2. Setting Up NFS**
 
 - On the server
 
@@ -6971,14 +6955,14 @@ between systems in a network.
 
 - Securing NFS\* - TBD
 
-## 30.2. Logical Volume Management (LVM)
+## 28.2. Logical Volume Management (LVM)
 
 **Logical Volume Management (LVM)** is a system for managing disk
 storage that provides flexibility, scalability, and ease of use compared
 to traditional partitioning methods. LVM allows you to create, resize,
 and manage logical volumes abstracted from physical storage devices.
 
-## 30.3. SELinux
+## 28.3. SELinux
 
 **SELinux (Security-Enhanced Linux)** is a security architecture
 integrated into the Linux kernel that provides **mandatory access
@@ -6987,7 +6971,7 @@ to enforce stricter control over processes, users, and applications,
 preventing unauthorized access and mitigating the impact of
 vulnerabilities.
 
-### **30.3.1. How SELinux Works**
+### **28.3.1. How SELinux Works**
 
 - **Traditional Linux Permissions:**
 
@@ -7005,7 +6989,7 @@ vulnerabilities.
   - Policies are enforced system-wide and cannot be overridden by
     regular users.
 
-### **30.3.2. SELinux Modes**
+### **28.3.2. SELinux Modes**
 
 - **Enforcing (default in most distributions):**
 
@@ -7027,7 +7011,7 @@ vulnerabilities.
 
   - Not recommended as it removes the security benefits of SELinux.
 
-### **30.3.3. SELinux Policy Types**
+### **28.3.3. SELinux Policy Types**
 
 - **Targeted Policy (default):**
 
@@ -7042,7 +7026,7 @@ vulnerabilities.
 
   - Provides the highest level of security but is harder to manage.
 
-### **30.3.4. Key SELinux Concepts**
+### **28.3.4. Key SELinux Concepts**
 
 - **Labels (Contexts):**
 
@@ -7080,7 +7064,7 @@ vulnerabilities.
 
   - Written in SELinux policy language and compiled into binary format.
 
-### **30.3.5. SELinux Tools**
+### **28.3.5. SELinux Tools**
 
 - sestatus → check the status
 
@@ -7115,46 +7099,7 @@ vulnerabilities.
 
 - getsebool -a → listing SELinux Booleans
 
-## **30.4. systemd-analyze Command**
-
-The systemd-analyze command is a diagnostic and troubleshooting tool
-provided by the **systemd** init system. It is primarily used to analyze
-and optimize the Linux boot process, but it also provides insights into
-system performance related to services and dependencies.
-
-### **30.4.1. Key Features**
-
-- systemd-analyze → Displays the time taken by each stage of the boot
-  process, including:
-
-  - **Firmware** initialization (BIOS/UEFI)
-
-  - **Kernel** initialization.
-
-  - **Initrd** (Initial RAM Disk) setup.
-
-  - Startup of **services** and units.
-
-- systemd-analyze plot \> boot-process.svg → Creates a graphical
-  visualization of the boot process. Useful for identifying slow
-  services or units.
-
-- systemd-analyze critical-chain → Displays a timeline of the most
-  time-consuming units during boot, arranged in a critical chain.
-
-- systemd-analyze blame → Lists all services and units that were started
-  during boot, sorted by the time they took to start.
-
-- systemd-analyze verify /lib/systemd/system/ssh.service → Checks unit
-  files for syntax and configuration errors.
-
-- systemd-analyze dot network.target \| dot -Tsvg \> dependencies.svg →
-  Displays the dependency tree of a specific unit.
-
-- systemd-analyze security sshd.service → Analyzes the security
-  hardening features of a specific service.
-
-## 30.5. Other Advance Features/Services
+## 28.4. Other Advance Features/Services
 
 - **Stratis**
 
@@ -7356,9 +7301,9 @@ system performance related to services and dependencies.
   While masscan is extremely efficient, it has limited functionality
   compared to nmap, as it primarily focuses on identifying open ports.
 
-# 31. Further Notes to read
+# 29. Further Notes to read
 
-**Other:**
+#### Other
 
 - do the quiz on the udemy course
 
@@ -7370,7 +7315,7 @@ system performance related to services and dependencies.
 
 - umask
 
-**Networking**
+#### Networking
 
 - IP
 
@@ -7460,3 +7405,121 @@ TODO
 
 - Configure cheat or tldr with commonly used syntaxes on popular
   commands
+# **30. Command Index (Alphabetical)**
+
+Quick reference index of all commands documented in this guide.
+
+## A
+
+- **`aria2c`** - aria2c - See [23.3](#233-aria2c-command)
+- **`awk`** - awk - See [6.1.2](#612-awk-command)
+
+## B
+
+- **`bc`** - bc - See [17.9](#179-bc-command)
+- **`blkid`** - blkid - See [16.6](#166-blkid-command)
+
+## C
+
+- **`cal`** - cal - See [17.10](#1710-cal-command)
+- **`cat`** - cat - See [4.2.1](#421-cat-command)
+- **`cd`** - cd - See [4.1.2](#412-cd-command)
+- **`cp`** - cp - See [4.1.3](#413-cp-command)
+- **`curl`** - curl - See [23.2](#232-curl-command)
+- **`cut`** - cut - See [6.1.1](#611-cut-command)
+
+## D
+
+- **`date`** - date - See [17.7](#177-date-command)
+- **`dd`** - dd - See [16.8](#168-dd-command)
+- **`df`** - df - See [16.2](#162-df-command)
+- **`dmesg`** - dmesg - See [17.1](#171-dmesg-command)
+- **`du`** - du - See [16.1](#161-du-command)
+
+## F
+
+- **`fdisk`** - fdisk - See [16.3](#163-fdisk-command)
+- **`file`** - file - See [4.1.8](#418-file-command)
+- **`find`** - find - See [4.3.1](#431-find-command)
+- **`free`** - free - See [17.4](#174-free-command)
+- **`fsck`** - fsck - See [16.7](#167-fsck-command)
+
+## G
+
+- **`grep`** - grep - See [6.1.3](#613-grep-command)
+
+## H
+
+- **`head`** - head - See [4.2.4](#424-head-command)
+
+## I
+
+- **`ifconfig`** - ifconfig - See [18.5](#185-ifconfig-command)
+- **`iostat`** - iostat - See [17.2](#172-iostat-command)
+- **`ip`** - ip - See [18.3](#183-ip-command)
+
+## K
+
+- **`kill`** - kill - See [11.3](#113-kill-command)
+
+## L
+
+- **`locate`** - locate - See [4.3.2](#432-locate-command)
+- **`ls`** - ls - See [4.1.1](#411-ls-command)
+- **`lsblk`** - lsblk - See [16.5](#165-lsblk-command)
+- **`lsof`** - lsof - See [17.5](#175-lsof-command)
+
+## M
+
+- **`mkdir`** - mkdir - See [4.1.6](#416-mkdir-command)
+- **`mkfs`** - mkfs - See [16.4](#164-mkfs-command)
+- **`mount`** - mount - See [16.10](#1610-mount-command)
+- **`mv`** - mv - See [4.1.5](#415-mv-command)
+
+## N
+
+- **`netstat`** - netstat - See [18.1](#181-netstat-command)
+
+## P
+
+- **`ping`** - ping - See [18.4](#184-ping-command)
+- **`ps`** - ps - See [11.1](#111-ps-command)
+- **`pwd`** - pwd - See [4.1.12](#4112-pwd-command)
+
+## R
+
+- **`rm`** - rm - See [4.1.4](#414-rm-command)
+- **`rmdir`** - rmdir - See [4.1.7](#417-rmdir-command)
+- **`rsync`** - rsync - See [23.5](#235-rsync-command)
+
+## S
+
+- **`scp`** - scp - See [23.4](#234-scp-command)
+- **`script`** - script - See [13.8](#138-script-command)
+- **`sort`** - sort - See [6.1.4](#614-sort-command)
+- **`split`** - split - See [4.1.11](#4111-split-command)
+- **`ss`** - ss - See [18.2](#182-ss-command)
+- **`stat`** - stat - See [4.1.13](#4113-stat-command)
+- **`systemd-analyze`** - systemd-analyze - See [10.9](#109-systemd-analyze-command)
+
+## T
+
+- **`tac`** - tac - See [4.2.2](#422-tac-command)
+- **`tail`** - tail - See [4.2.5](#425-tail-command)
+- **`timedatectl`** - timedatectl - See [17.8](#178-timedatectl-command)
+- **`top`** - top - See [11.2](#112-top-command)
+- **`tree`** - tree - See [4.1.9](#419-tree-command)
+- **`truncate`** - truncate - See [4.1.10](#4110-truncate-command)
+
+## U
+
+- **`uniq`** - uniq - See [6.1.5](#615-uniq-command)
+
+## V
+
+- **`vmstat`** - vmstat - See [17.3](#173-vmstat-command)
+
+## W
+
+- **`wc`** - wc - See [4.2.6](#426-wc-command)
+- **`wget`** - wget - See [23.1](#231-wget-command)
