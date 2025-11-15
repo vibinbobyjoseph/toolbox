@@ -14,6 +14,8 @@ source "$ZSH/oh-my-zsh.sh"
 
 # ===== Starship Prompt =====
 # Fast, pretty, cross-shell prompt
+# Point to custom config location
+export STARSHIP_CONFIG="$HOME/Code/jcl/toolbox/config/starship.toml"
 command -v starship >/dev/null && eval "$(starship init zsh)"
 
 # ===== FZF (fuzzy finder) =====
@@ -34,12 +36,12 @@ fi
 export FZF_DEFAULT_OPTS="--height=40% --border --reverse --info=inline"
 
 # ===== eza (modern ls) & common aliases =====
-# If you use a Nerd Font, you can add --icons; leaving it off for compatibility
+# Using Nerd Fonts for icons with WezTerm
 if command -v eza >/dev/null; then
-  alias ll='eza -lh --git'                    # long list
-  alias la='eza -lah --git'                   # long list with hidden
-  alias lt='eza --tree --level=2 --git'       # tree view
-  alias llt='eza -lh --git --tree --level=2'  # long tree
+  alias ll='eza -lh --git --icons --group-directories-first'                    # long list
+  alias la='eza -lah --git --icons --group-directories-first'                   # long list with hidden
+  alias lt='eza --tree --level=2 --git --icons'                                 # tree view
+  alias llt='eza -lh --git --tree --level=2 --icons --group-directories-first'  # long tree
 fi
 
 # ===== LazyGit =====
@@ -47,9 +49,9 @@ alias lg='lazygit'
 
 # ===== Optional niceties =====
 # Use bat as cat if installed
-if command -v bat >/dev/null; then
-  alias cat='bat'
-fi
+#if command -v bat >/dev/null; then
+#  alias cat='bat'
+#fi
 
 # Safer rm/mv/cp
 alias rm='rm -i'

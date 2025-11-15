@@ -1,0 +1,236 @@
+# Starship Configuration
+# Optimized for Java/Python/Node.js/Ruby development with AWS/Docker
+
+# Format: order of modules in prompt
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$git_metrics\
+$java\
+$python\
+$nodejs\
+$ruby\
+$package\
+$docker_context\
+$aws\
+$line_break\
+$character"""
+
+# Wait for command to complete before timing out
+command_timeout = 1000
+
+# Add newline before prompt
+add_newline = true
+
+# ===== Core Modules =====
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+format = "[$path]($style)[$read_only]($read_only_style) "
+style = "bold cyan"
+read_only = " 🔒"
+read_only_style = "red"
+
+[username]
+disabled = true  # Enable if you work on shared systems
+show_always = false
+format = "[$user]($style) "
+style_user = "bold yellow"
+
+[hostname]
+disabled = true  # Enable if you SSH frequently between machines
+ssh_only = false
+format = "[@$hostname]($style) "
+style = "bold green"
+
+# ===== Git Modules =====
+
+[git_branch]
+symbol = "🌱 "
+format = "on [$symbol$branch]($style) "
+style = "bold purple"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold red"
+conflicted = "🏳 "
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?${count}"
+stashed = '$${count}'
+modified = "!${count}"
+staged = '+${count}'
+renamed = "»${count}"
+deleted = "✘${count}"
+
+[git_metrics]
+disabled = false
+added_style = "bold green"
+deleted_style = "bold red"
+format = '([+$added]($added_style) )([-$deleted]($deleted_style) )'
+
+# ===== Language Modules (Your Stack) =====
+
+[java]
+symbol = "☕ "
+format = "via [$symbol($version )]($style)"
+style = "red dimmed"
+detect_extensions = ["java", "class", "jar", "gradle", "kts"]
+detect_files = ["pom.xml", "build.gradle.kts", "build.sbt", ".java-version", ".sdkmanrc"]
+detect_folders = []
+
+[python]
+symbol = "🐍 "
+format = 'via [${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+style = "yellow bold"
+pyenv_version_name = false
+detect_extensions = ["py"]
+detect_files = [".python-version", "Pipfile", "requirements.txt", "pyproject.toml", "setup.py"]
+detect_folders = []
+
+[nodejs]
+symbol = "⬢ "
+format = "via [$symbol($version )]($style)"
+style = "bold green"
+detect_extensions = ["js", "mjs", "cjs", "ts", "tsx", "jsx"]
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+detect_folders = ["node_modules"]
+
+[ruby]
+symbol = "💎 "
+format = "via [$symbol($version )]($style)"
+style = "bold red"
+detect_extensions = ["rb"]
+detect_files = ["Gemfile", ".ruby-version"]
+detect_folders = []
+
+[package]
+symbol = "📦 "
+format = "is [$symbol$version]($style) "
+style = "208 bold"
+display_private = false
+disabled = false
+
+# ===== Cloud & Container Modules =====
+
+[aws]
+symbol = "☁️  "
+format = 'on [$symbol($profile )(\($region\) )]($style)'
+style = "bold yellow"
+disabled = false
+
+[docker_context]
+symbol = "🐳 "
+format = "via [$symbol$context]($style) "
+style = "blue bold"
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+# ===== Utility Modules =====
+
+[cmd_duration]
+min_time = 2_000  # Show only if command takes >2 seconds
+format = "took [$duration]($style) "
+style = "bold yellow"
+
+[time]
+disabled = true  # Enable if you need timestamps
+format = "🕙[$time]($style) "
+style = "bright-white"
+time_format = "%T"
+
+[line_break]
+disabled = false
+
+# ===== Disabled Language Modules (Not in your stack) =====
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[scala]
+disabled = true
+
+[swift]
+disabled = true
+
+[elixir]
+disabled = true
+
+[erlang]
+disabled = true
+
+[haskell]
+disabled = true
+
+[crystal]
+disabled = true
+
+[dart]
+disabled = true
+
+[nim]
+disabled = true
+
+[zig]
+disabled = true
+
+[lua]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[julia]
+disabled = true
+
+[ocaml]
+disabled = true
+
+# ===== Disabled Environment Modules =====
+
+[conda]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[helm]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[singularity]
+disabled = true
+
+[vagrant]
+disabled = true
+
+# ===== Disabled System Info Modules =====
+
+[battery]
+disabled = true  # WezTerm already shows this
+
+[memory_usage]
+disabled = true
+
+[status]
+disabled = true
