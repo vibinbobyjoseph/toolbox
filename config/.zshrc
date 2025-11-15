@@ -37,11 +37,93 @@ export FZF_DEFAULT_OPTS="--height=40% --border --reverse --info=inline"
 
 # ===== eza (modern ls) & common aliases =====
 # Using Nerd Fonts for icons with WezTerm
+
+# Unalias ls if it was set by Oh My Zsh or elsewhere
+unalias ls 2>/dev/null
+
+# Smart ls function: uses eza locally with flag translation, falls back to ls on remote systems
+ls() {
+  if command -v eza >/dev/null; then
+    # Translate common ls flags to eza equivalents
+    local args=()
+    local has_sort_time=false
+    local has_reverse=false
+    local has_long_format=false
+
+    for arg in "$@"; do
+      # Check if argument contains 'l' (long format)
+      if [[ "$arg" =~ ^-[a-zA-Z]*l[a-zA-Z]*$ ]]; then
+        has_long_format=true
+      fi
+
+      # Check if argument contains 't' (time sort) in combined flags like -lhrt
+      if [[ "$arg" =~ ^-[a-zA-Z]*t[a-zA-Z]*$ ]]; then
+        has_sort_time=true
+        # Remove 't' from the flag string and keep other flags
+        arg="${arg//t/}"
+      fi
+
+      # Check if argument contains 'r' (reverse) in combined flags
+      if [[ "$arg" =~ ^-[a-zA-Z]*r[a-zA-Z]*$ ]]; then
+        has_reverse=true
+        # Remove 'r' from the flag string and keep other flags
+        arg="${arg//r/}"
+      fi
+
+      # Only add the argument if it's not empty after removing t and r
+      if [[ -n "$arg" && "$arg" != "-" ]]; then
+        args+=("$arg")
+      fi
+    done
+
+    # Add beautiful eza features
+    args+=(--icons)
+    if [[ "$has_long_format" == true ]]; then
+      args+=(--git)
+    fi
+    args+=(--group-directories-first)
+
+    # Add eza-specific sort flags
+    if [[ "$has_sort_time" == true ]]; then
+      args+=(--sort=modified)
+    fi
+
+    if [[ "$has_reverse" == true ]]; then
+      args+=(--reverse)
+    fi
+
+    command eza "${args[@]}"
+  else
+    command ls "$@"
+  fi
+}
+
+# Enhanced aliases with eza-specific features
 if command -v eza >/dev/null; then
   alias ll='eza -lh --git --icons --group-directories-first'                    # long list
   alias la='eza -lah --git --icons --group-directories-first'                   # long list with hidden
-  alias lt='eza --tree --level=2 --git --icons'                                 # tree view
-  alias llt='eza -lh --git --tree --level=2 --icons --group-directories-first'  # long tree
+
+  # Tree view aliases (various depths)
+  alias lt='eza --tree --level=2 --git --icons'                                 # tree view (2 levels)
+  alias lt1='eza --tree --level=1 --git --icons'                                # tree view (1 level)
+  alias lt2='eza --tree --level=2 --git --icons'                                # tree view (2 levels)
+  alias lt3='eza --tree --level=3 --git --icons'                                # tree view (3 levels)
+  alias lt4='eza --tree --level=4 --git --icons'                                # tree view (4 levels)
+  alias lta='eza --tree --git --icons'                                          # tree view (all levels)
+
+  # Long tree view aliases (with file details)
+  alias llt='eza -lh --git --tree --level=2 --icons --group-directories-first'  # long tree (2 levels)
+  alias llt1='eza -lh --git --tree --level=1 --icons --group-directories-first' # long tree (1 level)
+  alias llt2='eza -lh --git --tree --level=2 --icons --group-directories-first' # long tree (2 levels)
+  alias llt3='eza -lh --git --tree --level=3 --icons --group-directories-first' # long tree (3 levels)
+  alias llt4='eza -lh --git --tree --level=4 --icons --group-directories-first' # long tree (4 levels)
+  alias llta='eza -lh --git --tree --icons --group-directories-first'           # long tree (all levels)
+
+  # Shortcuts for common time-sorted patterns
+  alias lhr='eza -lh --git --icons --group-directories-first --sort=modified'
+  alias lhrt='eza -lh --git --icons --group-directories-first --sort=modified --reverse'
+  alias lahr='eza -lah --git --icons --group-directories-first --sort=modified'
+  alias lahrt='eza -lah --git --icons --group-directories-first --sort=modified --reverse'
 fi
 
 # ===== LazyGit =====
