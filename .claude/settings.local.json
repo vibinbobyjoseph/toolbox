@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(STARSHIP_CONFIG=/Users/vibin.joseph/Code/jcl/toolbox/config/starship.toml starship prompt:*)"
+      "Bash(STARSHIP_CONFIG=/Users/vibin.joseph/Code/jcl/toolbox/config/starship.toml starship prompt:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(__NEW_LINE__ echo \"=== ARROW USAGE PATTERNS ===\" echo \"\")",
+      "Bash(echo \"\" echo \"Pattern 3: Malformed arrows (mixed with dashes)\" grep -n \"\\-[>-]*\" /Users/vibin.joseph/Code/jcl/toolbox/notes/LinuxNotes.md)"
     ],
     "deny": [],
     "ask": []

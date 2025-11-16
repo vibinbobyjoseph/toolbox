@@ -1003,15 +1003,10 @@ drwxrwxrwt 10 root root 4096 Jan 4 10:00 /tmp
 
 <!-- -->
 
-- Note:
-
-  - The setuid, setgid bit works only for **compiled binaries** (e.g., C
-    programs).
-
-  - For **interpreted scripts** (like Bash scripts), the kernel does not
-    directly handle their execution. Instead, the script is executed by
-    the interpreter (e.g., /bin/bash), which runs with the privileges of
-    the user who invoked the script.
+> [!NOTE]
+> **Note:**
+> - The setuid, setgid bit works only for **compiled binaries** (e.g., C programs).
+> - For **interpreted scripts** (like Bash scripts), the kernel does not directly handle their execution. Instead, the script is executed by the interpreter (e.g., /bin/bash), which runs with the privileges of the user who invoked the script.
 
 ### **3.3.4. Access Control List (ACLs)**
 
@@ -1026,8 +1021,8 @@ or groups on the same file or directory.
 -rw-rw-r--+ 1 jonah home 7 Dec 14 12:00 home
 ```
 
-- Note: Setting w permission with ACL does not let the user to delete
-  the file.
+> [!NOTE]
+> Setting w permission with ACL does not let the user to delete the file.
 
 - setfacl -m u:jonah:rwx /path/to/file → Grant permissions to a user
 
@@ -1068,7 +1063,7 @@ terminal.
 
 - ls directory_name → list the contents of the specific directory
 
-- ls -l-\> displays detailed information, including permissions,
+- ls -l → displays detailed information, including permissions,
   ownership, size and modification date.
 
 - ls -la → show all files, including hidden files (those starting with
@@ -1154,7 +1149,8 @@ Duplicate file contents from a source to a destination
 Remove files, directories, and symbolic links permanently without moving
 them to a trash or recycle bin
 
-> **⚠️ DANGER WARNING:**
+> [!DANGER]
+> **DANGER WARNING:**
 > - `rm` permanently deletes files - there is NO undo!
 > - `rm -rf /` can destroy your entire system
 > - ALWAYS double-check paths before executing
@@ -2161,14 +2157,14 @@ to groups. 
 
 - Modify an Existing User
 
-  - sudo usermod -d /new/home/dir username →Change the user’s home
+  - sudo usermod -d /new/home/dir username → change the user's home
     directory
 
   - sudo usermod -aG groupname username → Add user to a secondary group
 
   - sudo usermod -L username → Lock a user account (prevent login)
 
-  - sudo usermod -U username →Unlock a user account.
+  - sudo usermod -U username → unlock a user account.
 
 - Delete a User
 
@@ -2725,25 +2721,20 @@ OpenRC instead.)
 
 sudo vi /etc/systemd/system/my_service.service (Sample config below)
 
-\[Unit\]
-
+```ini
+[Unit]
 Description=My Python Script
-
 After=network.target
 
-\[Service\]
-
+[Service]
 ExecStart=/usr/bin/python3 /path/to/myscript.py
-
 WorkingDirectory=/path/to/
-
 Restart=always
-
 User=myuser
 
-\[Install\]
-
+[Install]
 WantedBy=multi-user.target
+```
 
 - sudo systemctl daemon-reload → Reload system config
 
@@ -2773,15 +2764,14 @@ triggers.
 
 sudo vi /etc/systemd/system/myscript.service
 
-\[Unit\]
-
+```ini
+[Unit]
 Description=Run My Script
 
-\[Service\]
-
+[Service]
 Type=simple
-
 ExecStart=/bin/bash /path/to/myscript.sh
+```
 
 ### **10.5.2. Timer Unit (**\*.timer**)**
 
@@ -2789,19 +2779,17 @@ Specifies when and how often the associated service should run.
 
 sudo vi /etc/systemd/system/myscript.timer
 
-\[Unit\]
-
+```ini
+[Unit]
 Description=Run My Script Daily
 
-\[Timer\]
-
+[Timer]
 OnCalendar=daily
-
 Persistent=true
 
-\[Install\]
-
+[Install]
 WantedBy=timers.target
+```
 
 - sudo systemctl daemon-reload → reload systemd configuration
 
@@ -2850,23 +2838,19 @@ partitions.
 
 sudo vi /etc/systemd/system/mnt-data.mount
 
-\[Unit\]
-
+```ini
+[Unit]
 Description=Mount Data Partition
-
 After=network.target
 
-\[Mount\]
-
+[Mount]
 What=/dev/sdb1
-
 Where=/mnt/data
-
 Type=ext4
 
-\[Install\]
-
+[Install]
 WantedBy=multi-user.target
+```
 
 ## **10.7. Creating a Systemd Path**
 
@@ -2876,29 +2860,27 @@ file system events.
 
 sudo vi /etc/systemd/system/backup.path
 
-\[Unit\]
-
+```ini
+[Unit]
 Description=Monitor /data Directory for Changes
 
-\[Path\]
-
+[Path]
 PathChanged=/data
-
 PathExists=/data
 
-\[Install\]
-
+[Install]
 WantedBy=multi-user.target
+```
 
 sudo vi /etc/systemd/system/backup.service
 
-\[Unit\]
-
+```ini
+[Unit]
 Description=Run Backup Script
 
-\[Service\]
-
+[Service]
 ExecStart=/bin/bash /path/to/backup.sh
+```
 
 ## 10.8. Creating Other systemd Units
 
@@ -3735,7 +3717,7 @@ running even after the shell is closed. The nohup command prevents the
   standard error are redirected to a file (nohup.out) by default, unless
   explicitly redirected by the user.
 
-- TIps: For more interactive control, use tmux or screen
+- Tips: For more interactive control, use tmux or screen
 
 ### **13.7.6. disown**
 
@@ -4186,7 +4168,8 @@ used to create, modify, delete, and manage disk partitions on a system.
 It supports a variety of partition table formats, including the MBR
 (Master Boot Record) and GPT (GUID Partition Table).
 
-> **⚠️ DANGER WARNING:**
+> [!DANGER]
+> **DANGER WARNING:**
 > - Modifying partitions can result in complete data loss
 > - ALWAYS backup data before using fdisk
 > - Writing changes (w command) is permanent and immediate
@@ -4244,7 +4227,8 @@ btrfs). syntax: mkfs \[options\] \<device\> . Alternatively, mkfs can
 act as a frontend to specific file system creation commands: mkfs.ext4,
 mkfs.xfs , mkfs.vfat, etc.
 
-> **⚠️ DANGER WARNING:**
+> [!DANGER]
+> **DANGER WARNING:**
 > - `mkfs` ERASES ALL DATA on the target device
 > - This operation is irreversible - destroyed data cannot be recovered
 > - ALWAYS verify the device name with `lsblk` before running
@@ -4503,7 +4487,8 @@ converting data at the block level. It is commonly used for tasks like
 creating disk images, making backups, cloning disks or partitions, and
 manipulating raw data.
 
-> **⚠️ EXTREME DANGER WARNING:**
+> [!DANGER]
+> **EXTREME DANGER WARNING:**
 > - `dd` is nicknamed "disk destroyer" for a reason
 > - Swapping `if` and `of` parameters can wipe your entire disk
 > - There is NO confirmation prompt - it executes immediately
@@ -4707,18 +4692,14 @@ It is consulted during boot to automatically mount file systems.
 
 Example /etc/fstab
 
-\# \<file system\> \<mount point\> \<type\> \<options\> \<dump\>
-\<pass\>
-
+```fstab
+# <file system> <mount point> <type> <options> <dump> <pass>
 UUID=12345-6789 / ext4 defaults 1 1
-
 /dev/sda2 /home ext4 defaults,noatime 1 2
-
 /dev/sdb1 /mnt/data xfs defaults 0 0
-
 /dev/sr0 /media/cdrom iso9660 ro,noauto 0 0
-
 tmpfs /tmp tmpfs defaults,noexec 0 0
+```
 
 # 17. System Information
 
@@ -5456,19 +5437,19 @@ between the client and the server.
 
 SSH connections can be simplified using the ~/.ssh/config file.
 
+```ssh-config
 Host myserver
-
-HostName example.com
-
-User user
-
-Port 2222
-
-IdentityFile ~/.ssh/private_key
+  HostName example.com
+  User user
+  Port 2222
+  IdentityFile ~/.ssh/private_key
+```
 
 Now, you can connect using
 
+```bash
 ssh myserver
+```
 
 ## 21.3. Generating SSH Keys
 
