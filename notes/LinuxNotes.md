@@ -10,44 +10,166 @@
 
 ## Quick Reference - Most Used Commands
 
+### File Operations
+
 ```bash
-# File Operations
 ls -lah              # List files with details
 cd /path             # Change directory
+pwd                  # Print working directory
 cp -r src dest       # Copy recursively
 mv old new           # Move/rename
 rm -rf dir           # Remove directory (⚠️ DANGEROUS)
-find . -name "*.txt" # Find files
+mkdir -p path/to/dir # Create directory with parents
+find . -name "*.txt" # Find files by name
+touch file.txt       # Create empty file or update timestamp
+ln -s target link    # Create symbolic link
+```
 
-# Text Processing
+### Text Processing
+
+```bash
 grep -r "pattern" .  # Search recursively
 sed 's/old/new/g'    # Find and replace
 awk '{print $1}'     # Print first column
+cut -d: -f1          # Extract fields from delimited text
+sort file.txt        # Sort lines
+uniq                 # Remove duplicate lines
+tr 'a-z' 'A-Z'       # Translate characters
 cat file.txt         # View file
 less file.txt        # View file with pagination
+head -n 10 file      # View first 10 lines
+tail -f log          # Follow log file
+```
 
-# Process Management
+### User Management
+
+```bash
+useradd username     # Create new user
+usermod -aG grp usr  # Add user to group
+userdel username     # Delete user
+passwd username      # Change password
+groups username      # Show user's groups
+id username          # Display user ID and groups
+su - username        # Switch user
+sudo command         # Run command as root
+```
+
+### Process Management
+
+```bash
 ps aux               # List all processes
-top                  # Monitor processes
-kill -9 PID          # Force kill process
-systemctl status srv # Check service status
+top                  # Monitor processes interactively
+htop                 # Enhanced process viewer
+kill -9 PID          # Force kill process (SIGKILL)
+killall name         # Kill processes by name
+pkill pattern        # Kill processes by pattern
+pgrep pattern        # Find process IDs by pattern
+bg / fg              # Background/foreground jobs
+jobs                 # List background jobs
+nice -n 10 command   # Run with lower priority
+```
 
-# System Info
-df -h                # Disk usage
+### System Information
+
+```bash
+uname -a             # System information
+hostname             # Show/set hostname
+uptime               # System uptime and load
+df -h                # Disk usage by filesystem
 du -sh *             # Directory sizes
 free -h              # Memory usage
-uname -a             # System information
+lsblk                # List block devices
+lscpu                # CPU information
+dmesg | tail         # Kernel messages
+```
 
-# Permissions
-chmod 755 file       # Change permissions
-chown user:group     # Change ownership
-sudo command         # Run as root
+### Package Management
 
-# Network
+```bash
+# Debian/Ubuntu (APT)
+apt update           # Update package list
+apt install pkg      # Install package
+apt remove pkg       # Remove package
+apt search keyword   # Search packages
+
+# RHEL/CentOS/Fedora (DNF/YUM)
+dnf install pkg      # Install package
+dnf remove pkg       # Remove package
+dnf search keyword   # Search packages
+rpm -qa              # List all installed packages
+```
+
+### Compression & Archives
+
+```bash
+tar -czf arch.tar.gz dir/    # Create gzip archive
+tar -xzf arch.tar.gz         # Extract gzip archive
+tar -cjf arch.tar.bz2 dir/   # Create bzip2 archive
+tar -xjf arch.tar.bz2        # Extract bzip2 archive
+gzip file.txt                # Compress file
+gunzip file.txt.gz           # Decompress file
+zip -r arch.zip dir/         # Create zip archive
+unzip arch.zip               # Extract zip archive
+```
+
+### Network Operations
+
+```bash
 ping host            # Test connectivity
+ip addr              # Show IP addresses
+ip route             # Show routing table
+ss -tulpn            # List listening ports (modern)
+netstat -tulpn       # List listening ports (legacy)
 ssh user@host        # Remote login
-scp file user@host:  # Secure copy
-netstat -tulpn       # List ports
+scp file user@host:  # Secure copy file
+rsync -av src dest   # Sync directories
+curl url             # Transfer data from URL
+wget url             # Download files
+```
+
+### Permissions & Ownership
+
+```bash
+chmod 755 file       # Change permissions (rwxr-xr-x)
+chmod +x script.sh   # Make executable
+chown user:group     # Change ownership
+chgrp group file     # Change group
+umask 022            # Set default permissions mask
+```
+
+### System Monitoring
+
+```bash
+top                  # Process monitor
+htop                 # Enhanced process monitor
+iostat               # CPU and I/O statistics
+vmstat               # Virtual memory statistics
+netstat -i           # Network interface statistics
+iotop                # I/O usage by process
+iftop                # Network bandwidth by process
+```
+
+### Service Management (systemd)
+
+```bash
+systemctl status srv # Check service status
+systemctl start srv  # Start service
+systemctl stop srv   # Stop service
+systemctl restart srv # Restart service
+systemctl enable srv # Enable at boot
+systemctl disable srv # Disable at boot
+journalctl -u srv    # View service logs
+journalctl -f        # Follow system logs
+```
+
+### Remote File Transfer
+
+```bash
+scp file user@host:/path      # Copy file to remote
+scp user@host:/file .         # Copy file from remote
+scp -r dir user@host:/path    # Copy directory to remote
+rsync -avz src user@host:dst  # Sync with compression
+sftp user@host                # Interactive file transfer
 ```
 
 ---
@@ -1336,6 +1458,170 @@ ownership, and file permissions.
 - stat --printf="File Size: %s bytes\nAccess Time: %x\n" example.txt →
   custom output formatting
 
+### 4.1.14. touch Command
+
+The `touch` command is used to create empty files or update the timestamp (access and modification times) of existing files.
+
+- touch file.txt → create empty file or update timestamp to current time
+- touch file1.txt file2.txt file3.txt → create multiple files
+- touch -a file.txt → update only access time
+- touch -m file.txt → update only modification time
+- touch -t 202401151430 file.txt → set specific timestamp (YYYYMMDDhhmm)
+- touch -d "2024-01-15 14:30:00" file.txt → set timestamp using date string
+- touch -r reference.txt new.txt → copy timestamp from reference file
+- touch -c file.txt → don't create file if it doesn't exist
+- touch -- -filename.txt → create file with name starting with dash
+
+#### Timestamp Format Options
+
+- touch -t [[CC]YY]MMDDhhmm[.ss] file.txt → precise timestamp format
+- touch -d "2 days ago" file.txt → relative date
+- touch -d "next Monday" file.txt → named day
+- touch -d "yesterday 14:00" file.txt → combination
+
+**Practical Use:** Create placeholder files, update timestamps to trigger make/build systems, or batch create test files.
+
+### 4.1.15. ln Command
+
+The `ln` command creates links between files. Links can be hard links or symbolic (soft) links.
+
+- ln source.txt hardlink.txt → create hard link
+- ln -s source.txt symlink.txt → create symbolic link
+- ln -s /path/to/target linkname → create symbolic link with full path
+- ln -sf target link → force creation, overwrite if exists
+- ln -sr relative/path/target link → create symbolic link with relative path
+- ln source1 source2 source3 directory/ → create multiple hard links in directory
+- ln -s ../config.txt current/link.txt → create relative symbolic link
+- ln -v source link → verbose output
+
+#### Hard Link vs Symbolic Link
+
+**Hard Links:**
+- Points to the same inode as original file
+- Cannot link across filesystems
+- Cannot link directories (usually)
+- Survives if original is deleted
+- Same size and permissions as original
+
+**Symbolic Links:**
+- Points to file path, not inode
+- Can link across filesystems
+- Can link directories
+- Breaks if original is moved/deleted
+- Has its own inode and permissions
+
+#### Common Use Cases
+
+```bash
+# Create symlink to config file
+ln -s /etc/nginx/sites-available/mysite.conf /etc/nginx/sites-enabled/
+
+# Create multiple hard links for backup
+ln important.txt backup1.txt backup2.txt
+
+# Force replace existing symlink
+ln -sf /new/path/config /etc/app/config
+
+# Create relative symlink
+ln -sr ../../shared/library.so lib/
+```
+
+**Practical Use:** Create shortcuts to frequently accessed files, manage configuration files, maintain multiple references to the same file content.
+
+### 4.1.16. readlink Command
+
+The `readlink` command displays the target of a symbolic link or resolves path names.
+
+- readlink symlink.txt → show target of symbolic link
+- readlink -f file.txt → canonicalize path (resolve all symlinks and relative paths)
+- readlink -e file.txt → canonicalize and ensure file exists
+- readlink -m file.txt → canonicalize but don't require file to exist
+- readlink -n symlink → don't print trailing newline
+- readlink -v symlink → verbose output
+
+#### Common Use Cases
+
+```bash
+# Find real path of symbolic link
+readlink -f /usr/bin/python
+
+# Get absolute path of current directory
+readlink -f .
+
+# Resolve path in script
+REAL_PATH=$(readlink -f "$0")
+SCRIPT_DIR=$(dirname "$REAL_PATH")
+
+# Check if link is broken
+if ! readlink -e /path/to/link > /dev/null 2>&1; then
+    echo "Broken link"
+fi
+```
+
+**Practical Use:** Debug symbolic links, find actual file locations, resolve paths in shell scripts.
+
+### 4.1.17. basename Command
+
+The `basename` command extracts the filename from a full path, removing the directory path.
+
+- basename /path/to/file.txt → outputs "file.txt"
+- basename /path/to/file.txt .txt → outputs "file" (remove suffix)
+- basename -s .txt /path/to/file.txt → same as above, using -s option
+- basename -a file1.txt file2.txt → process multiple paths
+- basename /path/to/directory/ → outputs "directory"
+
+#### Common Use Cases
+
+```bash
+# Extract filename from path in script
+FILE=$(basename "$FULL_PATH")
+
+# Remove extension
+NAME=$(basename "$FILE" .tar.gz)
+
+# Process multiple files
+for path in /var/log/*.log; do
+    echo "Processing: $(basename "$path")"
+done
+
+# Use in file operations
+cp /long/path/to/source.txt "$(basename /long/path/to/source.txt).backup"
+```
+
+**Practical Use:** Extract filenames in shell scripts, rename files, process file lists.
+
+### 4.1.18. dirname Command
+
+The `dirname` command extracts the directory path from a full path, removing the filename.
+
+- dirname /path/to/file.txt → outputs "/path/to"
+- dirname file.txt → outputs "." (current directory)
+- dirname /path/to/directory/ → outputs "/path/to"
+- dirname / → outputs "/"
+
+#### Common Use Cases
+
+```bash
+# Get directory of a file
+DIR=$(dirname "/path/to/file.txt")
+
+# Get script's directory
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
+# Create parent directory structure
+mkdir -p "$(dirname /new/path/to/file.txt)"
+
+# Navigate to file's directory
+cd "$(dirname "$FILE_PATH")"
+
+# Combined with basename
+PATH="/var/log/app/debug.log"
+DIR=$(dirname "$PATH")    # /var/log/app
+FILE=$(basename "$PATH")   # debug.log
+```
+
+**Practical Use:** Navigate to parent directories, create directory structures, manipulate paths in shell scripts.
+
 ## **4.2. Viewing and Processing File Contents**
 
 ### 4.2.1. cat Command
@@ -1513,8 +1799,259 @@ nearly instantaneous because it queries the pre-built database.
   - If the locate database is outdated, it won’t reflect recent changes
     to the filesystem. You can manually update it with: sudo updatedb
 
-  - The database may not include paths you don’t have permission to
+  - The database may not include paths you don't have permission to
     access. Run sudo locate for a broader search.
+
+## 4.4. Development and Debugging Tools
+
+### 4.4.1. objdump Command
+
+The `objdump` command displays information about object files, executables, and libraries. Essential for reverse engineering and debugging compiled programs.
+
+- objdump -d binary → disassemble executable sections
+- objdump -D binary → disassemble all sections
+- objdump -t binary → display symbol table
+- objdump -h binary → display section headers
+- objdump -x binary → display all headers
+- objdump -s binary → display full contents of all sections
+- objdump -S binary → intermix source code with disassembly (requires debug info)
+- objdump -M intel binary → use Intel syntax for disassembly
+- objdump -j .text binary → display specific section only
+- objdump --source binary → show source code if available
+
+#### Common Use Cases
+
+```bash
+# Disassemble main function
+objdump -d binary | grep -A 20 "<main>:"
+
+# Check what functions are in a library
+objdump -T /lib/x86_64-linux-gnu/libc.so.6 | grep printf
+
+# Examine specific section
+objdump -s -j .rodata binary
+
+# Find architecture and file format
+objdump -f binary
+```
+
+**Practical Use:** Analyze compiled binaries, debug crashes, reverse engineer software, verify compiler optimizations.
+
+### 4.4.2. nm Command
+
+The `nm` command lists symbols from object files, libraries, and executables. Useful for finding function names and analyzing linkage.
+
+- nm binary → list all symbols
+- nm -D library.so → list dynamic symbols only
+- nm -g binary → list external symbols only
+- nm -u binary → list undefined symbols (external dependencies)
+- nm -A *.o → prepend filename to each symbol
+- nm -C binary → demangle C++ symbol names
+- nm -S binary → show symbol sizes
+- nm --size-sort binary → sort by size
+- nm --defined-only binary → show only defined symbols
+- nm -f posix binary → POSIX output format
+
+#### Symbol Types
+
+- T → symbol in text (code) section
+- D → symbol in initialized data section
+- B → symbol in uninitialized data section (BSS)
+- U → undefined symbol (external reference)
+- W → weak symbol
+
+#### Common Use Cases
+
+```bash
+# Find all undefined symbols (missing dependencies)
+nm -u binary
+
+# Check if symbol exists in library
+nm -D /usr/lib/libssl.so | grep SSL_connect
+
+# Find largest symbols
+nm --size-sort -S binary | tail -20
+
+# Compare symbols between two binaries
+comm <(nm binary1 | sort) <(nm binary2 | sort)
+```
+
+**Practical Use:** Debug linking errors, find missing dependencies, analyze binary composition, verify symbol visibility.
+
+### 4.4.3. readelf Command
+
+The `readelf` command displays information about ELF (Executable and Linkable Format) files. More detailed than objdump for ELF-specific information.
+
+- readelf -h binary → display ELF header
+- readelf -l binary → display program headers (segments)
+- readelf -S binary → display section headers
+- readelf -s binary → display symbol table
+- readelf -r binary → display relocations
+- readelf -d binary → display dynamic section
+- readelf -V binary → display version information
+- readelf -n binary → display notes section
+- readelf -a binary → display all information
+- readelf -x .rodata binary → hex dump of section
+
+#### Common Use Cases
+
+```bash
+# Check binary type and architecture
+readelf -h /bin/ls
+
+# Find library dependencies
+readelf -d binary | grep NEEDED
+
+# Check if binary is PIE (Position Independent Executable)
+readelf -h binary | grep Type
+
+# Examine dynamic symbols
+readelf -s --dyn-syms binary
+
+# Check RPATH/RUNPATH
+readelf -d binary | grep PATH
+```
+
+**Practical Use:** Analyze ELF binaries, debug dynamic linking issues, verify security features (PIE, RELRO), inspect binary metadata.
+
+### 4.4.4. hexdump and xxd Commands
+
+Binary file viewers that display file contents in hexadecimal format.
+
+#### hexdump Command
+
+- hexdump file → display file in hexadecimal
+- hexdump -C file → canonical hex+ASCII display
+- hexdump -n 100 file → display first 100 bytes
+- hexdump -s 1000 file → skip first 1000 bytes
+- hexdump -e '16/1 "%02x " "\n"' file → custom format
+- hexdump -c file → display as characters
+
+#### xxd Command
+
+- xxd file → hex dump with ASCII
+- xxd -l 100 file → display first 100 bytes
+- xxd -s 1000 file → start at offset 1000
+- xxd -b file → binary dump instead of hex
+- xxd -r hexfile binary → reverse operation (hex to binary)
+- xxd -i file → output as C include file
+- xxd -p file → plain hex dump (no formatting)
+- xxd -c 32 file → 32 bytes per line
+
+#### Common Use Cases
+
+```bash
+# Examine file header
+xxd -l 64 binary
+
+# Find magic numbers
+hexdump -C file | head -n 5
+
+# Convert hex to binary
+echo "48656c6c6f" | xxd -r -p
+
+# Create binary from hex
+xxd -r -p input.hex output.bin
+
+# Compare binary files
+diff <(xxd file1) <(xxd file2)
+```
+
+**Practical Use:** Inspect binary file formats, debug data corruption, analyze file headers, create binary patches.
+
+### 4.4.5. timeout Command
+
+The `timeout` command runs a command with a time limit, terminating it if it exceeds the specified duration.
+
+- timeout 10s command → kill after 10 seconds
+- timeout 5m command → kill after 5 minutes
+- timeout 2h command → kill after 2 hours
+- timeout -s SIGKILL 10s command → use SIGKILL instead of SIGTERM
+- timeout --preserve-status 10s command → preserve command's exit status
+- timeout -k 5s 30s command → send SIGKILL if still running 5s after SIGTERM
+- timeout --foreground 10s command → don't create new process group
+
+#### Time Suffixes
+
+- s → seconds (default)
+- m → minutes
+- h → hours
+- d → days
+
+#### Common Use Cases
+
+```bash
+# Prevent hanging network operations
+timeout 30s curl http://example.com
+
+# Limit test execution time
+timeout 5m ./run_tests.sh
+
+# Kill unresponsive processes
+timeout -s SIGKILL 10s ./problematic_script.sh
+
+# Timeout with grace period
+timeout -k 10s 60s ./cleanup_script.sh
+
+# Use in scripts
+if timeout 30s ping -c 5 example.com; then
+    echo "Host is reachable"
+else
+    echo "Timeout or host unreachable"
+fi
+```
+
+**Practical Use:** Prevent infinite loops in scripts, limit resource usage, handle unresponsive programs, enforce SLAs in automation.
+
+### 4.4.6. parallel Command
+
+GNU `parallel` is a shell tool for executing jobs in parallel using one or more computers.
+
+> [!NOTE]
+> **Installation Required:**
+> - Debian/Ubuntu: `sudo apt install parallel`
+> - RHEL/CentOS/Fedora: `sudo dnf install parallel`
+
+- parallel command ::: arg1 arg2 arg3 → run command with each argument
+- parallel -j 4 command ::: args → limit to 4 parallel jobs
+- parallel command :::: argfile.txt → read arguments from file
+- parallel --dry-run command ::: args → show commands without executing
+- parallel -k command ::: args → keep output order
+- cat list.txt | parallel command → read from stdin
+- parallel -a argfile.txt command → read arguments from file
+- parallel --progress command ::: args → show progress
+- parallel --eta command ::: args → show estimated time
+- parallel --joblog log.txt command ::: args → log job execution
+
+#### Common Use Cases
+
+```bash
+# Process files in parallel
+parallel gzip ::: *.txt
+
+# Run commands with multiple arguments
+parallel echo {1} {2} ::: A B C ::: 1 2 3
+
+# Convert images in parallel
+parallel convert {} -resize 800x600 resized_{} ::: *.jpg
+
+# Download URLs in parallel
+cat urls.txt | parallel -j 10 wget
+
+# Process with replacement strings
+parallel mv {} {.}.backup ::: *.conf
+
+# Run with specific core count
+parallel -j $(nproc) ./process.sh ::: *.dat
+
+# Keep output order
+parallel -k echo ::: 5 4 3 2 1
+
+# SSH parallel execution
+parallel -S server1,server2 command ::: args
+```
+
+**Practical Use:** Speed up batch processing, parallelize shell scripts, process large datasets efficiently, run distributed tasks.
 
 # **5. Important command-line features**
 
@@ -1644,12 +2181,35 @@ various separators, depending on how you want the commands to interact.
   - cat file.txt \| sort \| uniq → Sorts and removes duplicate lines
     from file.txt.
 
-- tee: reads input from standard input (stdin) and writes it to both
-  standard output (stdout) and one or more files simultaneously. It is
-  often used in conjunction with pipes (\|) to save the output of a
-  command to a file while still displaying it on the screen. eg.,
+- **tee Command:** The `tee` command reads input from standard input (stdin) and writes it to both standard output (stdout) and one or more files simultaneously. It is often used in conjunction with pipes (\|) to save the output of a command to a file while still displaying it on the screen.
 
-  - lorem -s10 \| tee -a lorem.txt
+  - command \| tee output.txt → write output to file and display on screen
+  - command \| tee -a output.txt → append to file instead of overwriting
+  - command \| tee file1.txt file2.txt → write to multiple files
+  - command \| tee output.txt \| grep pattern → continue pipeline after tee
+  - command 2\>&1 \| tee log.txt → capture both stdout and stderr
+  - sudo command \| tee /root/output.txt → write to privileged location
+  - command \| tee \>(process1) \>(process2) → send output to multiple processes
+  - command \| tee -i output.txt → ignore interrupt signals
+
+  **Common Use Cases:**
+
+  ```bash
+  # Monitor and log installation
+  sudo apt install package | tee install.log
+
+  # Save command output while viewing
+  make 2>&1 | tee build.log
+
+  # Append to existing log file
+  ./script.sh | tee -a daily.log
+
+  # Write to multiple log files
+  command | tee log1.txt log2.txt log3.txt
+
+  # Save output and continue processing
+  cat data.txt | tee intermediate.txt | sort | uniq
+  ```
 
 Tips:
 
@@ -1988,6 +2548,170 @@ replacing, inserting, or deleting text in files.
 - sed '9,19!s/oldtext/newtext/g' file.txt → exclude lines 9 and 19 from
   the pattern replacement
 
+### 6.1.7. tr Command
+
+The `tr` (translate) command is used to translate, delete, or squeeze characters from standard input and write the result to standard output.
+
+- echo "hello world" | tr 'a-z' 'A-Z' → convert lowercase to uppercase
+- echo "HELLO WORLD" | tr 'A-Z' 'a-z' → convert uppercase to lowercase
+- echo "hello123world" | tr -d '0-9' → delete all digits
+- echo "hello  world" | tr -s ' ' → squeeze multiple spaces into one
+- cat file.txt | tr -d '\r' → remove carriage returns (useful for DOS to Unix conversion)
+- echo "hello world" | tr ' ' '\n' → replace spaces with newlines
+- echo "hello world" | tr -cd '[:alnum:]' → keep only alphanumeric characters
+- cat file.txt | tr '\n' ' ' → replace newlines with spaces (join lines)
+- echo "abc123" | tr '[:lower:]' '[:upper:]' → character class transformation
+
+#### Common Character Classes
+
+- [:alnum:] → alphanumeric characters
+- [:alpha:] → alphabetic characters
+- [:digit:] → digits
+- [:space:] → whitespace characters
+- [:punct:] → punctuation characters
+- [:lower:] → lowercase letters
+- [:upper:] → uppercase letters
+
+### 6.1.8. column Command
+
+The `column` command formats input into multiple columns for better readability.
+
+- mount | column -t → format mount output into aligned columns
+- cat /etc/passwd | column -t -s ':' → format /etc/passwd with : as separator
+- ls -l | column -t → align ls output into columns
+- echo -e "Name\tAge\tCity\nAlice\t30\tNY\nBob\t25\tLA" | column -t → format tab-separated data
+- column -t -s ',' file.csv → format CSV file into columns
+- df -h | column -t → align disk usage output
+
+**Practical Use:** Especially useful for making configuration files and command output more readable.
+
+### 6.1.9. expand and unexpand Commands
+
+Convert between tabs and spaces in text files.
+
+#### expand Command
+
+Converts tabs to spaces.
+
+- expand file.txt → convert tabs to spaces (default: 8 spaces per tab)
+- expand -t 4 file.txt → convert tabs to 4 spaces
+- expand -t 2,4,6 file.txt → set tab stops at specific positions
+- cat file.txt | expand → convert tabs in pipeline
+
+#### unexpand Command
+
+Converts spaces to tabs.
+
+- unexpand file.txt → convert initial spaces to tabs
+- unexpand -a file.txt → convert all spaces to tabs (not just initial)
+- unexpand -t 4 file.txt → use 4 spaces per tab
+- cat file.txt | unexpand -a → convert spaces in pipeline
+
+**Practical Use:** Useful for standardizing indentation in code files or preparing files for systems with specific tab requirements.
+
+### 6.1.10. fmt Command
+
+The `fmt` command is a simple text formatter that reformats paragraphs to specified width.
+
+- fmt file.txt → reformat text to default width (75 characters)
+- fmt -w 80 file.txt → reformat to 80 characters width
+- fmt -s file.txt → split long lines only, don't join short lines
+- echo "This is a very long line that needs to be wrapped" | fmt -w 30 → wrap text to 30 characters
+- fmt -u file.txt → uniform spacing (one space between words, two after sentences)
+- cat email.txt | fmt -w 72 → format email text to 72 characters (common email width)
+
+**Practical Use:** Useful for reformatting text files, email messages, or preparing text for display in fixed-width terminals.
+
+### 6.1.11. pr Command
+
+The `pr` command paginates and formats text files for printing.
+
+- pr file.txt → paginate file with headers and footers
+- pr -h "Custom Header" file.txt → set custom header
+- pr -d file.txt → double-space output
+- pr -l 20 file.txt → set page length to 20 lines
+- pr -n file.txt → number all lines
+- pr -w 80 file.txt → set page width to 80 characters
+- pr -2 file.txt → format into 2 columns
+- pr -3 file.txt → format into 3 columns
+- pr -t file.txt → omit headers and footers (clean output)
+- pr -m file1.txt file2.txt → merge files side by side
+- pr +5 file.txt → start printing from page 5
+
+**Practical Use:** Useful for preparing files for printing or creating formatted reports.
+
+### 6.1.12. comm Command
+
+The `comm` command compares two sorted files line by line and displays three columns:
+
+- Column 1: Lines unique to file1
+- Column 2: Lines unique to file2
+- Column 3: Lines common to both files
+
+> [!NOTE]
+> **Important:** Both files must be sorted before using `comm`. Use `sort file1 > sorted1` if needed.
+
+- comm file1.txt file2.txt → show all three columns
+- comm -12 file1.txt file2.txt → show only common lines
+- comm -23 file1.txt file2.txt → show lines only in file1
+- comm -13 file1.txt file2.txt → show lines only in file2
+- comm -1 file1.txt file2.txt → suppress column 1 (unique to file1)
+- comm -2 file1.txt file2.txt → suppress column 2 (unique to file2)
+- comm -3 file1.txt file2.txt → suppress column 3 (common lines)
+
+**Example Workflow:**
+
+```bash
+# Compare two user lists
+sort users1.txt > sorted1.txt
+sort users2.txt > sorted2.txt
+comm -12 sorted1.txt sorted2.txt  # Find common users
+```
+
+**Practical Use:** Finding differences between configuration files, comparing lists, or identifying unique/common entries.
+
+### 6.1.13. xargs Command
+
+The `xargs` command builds and executes commands from standard input. It converts input into arguments for another command.
+
+- find . -name "*.tmp" | xargs rm → delete all .tmp files
+- echo "file1.txt file2.txt file3.txt" | xargs cat → cat multiple files
+- ls *.txt | xargs -I {} cp {} /backup/ → copy files using placeholder
+- find . -type f -name "*.log" | xargs -I {} mv {} {}.old → rename files
+- echo "1 2 3 4" | xargs -n 1 → process one argument at a time
+- echo "a b c" | xargs -n 2 → process two arguments at a time
+- find . -name "*.txt" | xargs -p rm → prompt before executing (interactive)
+- find . -name "*.c" | xargs grep "main" → search in multiple files
+- cat urls.txt | xargs -n 1 curl -O → download multiple URLs
+- find . -type f -print0 | xargs -0 rm → handle filenames with spaces
+- ls | xargs -I {} echo "Processing: {}" → custom placeholder usage
+- find . -name "*.sh" | xargs -P 4 chmod +x → parallel execution (4 processes)
+
+**Common Options:**
+
+- -I {} → replace string (placeholder)
+- -n NUM → use NUM arguments per command
+- -p → prompt before executing
+- -t → print commands before executing
+- -0 → input items are null-terminated (for filenames with spaces)
+- -P NUM → run NUM processes in parallel
+
+**Practical Use Cases:**
+
+```bash
+# Find and delete old log files
+find /var/log -name "*.log" -mtime +30 | xargs rm
+
+# Batch rename files
+ls *.jpg | xargs -I {} mv {} {}.backup
+
+# Process files in parallel
+find . -name "*.txt" | xargs -P 8 -I {} gzip {}
+
+# Handle filenames with spaces safely
+find . -name "* *" -print0 | xargs -0 ls -l
+```
+
 # 7. File Comparison
 
 Common command-line utilities used to compare files and directories
@@ -2099,6 +2823,157 @@ make file transfers more efficient.
       file
 
     - tar -xJvf archive.tar.xz → uncompress a tar.xz file
+
+## 8.1. Viewing Compressed Files
+
+### 8.1.1. zcat Command
+
+The `zcat` command allows you to view the contents of gzip-compressed files without decompressing them to disk.
+
+- zcat file.txt.gz → display contents of compressed file
+- zcat file1.gz file2.gz → display multiple compressed files
+- zcat file.gz | grep "pattern" → search within compressed file
+- zcat file.gz | less → page through compressed file
+- zcat file.gz | head -n 20 → view first 20 lines
+- zcat file.gz > output.txt → decompress to different file
+
+**Practical Use:** Quick inspection of log files or data files without creating temporary uncompressed copies.
+
+### 8.1.2. zless Command
+
+The `zless` command is a file viewer for compressed files, similar to `less` but for gzip files.
+
+- zless file.txt.gz → page through compressed file interactively
+- zless file.gz → navigate with same keys as less (space, b, /, q)
+- zless -N file.gz → show line numbers
+- zless -S file.gz → disable line wrapping
+
+**Practical Use:** Interactive viewing of large compressed log files with search capabilities.
+
+### 8.1.3. zgrep Command
+
+The `zgrep` command searches inside gzip-compressed files without decompressing them first. Works similarly to `grep` but operates directly on `.gz` files.
+
+- zgrep "pattern" file.gz → search for pattern in compressed file
+- zgrep -i "error" *.gz → case-insensitive search in multiple files
+- zgrep -r "keyword" /var/log/ → recursively search compressed files
+- zgrep -n "pattern" file.gz → show line numbers
+- zgrep -c "pattern" file.gz → count matching lines
+- zgrep -v "pattern" file.gz → show non-matching lines
+- zgrep -A 3 "error" file.gz → show 3 lines after match
+- zgrep -B 3 "error" file.gz → show 3 lines before match
+- zgrep -C 3 "error" file.gz → show 3 lines before and after match
+- zgrep -l "pattern" *.gz → list files containing pattern
+- zgrep -E "regex" file.gz → use extended regular expressions
+
+#### Common Use Cases
+
+```bash
+# Search error logs
+zgrep -i "error\|warning" /var/log/syslog.*.gz
+
+# Find specific IP address in rotated logs
+zgrep "192.168.1.100" /var/log/apache2/access.log.*.gz
+
+# Count occurrences across multiple compressed files
+zgrep -c "failed login" auth.log.*.gz
+
+# Extract lines with context
+zgrep -C 5 "OutOfMemory" application.log.gz
+```
+
+**Practical Use:** Essential for searching through compressed log files, especially rotated system logs, without manual decompression.
+
+## 8.2. 7-Zip Compression
+
+### 8.2.1. 7z/7za Command
+
+The `7z` command provides high compression ratios using the 7-Zip format. The `7za` variant is a standalone version with fewer dependencies.
+
+> [!NOTE]
+> **Installation Required:**
+> - Debian/Ubuntu: `sudo apt install p7zip-full`
+> - RHEL/CentOS/Fedora: `sudo dnf install p7zip p7zip-plugins`
+
+- 7z a archive.7z file.txt → create 7z archive
+- 7z a archive.7z file1.txt file2.txt → compress multiple files
+- 7z a -r archive.7z directory/ → compress directory recursively
+- 7z a -mx=9 archive.7z file.txt → maximum compression
+- 7z x archive.7z → extract with full paths
+- 7z e archive.7z → extract without directory structure
+- 7z l archive.7z → list contents
+- 7z t archive.7z → test archive integrity
+- 7z a -p archive.7z file.txt → create password-protected archive
+- 7z x -p archive.7z → extract password-protected archive
+- 7z a -t7z -m0=lzma2 -mx=9 archive.7z file.txt → use LZMA2 compression
+- 7z a -sdel archive.7z file.txt → delete file after compression
+
+#### Compression Levels
+
+- -mx=0 → no compression (copy mode)
+- -mx=1 → fastest compression
+- -mx=5 → normal compression (default)
+- -mx=9 → maximum compression (slowest)
+
+**Practical Use:** Achieve better compression ratios than gzip/bzip2, especially useful for archiving large datasets or distributing software.
+
+## 8.3. RAR Archives
+
+### 8.3.1. unrar Command
+
+The `unrar` command extracts files from RAR archives (proprietary format).
+
+> [!NOTE]
+> **Installation Required:**
+> - Debian/Ubuntu: `sudo apt install unrar`
+> - RHEL/CentOS/Fedora: `sudo dnf install unrar`
+>
+> **Note:** Free version only supports extraction, not creation. Use `rar` package for creation (non-free).
+
+- unrar x archive.rar → extract with full paths
+- unrar e archive.rar → extract without directory structure
+- unrar l archive.rar → list contents
+- unrar t archive.rar → test archive integrity
+- unrar v archive.rar → verbose list with details
+- unrar x archive.rar /dest/path/ → extract to specific directory
+- unrar x -p<password> archive.rar → extract password-protected archive
+- unrar e -o+ archive.rar → overwrite existing files without prompting
+- unrar e -o- archive.rar → don't overwrite existing files
+
+#### Common Use Cases
+
+```bash
+# Extract all RAR files in directory
+for f in *.rar; do unrar x "$f"; done
+
+# List contents before extracting
+unrar l archive.rar
+
+# Extract to specific location
+unrar x archive.rar /tmp/extracted/
+
+# Test multiple archives
+unrar t *.rar
+```
+
+**Practical Use:** Extract downloaded archives, especially common for downloaded media, software distributions, and compressed collections.
+
+## 8.4. Compression Tool Comparison
+
+| **Tool** | **Extension** | **Compression Ratio** | **Speed** | **Compatibility** | **Use Case** |
+|----------|---------------|----------------------|-----------|-------------------|--------------|
+| gzip | .gz | Good | Fast | Excellent | General purpose, widely supported |
+| bzip2 | .bz2 | Better | Medium | Excellent | Better compression, still fast |
+| xz | .xz | Best | Slow | Good | Maximum compression for archives |
+| zip | .zip | Good | Fast | Excellent | Cross-platform, Windows compatible |
+| 7z | .7z | Excellent | Medium | Good | High compression ratio |
+| rar | .rar | Excellent | Fast | Good | Proprietary, common for downloads |
+
+**Recommendation:**
+- **Quick backups:** gzip (fastest)
+- **Long-term storage:** xz or 7z (best compression)
+- **Cross-platform sharing:** zip (universally compatible)
+- **Large datasets:** 7z with maximum compression
 
 # 9. Managing Users
 
@@ -3099,6 +3974,280 @@ aggressive, giving it more CPU time.
   - renice -n 5 -p 1234 → adjusts the niceness of process with id 1234
     to 5
 
+## 11.5. pgrep Command
+
+The `pgrep` command searches for processes based on their name or other attributes and returns their process IDs (PIDs). It's a more convenient alternative to combining `ps` with `grep`.
+
+- pgrep firefox → find PID of firefox processes
+- pgrep -u username → find processes owned by specific user
+- pgrep -x sshd → match exact process name
+- pgrep -l apache → list PIDs with process names
+- pgrep -a nginx → show full command line with PIDs
+- pgrep -c httpd → count matching processes
+- pgrep -n java → show only newest matching process
+- pgrep -o bash → show only oldest matching process
+- pgrep -f "python script.py" → match against full command line
+- pgrep -v -u root → invert match (processes NOT owned by root)
+- pgrep -P 1234 → find child processes of parent PID 1234
+- pgrep -d "," nginx → use custom delimiter between PIDs
+
+**Common Use Cases:**
+
+```bash
+# Kill all processes matching a name
+kill $(pgrep firefox)
+
+# Monitor specific user's processes
+pgrep -u username -l
+
+# Check if a service is running
+pgrep -x mysqld > /dev/null && echo "MySQL is running"
+
+# Find all Python processes
+pgrep -a python
+```
+
+**See Also:** [pkill (Section 11.3.2)](#1132-advanced-use-cases) for killing processes by name, [pidof (Section 11.6)](#116-pidof-command)
+
+## 11.6. pidof Command
+
+The `pidof` command finds the process ID(s) of running programs by name. It's simpler than `pgrep` but only works with exact program names.
+
+- pidof sshd → find PID of sshd daemon
+- pidof bash → find all bash process PIDs
+- pidof -s nginx → return only single (first) PID
+- pidof -x /usr/bin/python3 → include scripts run by the interpreter
+- pidof -o %PPID → omit parent process ID
+- pidof -o 1234 → omit specific PID from results
+
+**Difference from pgrep:**
+
+- `pidof` matches only the program name (simpler, faster)
+- `pgrep` offers more flexibility (regex, user filtering, full command line matching)
+
+**Common Use Cases:**
+
+```bash
+# Check if a daemon is running
+if pidof sshd > /dev/null; then
+    echo "SSH daemon is running"
+fi
+
+# Restart a service if it's running
+if pidof nginx > /dev/null; then
+    systemctl restart nginx
+fi
+
+# Get PID for use in scripts
+NGINX_PID=$(pidof -s nginx)
+```
+
+**See Also:** [pgrep (Section 11.5)](#115-pgrep-command)
+
+## 11.7. pstree Command
+
+The `pstree` command displays running processes in a tree structure, showing parent-child relationships. This helps visualize process hierarchy.
+
+- pstree → show process tree for all processes
+- pstree -p → show PIDs alongside process names
+- pstree -u → show user transitions (when user changes)
+- pstree -a → show command line arguments
+- pstree -h → highlight current process and its ancestors
+- pstree -H PID → highlight specific process and its ancestors
+- pstree -s PID → show only ancestors of specific PID
+- pstree username → show process tree for specific user
+- pstree -c → disable compaction (show all processes separately)
+- pstree -n → sort processes by PID instead of name
+- pstree -l → don't truncate long lines
+- pstree -A → use ASCII characters instead of line-drawing characters
+
+**Common Use Cases:**
+
+```bash
+# See all processes spawned by systemd
+pstree -p 1
+
+# View Apache/Nginx worker processes
+pstree -ap | grep nginx
+
+# Debug process hierarchy
+pstree -apH $(pgrep -n firefox)
+
+# See what spawned a specific process
+pstree -s $(pgrep -n chrome)
+```
+
+**Practical Use:** Understanding process relationships, debugging daemon behavior, tracking child processes, or investigating resource usage patterns.
+
+**See Also:** [ps -ejH (Section 11.1)](#111-ps-command) for alternative tree view
+
+## 11.8. watch Command
+
+The `watch` command executes a command repeatedly at specified intervals and displays the output, allowing you to monitor changes over time.
+
+- watch df -h → monitor disk space every 2 seconds (default)
+- watch -n 5 free -h → run every 5 seconds
+- watch -n 1 'ps aux | grep python' → monitor Python processes every second
+- watch -d netstat -tuln → highlight differences between updates
+- watch -t date → hide header (timestamp and interval info)
+- watch -b ls /tmp → beep if command exits with non-zero status
+- watch -e systemctl status nginx → exit on error
+- watch -g 'cat /var/log/syslog | wc -l' → exit when output changes
+- watch -c ls --color=always → interpret ANSI color codes
+- watch -x echo "Hello World" → pass command to exec instead of shell
+
+**Common Use Cases:**
+
+```bash
+# Monitor system load
+watch -n 1 uptime
+
+# Watch for file creation
+watch -d 'ls -lt /var/log | head'
+
+# Monitor network connections
+watch -n 2 'netstat -an | grep ESTABLISHED | wc -l'
+
+# Track memory usage of a process
+watch -n 1 'ps aux | grep [n]ginx'
+
+# Monitor log file growth
+watch -d 'wc -l /var/log/syslog'
+
+# Watch CPU temperature (if sensors available)
+watch -n 2 sensors
+```
+
+**Interactive Controls:**
+
+- Ctrl+C → exit watch
+- Space → force immediate update
+
+**Practical Use:** Real-time monitoring of command output, watching for changes in system state, debugging, or waiting for specific conditions.
+
+## 11.9. strace Command
+
+The `strace` command traces system calls and signals made by a process. It's an essential debugging tool for understanding what a program is doing at the system level.
+
+> [!NOTE]
+> **Installation:** `strace` may not be installed by default. Install with:
+>
+> - Debian/Ubuntu: `sudo apt install strace`
+> - RHEL/CentOS/Fedora: `sudo dnf install strace`
+
+- strace ls → trace all system calls made by ls command
+- strace -c ls → count and summarize system calls
+- strace -p 1234 → attach to running process (PID 1234)
+- strace -e open ls → trace only 'open' system calls
+- strace -e trace=file ls → trace all file-related calls
+- strace -e trace=network curl example.com → trace network-related calls
+- strace -e trace=process bash → trace process-related calls (fork, exec, etc.)
+- strace -o output.txt ls → save trace to file
+- strace -f ./script.sh → follow child processes (forks)
+- strace -t ls → prefix each line with timestamp
+- strace -T ls → show time spent in each system call
+- strace -r ls → show relative timestamp (time since previous call)
+- strace -s 128 cat file.txt → increase string display length (default: 32)
+- strace -y ls → show file descriptor paths
+
+**System Call Categories:**
+
+- trace=file → open, stat, chmod, unlink, etc.
+- trace=process → fork, exec, clone, wait, etc.
+- trace=network → socket, connect, bind, send, recv, etc.
+- trace=signal → kill, signal, etc.
+- trace=ipc → mmap, shmget, semop, etc.
+- trace=desc → file descriptor related (read, write, close, etc.)
+
+**Common Use Cases:**
+
+```bash
+# Debug why a program can't open a file
+strace -e open,openat ./myprogram 2>&1 | grep -i "no such file"
+
+# See what configuration files a program reads
+strace -e open nginx 2>&1 | grep "\.conf"
+
+# Find out why a program is slow
+strace -c -p $(pidof slow_process)
+
+# Debug network connectivity issues
+strace -e trace=network curl https://example.com
+
+# Track all file writes
+strace -e write,writev -p 1234
+
+# See why a process is hanging
+strace -p $(pidof hung_process)
+```
+
+**Practical Use:** Debugging application behavior, finding missing files or libraries, diagnosing performance issues, understanding program execution flow, or investigating security concerns.
+
+**See Also:** [ltrace (Section 11.10)](#1110-ltrace-command) for library call tracing
+
+## 11.10. ltrace Command
+
+The `ltrace` command traces library calls made by a process, complementing `strace` which traces system calls. Useful for debugging library-related issues.
+
+> [!NOTE]
+> **Installation:** `ltrace` may not be installed by default. Install with:
+>
+> - Debian/Ubuntu: `sudo apt install ltrace`
+> - RHEL/CentOS/Fedora: `sudo dnf install ltrace`
+
+- ltrace ls → trace library calls made by ls
+- ltrace -c ./program → count and summarize library calls
+- ltrace -p 1234 → attach to running process
+- ltrace -e malloc ./program → trace only malloc calls
+- ltrace -e malloc+free ./program → trace malloc and free
+- ltrace -o output.txt ./program → save trace to file
+- ltrace -f ./program → follow child processes
+- ltrace -t ./program → prefix each line with timestamp
+- ltrace -T ./program → show time spent in each call
+- ltrace -r ./program → show relative timestamps
+- ltrace -s 128 ./program → increase string display length
+- ltrace -l /lib/x86_64-linux-gnu/libc.so.6 ./program → trace calls to specific library
+
+**Commonly Traced Library Functions:**
+
+- Memory: malloc, calloc, realloc, free
+- String: strcpy, strcmp, strlen, strcat
+- I/O: fopen, fread, fwrite, fclose, printf
+- Math: sqrt, pow, sin, cos
+
+**Common Use Cases:**
+
+```bash
+# Debug memory allocation issues
+ltrace -e malloc+free+realloc ./myprogram
+
+# Find memory leaks (malloc without corresponding free)
+ltrace -e malloc+free ./program 2>&1 | grep malloc | wc -l
+ltrace -e malloc+free ./program 2>&1 | grep free | wc -l
+
+# See what library functions are called most
+ltrace -c ./program
+
+# Debug string handling
+ltrace -e 'str*' ./program
+
+# Trace specific library
+ltrace -l /usr/lib/libssl.so ./program
+```
+
+**strace vs ltrace:**
+
+| Feature | strace | ltrace |
+|---------|--------|--------|
+| **Traces** | System calls (kernel interface) | Library calls (user-space libraries) |
+| **Use for** | I/O, process, network debugging | Library function behavior |
+| **Example calls** | open, read, write, socket | malloc, printf, strcpy |
+| **Performance** | Lower overhead | Higher overhead |
+
+**Practical Use:** Debugging library-related issues, finding memory leaks, understanding program behavior with shared libraries, or analyzing third-party library usage.
+
+**See Also:** [strace (Section 11.9)](#119-strace-command) for system call tracing, [Managing Jobs in Shell (Section 13.7)](#137-managing-jobs-in-a-shell) for job control
+
 # 12. Scheduling Tasks
 
 ## **12.1. crontab**
@@ -3652,6 +4801,8 @@ commands, making them shorter or easier to remember.
 The Ctrl+Z, bg, and fg commands in Linux are used for managing jobs in
 the shell. They allow you to pause, background, or bring jobs to the
 foreground during a terminal session.
+
+**See Also:** [Process Management (Section 11)](#11-process-management) for related commands like `ps`, `kill`, `pgrep`, and `watch`
 
 ### **13.7.1. Ctlr+Z**
 
@@ -4999,6 +6150,218 @@ current day or calculating specific calendar dates.
 - cal -3 → display three months (pervious, current, next)
 
 - cal -B 2 -A 2 → display months before and after
+
+## 17.11. sar Command
+
+The `sar` (System Activity Reporter) command collects, reports, and saves system activity information. It's part of the sysstat package and is invaluable for performance analysis and troubleshooting.
+
+> [!NOTE]
+> **Installation Required:** sar is part of the sysstat package. Install with:
+> - Debian/Ubuntu: `sudo apt install sysstat`
+> - RHEL/CentOS/Fedora: `sudo dnf install sysstat`
+
+- sar → display CPU usage for current day
+- sar -u 2 5 → report CPU usage every 2 seconds, 5 times
+- sar -r → display memory usage statistics
+- sar -r 1 3 → display memory usage every 1 second, 3 times
+- sar -b → report I/O and transfer rate statistics
+- sar -d → report block device (disk) statistics
+- sar -n DEV → display network statistics
+- sar -n DEV 1 3 → display network statistics every 1 second, 3 times
+- sar -q → display load average and queue length
+- sar -W → report swap statistics
+- sar -f /var/log/sysstat/sa<day> → read from specific log file
+- sar -s 10:00:00 -e 14:00:00 → display stats from 10 AM to 2 PM
+
+#### Common Use Cases
+
+```bash
+# Monitor CPU usage in real-time
+sar -u 1
+
+# Check memory utilization trends
+sar -r 2 10
+
+# Analyze network activity
+sar -n DEV 1
+
+# View historical disk I/O
+sar -d -f /var/log/sysstat/sa$(date +%d -d yesterday)
+```
+
+**Practical Use:** Essential for identifying performance bottlenecks, analyzing historical system behavior, and capacity planning.
+
+## 17.12. mpstat Command
+
+The `mpstat` (Multiprocessor Statistics) command reports CPU statistics for individual processors or cores. Part of the sysstat package.
+
+- mpstat → display CPU statistics for all processors
+- mpstat -P ALL → show statistics for each CPU core separately
+- mpstat -P 0 → show statistics for CPU 0 only
+- mpstat 2 5 → report every 2 seconds, 5 times
+- mpstat -P ALL 1 → monitor all cores every 1 second
+- mpstat -I SUM → report interrupt statistics summary
+- mpstat -u → display CPU utilization (default behavior)
+
+#### Understanding Output
+
+- %usr → user-level CPU usage
+- %sys → system-level (kernel) CPU usage
+- %idle → percentage of time CPU was idle
+- %iowait → waiting for I/O operations
+- %irq → servicing hardware interrupts
+- %soft → servicing software interrupts
+
+#### Common Use Cases
+
+```bash
+# Monitor all CPU cores continuously
+mpstat -P ALL 1
+
+# Check if load is balanced across cores
+mpstat -P ALL 2 10
+
+# Identify high iowait on specific cores
+mpstat -P ALL 1 | grep -v "Average"
+```
+
+**Practical Use:** Diagnose CPU bottlenecks, verify multi-threading performance, and identify unbalanced CPU usage across cores.
+
+## 17.13. pidstat Command
+
+The `pidstat` command monitors and reports statistics for Linux tasks (processes). Part of the sysstat package.
+
+- pidstat → display CPU statistics for all active processes
+- pidstat -p 1234 → monitor specific process by PID
+- pidstat -u → display CPU usage statistics (default)
+- pidstat -r → display memory usage statistics
+- pidstat -d → report I/O statistics
+- pidstat -w → report task switching activity (context switches)
+- pidstat -t → display statistics for threads
+- pidstat -l → show full command line
+- pidstat 2 5 → report every 2 seconds, 5 times
+- pidstat -p ALL → monitor all processes
+- pidstat -C "apache\|nginx" → monitor processes matching pattern
+
+#### Common Use Cases
+
+```bash
+# Monitor specific process memory usage
+pidstat -r -p $(pgrep nginx) 1
+
+# Track I/O usage by process
+pidstat -d 2
+
+# Find processes with high context switches
+pidstat -w 1 10
+
+# Monitor threads of a specific process
+pidstat -t -p 1234 1
+```
+
+**Practical Use:** Identify resource-intensive processes, debug performance issues at the process level, and monitor specific applications.
+
+## 17.14. iftop Command
+
+The `iftop` command displays bandwidth usage on network interfaces in real-time, similar to how `top` works for processes.
+
+> [!NOTE]
+> **Installation Required:**
+> - Debian/Ubuntu: `sudo apt install iftop`
+> - RHEL/CentOS/Fedora: `sudo dnf install iftop`
+
+- sudo iftop → display network bandwidth usage on default interface
+- sudo iftop -i eth0 → monitor specific interface
+- sudo iftop -n → don't resolve hostnames (faster)
+- sudo iftop -N → don't resolve port numbers
+- sudo iftop -P → display ports
+- sudo iftop -B → display bandwidth in bytes
+- sudo iftop -F 192.168.1.0/24 → filter by network
+
+#### Interactive Commands (while running)
+
+- t → toggle between cumulative/current/average display
+- n → toggle hostname resolution
+- s/d → toggle source/destination display
+- p → toggle port display
+- P → pause display
+- q → quit
+
+**Practical Use:** Monitor real-time network bandwidth usage, identify bandwidth-heavy connections, and debug network performance issues.
+
+## 17.15. nethogs Command
+
+The `nethogs` command groups bandwidth usage by process, showing which programs are using network bandwidth.
+
+> [!NOTE]
+> **Installation Required:**
+> - Debian/Ubuntu: `sudo apt install nethogs`
+> - RHEL/CentOS/Fedora: `sudo dnf install nethogs`
+
+- sudo nethogs → monitor network bandwidth by process
+- sudo nethogs eth0 → monitor specific interface
+- sudo nethogs eth0 eth1 → monitor multiple interfaces
+- sudo nethogs -d 5 → update every 5 seconds (default is 1)
+- sudo nethogs -v 0 → only display sent bandwidth
+- sudo nethogs -v 1 → only display received bandwidth
+- sudo nethogs -v 2 → display total bandwidth (default)
+
+#### Interactive Commands (while running)
+
+- m → change display mode (KB/s, KB, B, MB)
+- r → sort by received traffic
+- s → sort by sent traffic
+- q → quit
+
+**Practical Use:** Identify which applications are consuming network bandwidth, useful for diagnosing unexpected network usage and monitoring specific processes.
+
+## 17.16. ncdu Command
+
+The `ncdu` (NCurses Disk Usage) command is an interactive, ncurses-based disk usage analyzer that provides a more user-friendly alternative to `du`.
+
+> [!NOTE]
+> **Installation Required:**
+> - Debian/Ubuntu: `sudo apt install ncdu`
+> - RHEL/CentOS/Fedora: `sudo dnf install ncdu`
+
+- ncdu → analyze current directory
+- ncdu /path/to/directory → analyze specific directory
+- ncdu -x → exclude mounted filesystems (don't cross filesystem boundaries)
+- ncdu --exclude /path → exclude specific directory
+- ncdu -o output.txt → export results to file
+- ncdu -f output.txt → import from previously exported file
+- ncdu -r → read-only mode (no deletion)
+- ncdu --color dark → use dark color scheme
+
+#### Interactive Commands (while running)
+
+- ↑/↓ or j/k → navigate directories
+- Enter → open selected directory
+- d → delete selected file/directory
+- g → show percentage and/or graph
+- n → sort by name
+- s → sort by size
+- c → toggle showing item counts
+- e → toggle showing hidden files
+- q → quit
+
+#### Common Use Cases
+
+```bash
+# Analyze system directory usage
+sudo ncdu /
+
+# Find large files in home directory
+ncdu ~
+
+# Export analysis for later review
+ncdu -o disk-usage-$(date +%Y%m%d).txt /var
+
+# Analyze without crossing mount points
+ncdu -x /
+```
+
+**Practical Use:** Quickly identify disk space hogs, interactively explore directory trees, and clean up large files with built-in deletion capability.
 
 # 18. Networking
 
@@ -7397,6 +8760,7 @@ Quick reference index of all commands documented in this guide.
 
 ## B
 
+- **`basename`** - basename Command - See [4.1.17](#4117-basename-command)
 - **`bc`** - bc - See [17.9](#179-bc-command)
 - **`blkid`** - blkid - See [16.6](#166-blkid-command)
 
@@ -7405,6 +8769,8 @@ Quick reference index of all commands documented in this guide.
 - **`cal`** - cal - See [17.10](#1710-cal-command)
 - **`cat`** - cat - See [4.2.1](#421-cat-command)
 - **`cd`** - cd - See [4.1.2](#412-cd-command)
+- **`column`** - column Command - See [6.1.8](#618-column-command)
+- **`comm`** - comm Command - See [6.1.12](#6112-comm-command)
 - **`cp`** - cp - See [4.1.3](#413-cp-command)
 - **`curl`** - curl - See [23.2](#232-curl-command)
 - **`cut`** - cut - See [6.1.1](#611-cut-command)
@@ -7414,14 +8780,20 @@ Quick reference index of all commands documented in this guide.
 - **`date`** - date - See [17.7](#177-date-command)
 - **`dd`** - dd - See [16.8](#168-dd-command)
 - **`df`** - df - See [16.2](#162-df-command)
+- **`dirname`** - dirname Command - See [4.1.18](#4118-dirname-command)
 - **`dmesg`** - dmesg - See [17.1](#171-dmesg-command)
 - **`du`** - du - See [16.1](#161-du-command)
+
+## E
+
+- **`expand`** - expand Command - See [6.1.9](#619-expand-and-unexpand-commands)
 
 ## F
 
 - **`fdisk`** - fdisk - See [16.3](#163-fdisk-command)
 - **`file`** - file - See [4.1.8](#418-file-command)
 - **`find`** - find - See [4.3.1](#431-find-command)
+- **`fmt`** - fmt Command - See [6.1.10](#6110-fmt-command)
 - **`free`** - free - See [17.4](#174-free-command)
 - **`fsck`** - fsck - See [16.7](#167-fsck-command)
 
@@ -7432,10 +8804,12 @@ Quick reference index of all commands documented in this guide.
 ## H
 
 - **`head`** - head - See [4.2.4](#424-head-command)
+- **`hexdump`** - hexdump Command - See [4.4.4](#444-hexdump-and-xxd-commands)
 
 ## I
 
 - **`ifconfig`** - ifconfig - See [18.5](#185-ifconfig-command)
+- **`iftop`** - iftop Command - See [17.14](#1714-iftop-command)
 - **`iostat`** - iostat - See [17.2](#172-iostat-command)
 - **`ip`** - ip - See [18.3](#183-ip-command)
 
@@ -7445,42 +8819,63 @@ Quick reference index of all commands documented in this guide.
 
 ## L
 
+- **`ln`** - ln Command - See [4.1.15](#4115-ln-command)
 - **`locate`** - locate - See [4.3.2](#432-locate-command)
 - **`ls`** - ls - See [4.1.1](#411-ls-command)
 - **`lsblk`** - lsblk - See [16.5](#165-lsblk-command)
 - **`lsof`** - lsof - See [17.5](#175-lsof-command)
+- **`ltrace`** - ltrace Command - See [11.10](#1110-ltrace-command)
 
 ## M
 
 - **`mkdir`** - mkdir - See [4.1.6](#416-mkdir-command)
 - **`mkfs`** - mkfs - See [16.4](#164-mkfs-command)
 - **`mount`** - mount - See [16.10](#1610-mount-command)
+- **`mpstat`** - mpstat Command - See [17.12](#1712-mpstat-command)
 - **`mv`** - mv - See [4.1.5](#415-mv-command)
 
 ## N
 
+- **`ncdu`** - ncdu Command - See [17.16](#1716-ncdu-command)
+- **`nethogs`** - nethogs Command - See [17.15](#1715-nethogs-command)
 - **`netstat`** - netstat - See [18.1](#181-netstat-command)
+- **`nm`** - nm Command - See [4.4.2](#442-nm-command)
+
+## O
+
+- **`objdump`** - objdump Command - See [4.4.1](#441-objdump-command)
 
 ## P
 
+- **`parallel`** - parallel Command - See [4.4.6](#446-parallel-command)
+- **`pgrep`** - pgrep Command - See [11.5](#115-pgrep-command)
+- **`pidof`** - pidof Command - See [11.6](#116-pidof-command)
+- **`pidstat`** - pidstat Command - See [17.13](#1713-pidstat-command)
 - **`ping`** - ping - See [18.4](#184-ping-command)
+- **`pr`** - pr Command - See [6.1.11](#6111-pr-command)
 - **`ps`** - ps - See [11.1](#111-ps-command)
+- **`pstree`** - pstree Command - See [11.7](#117-pstree-command)
 - **`pwd`** - pwd - See [4.1.12](#4112-pwd-command)
 
 ## R
 
+- **`readelf`** - readelf Command - See [4.4.3](#443-readelf-command)
+- **`readlink`** - readlink Command - See [4.1.16](#4116-readlink-command)
 - **`rm`** - rm - See [4.1.4](#414-rm-command)
 - **`rmdir`** - rmdir - See [4.1.7](#417-rmdir-command)
 - **`rsync`** - rsync - See [23.5](#235-rsync-command)
 
 ## S
 
+- **`sar`** - sar Command - See [17.11](#1711-sar-command)
 - **`scp`** - scp - See [23.4](#234-scp-command)
 - **`script`** - script - See [13.8](#138-script-command)
+- **`sed`** - sed command - See [6.1.6](#616-sed-command)
 - **`sort`** - sort - See [6.1.4](#614-sort-command)
 - **`split`** - split - See [4.1.11](#4111-split-command)
 - **`ss`** - ss - See [18.2](#182-ss-command)
 - **`stat`** - stat - See [4.1.13](#4113-stat-command)
+- **`strace`** - strace Command - See [11.9](#119-strace-command)
 - **`systemd-analyze`** - systemd-analyze - See [10.9](#109-systemd-analyze-command)
 
 ## T
@@ -7488,13 +8883,18 @@ Quick reference index of all commands documented in this guide.
 - **`tac`** - tac - See [4.2.2](#422-tac-command)
 - **`tail`** - tail - See [4.2.5](#425-tail-command)
 - **`timedatectl`** - timedatectl - See [17.8](#178-timedatectl-command)
+- **`timeout`** - timeout Command - See [4.4.5](#445-timeout-command)
 - **`top`** - top - See [11.2](#112-top-command)
+- **`touch`** - touch Command - See [4.1.14](#4114-touch-command)
+- **`tr`** - tr Command - See [6.1.7](#617-tr-command)
 - **`tree`** - tree - See [4.1.9](#419-tree-command)
 - **`truncate`** - truncate - See [4.1.10](#4110-truncate-command)
 
 ## U
 
+- **`unexpand`** - unexpand Command - See [6.1.9](#619-expand-and-unexpand-commands)
 - **`uniq`** - uniq - See [6.1.5](#615-uniq-command)
+- **`unrar`** - unrar Command - See [8.3.1](#831-unrar-command)
 
 ## V
 
@@ -7502,5 +8902,18 @@ Quick reference index of all commands documented in this guide.
 
 ## W
 
+- **`watch`** - watch Command - See [11.8](#118-watch-command)
 - **`wc`** - wc - See [4.2.6](#426-wc-command)
 - **`wget`** - wget - See [23.1](#231-wget-command)
+
+## X
+
+- **`xargs`** - xargs Command - See [6.1.13](#6113-xargs-command)
+- **`xxd`** - xxd Command - See [4.4.4](#444-hexdump-and-xxd-commands)
+
+## Z
+
+- **`7z`** - 7z/7za Command - See [8.2.1](#821-7z7za-command)
+- **`zcat`** - zcat Command - See [8.1.1](#811-zcat-command)
+- **`zgrep`** - zgrep Command - See [8.1.3](#813-zgrep-command)
+- **`zless`** - zless Command - See [8.1.2](#812-zless-command)
