@@ -7,7 +7,6 @@ local hyperKey = {"ctrl", "shift", "option", "command"}
 -- You can now specify custom paths for apps not in the default Applications directory
 -- OR specify URLs to open in specific browsers
 local appList = {
-	-- Browsers
 	["1"] = {app = "Chrome", path = "/Applications/Microsoft Edge.app"},
 	["2"] = {app = "Firefox", path = "/Applications/Firefox.app"},
     ["3"] = {app = "Teams", path = "/Applications/Microsoft Teams.app"},

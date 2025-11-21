@@ -17,140 +17,120 @@ local M = {}
 --       Table format: { command = "cmd", cwd = "/path", split = "horizontal"|"vertical" }
 
 M.sessions = {
-  -- Example: Network investigation workspace
-  network = {
-    name = "Network Investigation",
-    cwd = wezterm.home_dir .. "/Code/network",
-    tabs = {
-      {
-        title = "Logs",
-        panes = {
-          "tail -f /var/log/network.log",
-          { command = "tail -f /var/log/service.log", split = "horizontal" },
-        }
-      },
-      {
-        title = "Debug",
-        panes = {
-          "echo 'Ready for debugging'",
-        }
-      },
-      {
-        title = "SSH",
-        panes = {
-          "echo 'ssh server1'",
-          { command = "echo 'ssh server2'", split = "vertical" },
-        }
-      },
-    }
-  },
 
-  -- Example: Docker services
-  docker = {
-    name = "Docker Services",
+  -- System Monitor: Docker services + network monitoring
+  system_monitor = {
+    name = "System Monitor",
     cwd = wezterm.home_dir,
     tabs = {
       {
-        title = "LocalStack",
-        panes = {
-          "echo 'Start LocalStack: docker-compose up localstack'",
-        }
-      },
-      {
-        title = "ActiveMQ",
-        panes = {
-          "echo 'Start ActiveMQ: docker-compose up activemq'",
-        }
-      },
-      {
-        title = "Monitoring",
-        panes = {
-          "docker ps",
-          { command = "docker stats", split = "horizontal" },
-        }
-      },
-    }
-  },
-
-  -- Example: Investrack project
-  investrack = {
-    name = "Investrack",
-    cwd = wezterm.home_dir .. "/Code/investrack",
-    tabs = {
-      {
-        title = "Backend",
-        panes = {
-          "echo 'Run: mvn spring-boot:run'",
-        }
-      },
-      {
-        title = "Frontend",
-        panes = {
-          "echo 'Run: npm run dev'",
-        }
-      },
-      {
-        title = "Git",
-        panes = {
-          "git status",
-        }
-      },
-      {
-        title = "Logs",
-        panes = {
-          "tail -f logs/app.log",
-          { command = "tail -f logs/error.log", split = "horizontal" },
-        }
-      },
-    }
-  },
-
-  -- Example: Elevate project
-  elevate = {
-    name = "Elevate",
-    cwd = wezterm.home_dir .. "/Code/elevate",
-    tabs = {
-      {
-        title = "Development",
-        panes = {
-          "echo 'Dev environment'",
-        }
-      },
-      {
-        title = "Investigation",
-        panes = {
-          "git log --oneline -10",
-        }
-      },
-    }
-  },
-
-  -- Example: Elevate INT deployment
-  elevate_int = {
-    name = "Elevate INT",
-    cwd = wezterm.home_dir .. "/Code/elevate",
-    tabs = {
-      {
-        title = "Deploy",
-        panes = {
-          "echo 'Ready for INT deployment'",
-        }
-      },
-      {
-        title = "Logs",
-        panes = {
-          "echo 'kubectl logs -f pod-name'",
-        }
-      },
-      {
         title = "Monitor",
         panes = {
-          "echo 'kubectl get pods -w'",
-          { command = "echo 'kubectl top pods'", split = "horizontal" },
+          -- Pane 1 (top-left): LocalStack and ActiveMQ
+          "docker run -d --rm -p 4566:4566 localstack/localstack:latest && docker run -d --rm -p 61616:61616 -p 8162:8161 symptoma/activemq:latest",
+
+          -- Pane 2 (bottom-full): Docker stats - split DOWN from pane 1 first
+          {
+            command = "docker stats",
+            split = "horizontal",
+            split_from = 1
+          },
+
+          -- Pane 3 (top-right): Network connectivity monitor - split RIGHT from pane 1
+          {
+            command = [[while :; do
+  if ping -c1 -W1 1.1.1.1 >/dev/null 2>&1 || ping -c1 -W1 8.8.8.8 >/dev/null 2>&1; then
+    printf '%s  OK\n' "$(date '+%Y-%m-%d %H:%M:%S')"
+  else
+    printf '%s  DOWN\n' "$(date '+%Y-%m-%d %H:%M:%S')"
+    osascript -e 'display notification "Internet appears DOWN" with title "Connectivity Watch"'
+    afplay /System/Library/Sounds/Basso.aiff
+    say "Internet connection lost"
+  fi
+  sleep 5
+done]],
+            split = "vertical",
+            split_from = 1
+          },
+        }
+      },
+      {
+        title = "Shell",
+        panes = {
+          "echo 'Ready for commands'",
         }
       },
     }
   },
+
+  -- Investrack project workspace
+  investrack = {
+    name = "Investrack",
+    tabs = {
+      {
+        title = "Workspace",
+        panes = {
+          -- Pane 1 (Top-Left): investrack root (runs ll -a)
+          {
+            command = "ll -a",
+            cwd = "/Users/vibin.joseph/Code/jcl/investrack"
+          },
+
+          -- Pane 2 (Top-Right): UI directory - split RIGHT from pane 1
+          {
+            command = "",
+            cwd = "/Users/vibin.joseph/Code/jcl/investrack/ui/investrack-ui",
+            split = "vertical",
+            split_from = 1
+          },
+
+          -- Pane 3 (Bottom-Left): investrack root - split DOWN from pane 1
+          {
+            command = "",
+            cwd = "/Users/vibin.joseph/Code/jcl/investrack",
+            split = "horizontal",
+            split_from = 1
+          },
+
+          -- Pane 4 (Bottom-Right): API directory - split DOWN from pane 2
+          {
+            command = "",
+            cwd = "/Users/vibin.joseph/Code/jcl/investrack/api",
+            split = "horizontal",
+            split_from = 2
+          },
+        }
+      },
+    }
+  },
+
+  -- Elevate Dev: Billing components workspace
+  elevate_dev = {
+    name = "Elevate Dev",
+    tabs = {
+      {
+        title = "Billing",
+        cwd = "/Users/vibin.joseph/Code/si/elevate/billing",
+        panes = { "" }
+      },
+      {
+        title = "Billing UI",
+        cwd = "/Users/vibin.joseph/Code/si/elevate/billing/billing-ui",
+        panes = { "" }
+      },
+      {
+        title = "Billing WS",
+        cwd = "/Users/vibin.joseph/Code/si/elevate/billing/billing-ws",
+        panes = { "" }
+      },
+      {
+        title = "Auth",
+        cwd = "/Users/vibin.joseph/Code/si/elevate/billing-rest-authentication",
+        panes = { "" }
+      },
+    }
+  },
+
 }
 
 -- ========================================
@@ -168,12 +148,15 @@ function M.create_session_window(session_key)
   local mux = wezterm.mux
   local base_cwd = session.cwd or wezterm.home_dir
 
-  -- Create the first tab
-  local tab, pane, window = mux.spawn_window({ cwd = base_cwd })
-
   -- Configure the first tab
   if session.tabs and #session.tabs > 0 then
     local first_tab = session.tabs[1]
+    local first_tab_cwd = first_tab.cwd or base_cwd
+
+    -- Create the first tab with the correct directory
+    local tab, pane, window = mux.spawn_window({ cwd = first_tab_cwd })
+    local first_pane = pane  -- Save reference to first tab's pane
+
     if first_tab.title then
       tab:set_title(first_tab.title)
     end
@@ -193,10 +176,10 @@ function M.create_session_window(session_key)
 
       M.create_panes(tab, tab_config, base_cwd)
     end
-  end
 
-  -- Activate the first tab
-  window:gui_window():perform_action(wezterm.action.ActivateTab(0), pane)
+    -- Activate the first tab
+    window:gui_window():perform_action(wezterm.action.ActivateTab(0), first_pane)
+  end
 end
 
 -- Create panes within a tab
@@ -207,26 +190,38 @@ function M.create_panes(tab, tab_config, base_cwd)
 
   local panes = tab_config.panes
   local tab_cwd = tab_config.cwd or base_cwd
-  local current_pane = tab:active_pane()
+  local pane_list = {}
 
-  -- Send command to the first pane
-  M.send_command_to_pane(current_pane, panes[1])
+  -- First pane is the initial tab pane
+  pane_list[1] = tab:active_pane()
 
-  -- Create and configure additional panes
+  -- Get the cwd for the first pane
+  local first_pane_cwd = nil
+  if type(panes[1]) == "table" and panes[1].cwd then
+    first_pane_cwd = panes[1].cwd
+  end
+
+  M.send_command_to_pane(pane_list[1], panes[1], first_pane_cwd)
+
+  -- Create additional panes
   for i = 2, #panes do
     local pane_config = panes[i]
-    local command, split_direction, pane_cwd = M.parse_pane_config(pane_config, tab_cwd)
+    local command, split_direction, pane_cwd, split_from = M.parse_pane_config(pane_config, tab_cwd)
 
-    if command then
+    if command ~= nil then
+      -- Determine which pane to split from
+      local source_pane_index = split_from or (i - 1)
+      local source_pane = pane_list[source_pane_index] or pane_list[#pane_list]
+
       -- Split the pane (horizontal = left/right, vertical = top/bottom)
       local direction = split_direction == "vertical" and "Right" or "Bottom"
-      local new_pane = current_pane:split({
+      local new_pane = source_pane:split({
         direction = direction,
         cwd = pane_cwd,
       })
 
-      M.send_command_to_pane(new_pane, command)
-      current_pane = new_pane
+      M.send_command_to_pane(new_pane, command, pane_cwd)
+      pane_list[i] = new_pane
     end
   end
 end
@@ -234,19 +229,24 @@ end
 -- Parse pane configuration (string or table)
 function M.parse_pane_config(pane_config, default_cwd)
   if type(pane_config) == "string" then
-    return pane_config, "horizontal", default_cwd
+    return pane_config, "horizontal", default_cwd, nil
   elseif type(pane_config) == "table" then
-    return pane_config.command,
+    return pane_config.command or "",
            pane_config.split or "horizontal",
-           pane_config.cwd or default_cwd
+           pane_config.cwd or default_cwd,
+           pane_config.split_from
   end
-  return nil, nil, nil
+  return nil, nil, nil, nil
 end
 
 -- Send command to a pane
-function M.send_command_to_pane(pane, config)
+function M.send_command_to_pane(pane, config, pane_cwd)
   local command = type(config) == "string" and config or (config.command or "")
-  if command ~= "" then
+
+  -- If a cwd is specified and there's a command, cd first then run the command
+  if pane_cwd and command ~= "" then
+    pane:send_text("cd " .. wezterm.shell_quote_arg(pane_cwd) .. " && " .. command .. "\n")
+  elseif command ~= "" then
     pane:send_text(command .. "\n")
   end
 end

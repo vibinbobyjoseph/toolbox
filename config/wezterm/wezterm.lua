@@ -67,7 +67,7 @@ end)
 wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
   local pane = tab.active_pane
   local title = pane.title
-  
+
   -- Get the current working directory
   local cwd = pane.current_working_dir
   if cwd then
@@ -80,7 +80,7 @@ wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_wid
       title = dir
     end
   end
-  
+
   -- Get the running process
   local process = pane.foreground_process_name
   if process then
@@ -91,7 +91,7 @@ wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_wid
       title = string.format("%s: %s", process, title)
     end
   end
-  
+
   -- Let Wezterm use the theme's colors automatically
   return {
     { Text = ' ' .. title .. ' ' },
@@ -106,7 +106,7 @@ config.keys = {
   -- Split panes
   { key = '|', mods = 'CMD|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = '_', mods = 'CMD|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
-  
+
   -- Navigate panes (vim-style hjkl)
   { key = 'j', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
   { key = 'k', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
@@ -118,19 +118,19 @@ config.keys = {
   { key = 'DownArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
   { key = 'UpArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
   { key = 'RightArrow', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right' },
-  
+
   -- Close pane
   { key = 'x', mods = 'CMD|SHIFT', action = wezterm.action.CloseCurrentPane { confirm = true } },
-  
+
   -- Resize panes
   { key = 'LeftArrow', mods = 'CMD|SHIFT|OPT', action = wezterm.action.AdjustPaneSize { 'Left', 5 } },
   { key = 'RightArrow', mods = 'CMD|SHIFT|OPT', action = wezterm.action.AdjustPaneSize { 'Right', 5 } },
   { key = 'UpArrow', mods = 'CMD|SHIFT|OPT', action = wezterm.action.AdjustPaneSize { 'Up', 5 } },
   { key = 'DownArrow', mods = 'CMD|SHIFT|OPT', action = wezterm.action.AdjustPaneSize { 'Down', 5 } },
-  
+
   -- Zoom pane (toggle fullscreen for current pane)
   { key = 'z', mods = 'CMD|SHIFT', action = wezterm.action.TogglePaneZoomState },
-  
+
   -- Quick select (URLs, file paths, hashes)
   { key = ' ', mods = 'CMD|SHIFT', action = wezterm.action.QuickSelect },
 
@@ -138,7 +138,7 @@ config.keys = {
   { key = 'k', mods = 'CMD', action = wezterm.action.ClearScrollback 'ScrollbackAndViewport' },
 
   -- Session launcher
-  { key = 's', mods = 'CMD|SHIFT', action = sessions.create_launcher_action() },
+  { key = 'k', mods = 'CMD|SHIFT', action = sessions.create_launcher_action() },
 }
 
 return config
