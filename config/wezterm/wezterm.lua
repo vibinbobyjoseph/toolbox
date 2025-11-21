@@ -1,4 +1,5 @@
 local wezterm = require 'wezterm'
+local sessions = require 'sessions'
 local config = {}
 
 -- Use the newer config builder if available
@@ -135,6 +136,9 @@ config.keys = {
 
   -- Clear scrollback
   { key = 'k', mods = 'CMD', action = wezterm.action.ClearScrollback 'ScrollbackAndViewport' },
+
+  -- Session launcher
+  { key = 's', mods = 'CMD|SHIFT', action = sessions.create_launcher_action() },
 }
 
 return config

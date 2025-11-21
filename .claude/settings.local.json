@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "WebFetch",
       "Bash(STARSHIP_CONFIG=/Users/vibin.joseph/Code/jcl/toolbox/config/starship.toml starship prompt:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
