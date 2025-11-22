@@ -6,9 +6,11 @@ A comprehensive Hammerspoon configuration for macOS automation, providing powerf
 
 ### 🚀 Application Launching
 - **Hyper Key Combinations**: Launch apps instantly with `⌘+⌥+⌃+⇧ + key`
-- **Single Key Access**: Quick app toggling with special keys (§, F13-F15)
-- **URL Support**: Open specific URLs in designated browsers
+- **Toggle Behavior**: Press the same combo to hide a focused app or bring it to front
+- **Single Key Access**: Quick app toggling with special keys (§, F13)
+- **URL Support**: Open specific URLs in designated browsers (Firefox, Chrome, Safari, Edge)
 - **Custom App Paths**: Support for non-standard application locations
+- **Bundle ID Support**: Fast app detection using bundle IDs
 
 ### 🪟 Window Management
 - **Screen Movement**: Move windows between displays with `⌃+⌥+⇧ + arrows`
@@ -16,9 +18,9 @@ A comprehensive Hammerspoon configuration for macOS automation, providing powerf
 - **Full Screen Toggle**: Maximize windows with `⌃+⌥ + return`
 
 ### 🖱️ Mouse Control
-- **Keyboard Navigation**: Control mouse cursor with hyper key + arrows
-- **Click Simulation**: Left/right click via keyboard shortcuts
-- **Precision Movement**: Configurable movement speed and intervals
+- **Keyboard Navigation**: Control mouse cursor with `⌘+⌥+⌃+⇧ + arrows`
+- **Click Simulation**: Left/middle/right click via keyboard shortcuts
+- **Precision Movement**: Configurable movement speed and intervals (see utils.lua)
 
 ### 🔊 System Controls
 - **Volume Management**: System volume controls with hyper key + F10-F12
@@ -37,21 +39,23 @@ A comprehensive Hammerspoon configuration for macOS automation, providing powerf
 ## Key Bindings
 
 ### Application Launching (Hyper Key: ⌘+⌥+⌃+⇧)
+All apps support toggle behavior: Press once to launch/focus, press again to hide.
+
 | Key | Application | Key | Application |
 |-----|-------------|-----|-------------|
-| `1` | Chrome | `j` | IntelliJ IDEA |
+| `1` | Microsoft Edge | `i` | IntelliJ IDEA |
 | `2` | Firefox | `t` | TablePlus |
-| `v` | VS Code | `x` | TextMate |
-| `n` | Notion | `p` | 1Password |
-| `s` | Slack | `m` | Mail |
-| `w` | WhatsApp | `g` | Sourcetree |
-| `F1` | ChatGPT | `F2` | Claude |
-| `F3` | Deepseek (web) | `F4` | Perplexity (web) |
+| `3` | Microsoft Teams | `v` | VS Code |
+| `c` | Claude | `x` | TextMate |
+| `g` | ChatGPT | `p` | 1Password |
+| `n` | Notion | `m` | Mail |
+| `o` | Microsoft Outlook | `s` | Sourcetree |
+| `w` | WhatsApp | `f4` | WezTerm |
 
 ### Single Key Access
 | Key | Application | Behavior |
 |-----|-------------|----------|
-| `§` | iTerm | Toggle show/hide |
+| `§` | WezTerm | Toggle show/hide |
 | `F13` | Notion | Toggle show/hide |
 | `F14` | Mic Toggle | Mute/unmute microphone |
 
@@ -65,12 +69,22 @@ A comprehensive Hammerspoon configuration for macOS automation, providing powerf
 | `⌃+⌥ + ↓` | Snap window to bottom half |
 | `⌃+⌥ + return` | Maximize window |
 
+### Mouse Control
+
+| Combination | Action |
+|-------------|--------|
+| `⌘+⌥+⌃+⇧ + ↑↓←→` | Move mouse cursor |
+| `⌘+⌥+⌃+⇧ + End` | Left click |
+| `⌘+⌥+⌃+⇧ + Home` | Middle click |
+| `⌘+⌥+⌃+⇧ + PgDn` | Right click |
+
 ### System Controls
 | Combination | Action |
 |-------------|--------|
 | `⌘+⌥+⌃+⇧ + F10` | Mute/unmute system |
 | `⌘+⌥+⌃+⇧ + F11` | Volume down |
 | `⌘+⌥+⌃+⇧ + F12` | Volume up |
+| `F14` | Toggle microphone mute |
 
 ## File Structure
 
@@ -80,7 +94,8 @@ A comprehensive Hammerspoon configuration for macOS automation, providing powerf
 ├── README.md                         # This file
 ├── CLAUDE.md                         # Claude Code documentation
 └── config/
-    ├── hyperkey_app_launch.lua       # Hyper key app launching
+    ├── utils.lua                     # Shared utility functions
+    ├── hyperkey_app_launch.lua       # Hyper key app launching (with toggle)
     ├── singlekey_app_launch.lua      # Single key app launching
     ├── window_move.lua               # Inter-screen window movement
     ├── window_resize.lua             # Window positioning/resizing
@@ -95,7 +110,11 @@ A comprehensive Hammerspoon configuration for macOS automation, providing powerf
 Edit `config/hyperkey_app_launch.lua` and add entries to the `appList` table:
 
 ```lua
-["key"] = {app = "AppName", path = "/Applications/AppName.app"}
+["key"] = {
+    app = "AppName",
+    path = "/Applications/AppName.app",
+    bundleID = "com.company.appname"  -- Optional but recommended for toggle
+}
 ```
 
 For web URLs:
@@ -103,8 +122,19 @@ For web URLs:
 ["key"] = {
     type = "url",
     url = "https://example.com",
-    browser = "Firefox",
+    browser = "Firefox",  -- Supports: Firefox, Chrome, Safari, Edge
     description = "Example Site"
+}
+```
+
+### Configuring Mouse Speed
+
+Edit `config/utils.lua` to adjust mouse movement parameters:
+
+```lua
+utils.mouseConfig = {
+    moveAmount = 5,        -- Pixels per interval (increase for faster movement)
+    moveInterval = 0.01    -- Time in seconds (decrease for smoother movement)
 }
 ```
 

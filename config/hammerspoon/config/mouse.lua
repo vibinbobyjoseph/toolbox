@@ -1,6 +1,7 @@
 local hyperKey = {"ctrl", "alt", "cmd", "shift"}
-local moveAmount = 5 -- Number of pixels to move per interval
-local moveInterval = 0.01 -- Time interval for continuous movement (in seconds)
+local utils = require("config.utils")
+local moveAmount = utils.mouseConfig.moveAmount
+local moveInterval = utils.mouseConfig.moveInterval
 
 local mouseTimers = {
     up = nil,
@@ -66,5 +67,5 @@ end
 
 -- Bind keys for mouse clicks
 hs.hotkey.bind(hyperKey, "end", function() mouseClick("left") end) -- Left click
--- hs.hotkey.bind(hyperKey, "end", function() mouseClick("middle") end) -- Middle click
+hs.hotkey.bind(hyperKey, "home", function() mouseClick("middle") end) -- Middle click (changed from 'end' to 'home')
 hs.hotkey.bind(hyperKey, "pageDown", function() mouseClick("right") end) -- Right click

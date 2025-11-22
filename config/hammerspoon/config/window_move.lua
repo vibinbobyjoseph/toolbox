@@ -2,17 +2,11 @@
 -- Move a window from one screen to another (strict direction)
 -- Define the hyperWM-key
 local hyperWM = {"ctrl", "alt", "shift"}
-
--- Helper function to get active window with fallback methods
-local function getActiveWindow()
-    return hs.window.focusedWindow()
-        or hs.window.frontmostWindow()
-        or hs.window.orderedWindows()[1]
-end
+local utils = require("config.utils")
 
 -- Move the focused window to the next screen (strict right)
 hs.hotkey.bind(hyperWM, "right", function()
-    local win = getActiveWindow()
+    local win = utils.getActiveWindow()
     if win then
         local currentScreen = win:screen()
         local nextScreen = currentScreen:toEast() -- Strictly get the screen to the right
@@ -28,7 +22,7 @@ end)
 
 -- Move the focused window to the previous screen (strict left)
 hs.hotkey.bind(hyperWM, "left", function()
-    local win = getActiveWindow()
+    local win = utils.getActiveWindow()
     if win then
         local currentScreen = win:screen()
         local prevScreen = currentScreen:toWest() -- Strictly get the screen to the left

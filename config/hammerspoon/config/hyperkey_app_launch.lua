@@ -6,23 +6,24 @@ local hyperKey = {"ctrl", "shift", "option", "command"}
 -- Define a table of applications and their corresponding keys
 -- You can now specify custom paths for apps not in the default Applications directory
 -- OR specify URLs to open in specific browsers
+-- Optional: Add bundleID for toggle functionality
 local appList = {
-    ["f4"] = {app = "WezTerm", path = "/Applications/WezTerm.app"},
-	["1"] = {app = "Edge", path = "/Applications/Microsoft Edge.app"},
-	["2"] = {app = "Firefox", path = "/Applications/Firefox.app"},
-    ["3"] = {app = "Teams", path = "/Applications/Microsoft Teams.app"},
-	["c"] = {app = "Claude", path = "/Applications/Claude.app"},
-    ["g"] = {app = "ChatGPT", path = "/Applications/ChatGPT.app"},
-	["i"] = {app = "IntelliJ", path = "/Applications/IntelliJ IDEA.app"},
-	["n"] = {app = "Notion", path = "/Applications/Notion.app"},
-    ["o"] = {app = "Outlook", path = "/Applications/Microsoft Outlook.app"},
-	["m"] = {app = "Mail", path = "/System/Applications/Mail.app"},
-	["p"] = {app = "1Password", path = "/Applications/1Password.app"},
-	["s"] = {app = "Sourcetree", path = "/Applications/Sourcetree.app"},
-	["t"] = {app = "TablePlus", path = "/Applications/TablePlus.app"},
-	["v"] = {app = "VS Code", path = "/Applications/Visual Studio Code.app"},
-	["x"] = {app = "TextMate", path = "/Applications/TextMate.app"},
-	["w"] = {app = "WhatsApp", path = "/Applications/WhatsApp.app"},
+    ["f4"] = {app = "WezTerm", path = "/Applications/WezTerm.app", bundleID = "com.github.wez.wezterm"},
+	["1"] = {app = "Edge", path = "/Applications/Microsoft Edge.app", bundleID = "com.microsoft.edgemac"},
+	["2"] = {app = "Firefox", path = "/Applications/Firefox.app", bundleID = "org.mozilla.firefox"},
+    ["3"] = {app = "Teams", path = "/Applications/Microsoft Teams.app", bundleID = "com.microsoft.teams2"},
+	["c"] = {app = "Claude", path = "/Applications/Claude.app", bundleID = "com.anthropic.claude"},
+    ["g"] = {app = "ChatGPT", path = "/Applications/ChatGPT.app", bundleID = "com.openai.chat"},
+	["i"] = {app = "IntelliJ", path = "/Applications/IntelliJ IDEA.app", bundleID = "com.jetbrains.intellij"},
+	["n"] = {app = "Notion", path = "/Applications/Notion.app", bundleID = "notion.id"},
+    ["o"] = {app = "Outlook", path = "/Applications/Microsoft Outlook.app", bundleID = "com.microsoft.Outlook"},
+	["m"] = {app = "Mail", path = "/System/Applications/Mail.app", bundleID = "com.apple.mail"},
+	["p"] = {app = "1Password", path = "/Applications/1Password.app", bundleID = "com.1password.1password"},
+	["s"] = {app = "Sourcetree", path = "/Applications/Sourcetree.app", bundleID = "com.torusknot.SourceTreeNotMAS"},
+	["t"] = {app = "TablePlus", path = "/Applications/TablePlus.app", bundleID = "com.tinyapp.TablePlus"},
+	["v"] = {app = "VS Code", path = "/Applications/Visual Studio Code.app", bundleID = "com.microsoft.VSCode"},
+	["x"] = {app = "TextMate", path = "/Applications/TextMate.app", bundleID = "com.macromates.TextMate"},
+	["w"] = {app = "WhatsApp", path = "/Applications/WhatsApp.app", bundleID = "net.whatsapp.WhatsApp"},
 }
 
 -- Function to launch a URL in a specific browser
@@ -30,7 +31,8 @@ local function launchURL(url, browser, key, description)
     local browserBundle = {
         ["Firefox"] = "org.mozilla.firefox",
         ["Chrome"] = "com.google.Chrome",
-        ["Safari"] = "com.apple.Safari"
+        ["Safari"] = "com.apple.Safari",
+        ["Edge"] = "com.microsoft.edgemac"
     }
 
     local bundleID = browserBundle[browser]
@@ -48,32 +50,59 @@ local function launchURL(url, browser, key, description)
     end
 end
 
--- Function to launch an app by its name or custom path
-local function launchApp(appName, key, customPath)
+-- Function to launch an app with toggle functionality
+local function launchApp(appName, key, itemData)
     -- Safety check for appName
     if not appName then
         hs.alert.show("Error: No app name specified (Key: " .. key .. ")")
         return
     end
 
-    local app
-    if customPath then
-        -- Try to launch the app from the specified custom path
-        local success, output, _ = hs.execute('open "' .. customPath .. '"')
+    -- Try to find running app using bundle ID first (fastest)
+    local app = nil
+    if itemData.bundleID then
+        app = hs.application.get(itemData.bundleID)
+    end
+
+    -- If app is running, handle toggle behavior
+    if app then
+        if app:isFrontmost() then
+            -- If app is focused, hide it
+            app:hide()
+        else
+            -- If app is hidden/background, bring it to front
+            app:activate()
+        end
+        return
+    end
+
+    -- App is not running, launch it
+    if itemData.path then
+        -- Try to launch from specified custom path
+        local success, output, descriptor = hs.execute('open "' .. itemData.path .. '"')
         if success then
-            -- If the app was launched successfully, no further action needed
             hs.alert.show("Launched: " .. appName .. " (Key: " .. key .. ")")
         else
-            -- If the app is not found at the custom path, show an alert
-            hs.alert.show("Application not found at path: " .. customPath .. " (Key: " .. key .. ")")
+            -- If the app is not found at the custom path, show an alert with error
+            hs.alert.show("Failed to launch: " .. appName .. " (Key: " .. key .. ")")
+            -- Log the error for debugging
+            hs.logger.new('hyperkey', 'debug'):e("Launch error for " .. appName .. ": " .. (output or "unknown error"))
+        end
+    elseif itemData.bundleID then
+        -- Try to launch by bundle ID
+        local success, output, descriptor = hs.execute('open -b "' .. itemData.bundleID .. '"')
+        if not success then
+            hs.alert.show("Failed to launch: " .. appName .. " (Key: " .. key .. ")")
+            hs.logger.new('hyperkey', 'debug'):e("Launch error for " .. appName .. ": " .. (output or "unknown error"))
+        else
+            hs.alert.show("Launched: " .. appName .. " (Key: " .. key .. ")")
         end
     else
-        -- Try to launch the app normally
+        -- Try to launch the app by name (fallback)
         app = hs.application.find(appName)
         if app then
             app:activate()
         else
-            -- If the app is not running, show an alert
             hs.alert.show("Application not found: " .. appName .. " (Key: " .. key .. ")")
         end
     end
@@ -85,8 +114,8 @@ local function handleLaunch(key, itemData)
         -- Handle URL launch
         launchURL(itemData.url, itemData.browser, key, itemData.description)
     elseif itemData.app then
-        -- Handle regular app launch
-        launchApp(itemData.app, key, itemData.path)
+        -- Handle regular app launch with toggle functionality
+        launchApp(itemData.app, key, itemData)
     else
         -- Handle error case
         hs.alert.show("Invalid configuration for key: " .. key)
@@ -102,12 +131,17 @@ end
 
 -- Catch all key presses with the hyper key and check for unmapped keys
 hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
-    local keyPressed = hs.keycodes.map[event:getKeyCode()]
+    local keyCode = event:getKeyCode()
+    local keyPressed = hs.keycodes.map[keyCode]
+    local flags = event:getFlags()
 
-    -- Only handle the case if a hyper key is held down
-    if hs.fnutils.contains(hyperKey, keyPressed) == false and appList[keyPressed] == nil then
-        -- Show an alert if no mapping is found
-        hs.alert.show("No mapping found for key: " .. keyPressed)
+    -- Check if ALL hyper key modifiers are pressed
+    local hyperKeyPressed = flags.ctrl and flags.shift and flags.alt and flags.cmd
+
+    -- Only show alert if hyper key combo is pressed AND the key is not in our appList
+    if hyperKeyPressed and keyPressed and appList[keyPressed] == nil then
+        -- Show an alert if no mapping is found for this hyper key combination
+        hs.alert.show("No mapping found for Hyper+" .. keyPressed)
     end
 end):start()
 

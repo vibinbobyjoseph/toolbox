@@ -12,7 +12,7 @@ local _ = hs.fnutils      -- Force load fnutils extension
 hs.notify.new({title="Hammerspoon", informativeText="Configuration loaded successfully!"}):send()
 
 -- Include separate Lua files for different functionality
--- require("config.hyper_key")
+require("config.utils")
 require("config.hyperkey_app_launch")
 require("config.singlekey_app_launch")
 require("config.window_move")
