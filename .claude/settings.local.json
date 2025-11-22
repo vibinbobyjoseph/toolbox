@@ -11,7 +11,8 @@
       "Bash(unsetopt:*)",
       "Bash(LinuxNotes.md)",
       "Bash(python3:*)",
-      "Bash(/Users/vibin.joseph/Code/jcl/toolbox/notes/LinuxNotes.md)"
+      "Bash(/Users/vibin.joseph/Code/jcl/toolbox/notes/LinuxNotes.md)",
+      "Bash(open -g hammerspoon://reload)"
     ],
     "deny": [],
     "ask": []

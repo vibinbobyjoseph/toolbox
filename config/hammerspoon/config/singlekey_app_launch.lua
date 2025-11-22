@@ -4,16 +4,18 @@
 
 -- Define single-key app mappings
 local singleKeyApps = {
-    -- § key (keycode 10) for iTerm
+    -- § key (keycode 10) for WezTerm
     [10] = {
         app = "WezTerm",
-        alternateNames = {"WezTerm"}, -- Alternative app names to check
+        path = "/Applications/WezTerm.app",
+        bundleID = "com.github.wez.wezterm",
         description = "WezTerm"
     },
-    
+
     -- F13 key for Notion
     ["f13"] = {
         app = "Notion",
+        path = "/Applications/Notion.app",
         description = "Notion"
     },
     
@@ -28,33 +30,57 @@ local singleKeyApps = {
     -- }
 }
 
--- Function to launch or focus an app with toggle behavior
-local function launchOrFocusApp(appConfig)
-    local app = hs.application.find(appConfig.app)
-    
-    -- If app not found, try alternate names
+-- Function to find app by bundle ID or name
+local function findApp(appConfig)
+    local app = nil
+
+    -- Try bundle ID first (most reliable)
+    if appConfig.bundleID then
+        app = hs.application.get(appConfig.bundleID)
+    end
+
+    -- Fall back to app name
+    if not app then
+        app = hs.application.find(appConfig.app)
+    end
+
+    -- Try alternate names
     if not app and appConfig.alternateNames then
         for _, altName in ipairs(appConfig.alternateNames) do
             app = hs.application.find(altName)
             if app then break end
         end
     end
-    
+
+    return app
+end
+
+-- Function to launch or focus an app with toggle behavior
+local function launchOrFocusApp(appConfig)
+    -- Quick check using bundle ID (fast, no Spotlight search)
+    local app = nil
+    if appConfig.bundleID then
+        app = hs.application.get(appConfig.bundleID)
+    end
+
     if app then
-        -- If app is already running, handle focus/hide toggle
+        -- App is running - handle toggle behavior
         if app:isFrontmost() then
-            -- If app is already focused, hide it (toggle behavior)
+            -- If app is focused, hide it
             app:hide()
-            hs.alert.show(appConfig.description .. " hidden")
         else
-            -- Bring app to front
+            -- If app is hidden/background, bring it to front
             app:activate()
-            hs.alert.show(appConfig.description .. " activated")
         end
     else
-        -- Launch app if it's not running
-        hs.application.launchOrFocus(appConfig.app)
-        hs.alert.show(appConfig.description .. " launched")
+        -- App not running - launch using path (same as hyperkey method)
+        if appConfig.path then
+            hs.execute('open "' .. appConfig.path .. '"')
+        elseif appConfig.bundleID then
+            hs.execute('open -b "' .. appConfig.bundleID .. '"')
+        else
+            hs.execute('open -a "' .. appConfig.app .. '"')
+        end
     end
 end
 
