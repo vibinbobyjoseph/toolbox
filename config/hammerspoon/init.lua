@@ -11,10 +11,16 @@ local _ = hs.fnutils      -- Force load fnutils extension
 -- Show a message to indicate Hammerspoon config has been loaded
 hs.notify.new({title="Hammerspoon", informativeText="Configuration loaded successfully!"}):send()
 
+-- Manual reload hotkey
+hs.hotkey.bind({"cmd", "alt", "ctrl"}, "r", function()
+    hs.reload()
+end)
+
 -- Include separate Lua files for different functionality
 require("config.utils")
 require("config.visual_feedback")
 require("config.menubar_status")
+require("config.caffeine")
 require("config.hyperkey_app_launch")
 require("config.singlekey_app_launch")
 require("config.window_move")
