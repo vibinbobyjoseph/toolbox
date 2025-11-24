@@ -171,14 +171,36 @@ hs.hotkey.bind(hyperWR, "down", function()
     end
 end)
 
--- Make the window full screen
+-- Toggle between center and maximize
 hs.hotkey.bind(hyperWR, "return", function()
     local win = utils.getActiveWindow()
-    if win then
-        local screen = win:screen():frame()
-        win:setFrame(screen)
-    else
+    if not win then
         hs.alert.show("No window available")
+        return
+    end
+
+    local screen = win:screen():frame()
+    local currentFrame = win:frame()
+
+    -- Check if window is currently maximized (within 10 pixels tolerance)
+    local isMaximized = math.abs(currentFrame.x - screen.x) < 10 and
+                       math.abs(currentFrame.y - screen.y) < 10 and
+                       math.abs(currentFrame.w - screen.w) < 10 and
+                       math.abs(currentFrame.h - screen.h) < 10
+
+    if isMaximized then
+        -- Currently maximized, center it at 60% width, 70% height
+        local w = screen.w * 0.6
+        local h = screen.h * 0.7
+        win:setFrame({
+            x = screen.x + (screen.w - w) / 2,
+            y = screen.y + (screen.h - h) / 2,
+            w = w,
+            h = h
+        })
+    else
+        -- Not maximized, maximize it
+        win:setFrame(screen)
     end
 end)
 
