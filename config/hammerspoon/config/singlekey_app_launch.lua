@@ -3,6 +3,7 @@
 -- For apps you want to access quickly without hyper key combinations
 
 local launcher = require('config.launchers.init')
+local utils = require('config.utils')
 
 -- Define single-key app mappings
 local singleKeyApps = {
@@ -40,27 +41,52 @@ local function launchOrFocusApp(appConfig)
     local success, message = launcher.launchOrFocus(appConfig)
 
     if not success then
-        hs.alert.show("Failed: " .. (appConfig.app or appConfig.name or "unknown app"))
+        utils.feedback.showStatus("Failed: " .. (appConfig.app or appConfig.name or "unknown app"))
     end
 end
 
--- Bind all single-key apps
-for key, appConfig in pairs(singleKeyApps) do
-    if type(key) == "number" then
-        -- Handle keycode (like § key)
-        hs.hotkey.bind({}, key, function()
-            launchOrFocusApp(appConfig)
-        end)
-    else
-        -- Handle key name (like f13)
-        hs.hotkey.bind({}, key, function()
-            launchOrFocusApp(appConfig)
-        end)
+-- Validate configuration at startup
+local function validateConfig()
+    local errors = {}
+    for key, appConfig in pairs(singleKeyApps) do
+        if not appConfig then
+            table.insert(errors, "Key '" .. tostring(key) .. "' has nil configuration")
+        else
+            -- Validate app configuration
+            if not (appConfig.app or appConfig.name or appConfig.bundleID or appConfig.path) then
+                table.insert(errors, "Key '" .. tostring(key) .. "' missing app identifier (app/name/bundleID/path)")
+            end
+        end
+    end
+
+    if #errors > 0 then
+        local errorMsg = "Single-key launcher config errors:\n" .. table.concat(errors, "\n")
+        hs.notify.new({title="Config Error", informativeText=errorMsg}):send()
+        return false
+    end
+    return true
+end
+
+-- Validate before binding hotkeys
+if validateConfig() then
+    -- Bind all single-key apps
+    for key, appConfig in pairs(singleKeyApps) do
+        if type(key) == "number" then
+            -- Handle keycode (like § key)
+            hs.hotkey.bind({}, key, function()
+                launchOrFocusApp(appConfig)
+            end)
+        else
+            -- Handle key name (like f13)
+            hs.hotkey.bind({}, key, function()
+                launchOrFocusApp(appConfig)
+            end)
+        end
     end
 end
 
--- Optional: Show notification when script loads
-hs.notify.new({
-    title="Hammerspoon", 
-    informativeText="Single-key app launcher is active!"
-}):send()
+-- Optional: Show notification when script loads (commented to reduce notification spam)
+-- hs.notify.new({
+--     title="Hammerspoon",
+--     informativeText="Single-key app launcher is active!"
+-- }):send()

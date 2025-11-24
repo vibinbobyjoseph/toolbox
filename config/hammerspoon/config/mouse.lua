@@ -17,6 +17,23 @@ local function calculateSpeed(direction)
     return math.min(speed, mouseState.maxSpeed)
 end
 
+-- Helper: Clamp mouse position within screen bounds
+local function clampPosition(pos)
+    if not pos then return pos end
+
+    local screen = hs.mouse.getCurrentScreen()
+    if not screen then return pos end
+
+    local frame = screen:fullFrame()
+    if not frame then return pos end
+
+    -- Clamp to screen bounds (with 1px margin to avoid edge issues)
+    pos.x = math.max(frame.x + 1, math.min(pos.x, frame.x + frame.w - 1))
+    pos.y = math.max(frame.y + 1, math.min(pos.y, frame.y + frame.h - 1))
+
+    return pos
+end
+
 local function startMouseMove(direction)
     if mouseState.timers[direction] then return end
 
@@ -37,6 +54,9 @@ local function startMouseMove(direction)
         elseif direction == "right" then
             pos.x = pos.x + speed
         end
+
+        -- Clamp position to screen bounds
+        pos = clampPosition(pos)
         hs.mouse.setRelativePosition(pos)
     end)
 end
@@ -190,3 +210,9 @@ end
 
 -- Call cleanup on module load to prevent leaks from previous loads
 cleanup()
+
+-- Module export
+local module = {
+    cleanup = cleanup
+}
+return module

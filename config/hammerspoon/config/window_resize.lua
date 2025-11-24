@@ -1,8 +1,9 @@
 -- ==============================================
 -- Resize a window
 -- Define the hyper-key
-local hyperWR = {"ctrl", "alt"}
+local hyper = {"ctrl", "alt"}
 local utils = require("config.utils")
+local windowConfig = utils.settings.window
 
 -- Quarter-screen positioning using arrow key combinations
 -- Hold Ctrl+Alt, then press Left+Up for top-left, etc.
@@ -10,6 +11,23 @@ local utils = require("config.utils")
 -- Track last arrow pressed for compound operations
 local lastArrow = nil
 local arrowTimer = nil
+
+-- Helper: Validate window screen
+local function validateScreen(win)
+    if not win then return nil, "No window provided" end
+
+    local screen = win:screen()
+    if not screen then
+        return nil, "No screen available for window"
+    end
+
+    local frame = screen:frame()
+    if not frame or frame.w <= 0 or frame.h <= 0 then
+        return nil, "Invalid screen dimensions"
+    end
+
+    return screen, nil
+end
 
 local function resetArrowState()
     lastArrow = nil
@@ -58,9 +76,16 @@ local function getQuarterScreenFrame(screen, vertical, horizontal)
 end
 
 local function handleQuarterScreen(firstArrow, secondArrow)
-    local win = utils.getActiveWindow()
+    local win, err = utils.getActiveWindow()
     if not win then
-        hs.alert.show("No window available")
+        utils.feedback.showStatus(err or "No window available")
+        return
+    end
+
+    -- Validate screen
+    local screen, screenErr = validateScreen(win)
+    if not screen then
+        utils.feedback.showStatus(screenErr or "Screen validation failed")
         return
     end
 
@@ -80,7 +105,7 @@ local function handleQuarterScreen(firstArrow, secondArrow)
     end
 
     -- Calculate and set the frame
-    local frame = getQuarterScreenFrame(win:screen(), vertical, horizontal)
+    local frame = getQuarterScreenFrame(screen, vertical, horizontal)
     win:setFrame(frame)
 
     utils.feedback.highlightWindow(win, 0.5)
@@ -89,10 +114,10 @@ local function handleQuarterScreen(firstArrow, secondArrow)
 end
 
 -- Modified left arrow with quarter-screen support
-hs.hotkey.bind(hyperWR, "left", function()
-    local win = utils.getActiveWindow()
+hs.hotkey.bind(hyper, "left", function()
+    local win, err = utils.getActiveWindow()
     if not win then
-        hs.alert.show("No window available")
+        utils.feedback.showStatus(err or "No window available")
         return
     end
 
@@ -100,13 +125,20 @@ hs.hotkey.bind(hyperWR, "left", function()
         -- Quarter screen operation
         handleQuarterScreen(lastArrow, "left")
     else
+        -- Validate screen
+        local screen, screenErr = validateScreen(win)
+        if not screen then
+            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            return
+        end
+
         -- Normal left half operation
-        local screen = win:screen():frame()
+        local screenFrame = screen:frame()
         win:setFrame({
-            x = screen.x,
-            y = screen.y,
-            w = screen.w / 2,
-            h = screen.h
+            x = screenFrame.x,
+            y = screenFrame.y,
+            w = screenFrame.w / 2,
+            h = screenFrame.h
         })
         utils.feedback.highlightWindow(win, 0.5)
         utils.feedback.playSound("move")
@@ -117,15 +149,15 @@ hs.hotkey.bind(hyperWR, "left", function()
             arrowTimer:stop()
             arrowTimer = nil
         end
-        arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
+        arrowTimer = hs.timer.doAfter(windowConfig.quarterScreen.comboTimeout, resetArrowState)
     end
 end)
 
 -- Modified right arrow with quarter-screen support
-hs.hotkey.bind(hyperWR, "right", function()
-    local win = utils.getActiveWindow()
+hs.hotkey.bind(hyper, "right", function()
+    local win, err = utils.getActiveWindow()
     if not win then
-        hs.alert.show("No window available")
+        utils.feedback.showStatus(err or "No window available")
         return
     end
 
@@ -133,13 +165,20 @@ hs.hotkey.bind(hyperWR, "right", function()
         -- Quarter screen operation
         handleQuarterScreen(lastArrow, "right")
     else
+        -- Validate screen
+        local screen, screenErr = validateScreen(win)
+        if not screen then
+            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            return
+        end
+
         -- Normal right half operation
-        local screen = win:screen():frame()
+        local screenFrame = screen:frame()
         win:setFrame({
-            x = screen.x + screen.w / 2,
-            y = screen.y,
-            w = screen.w / 2,
-            h = screen.h
+            x = screenFrame.x + screenFrame.w / 2,
+            y = screenFrame.y,
+            w = screenFrame.w / 2,
+            h = screenFrame.h
         })
         utils.feedback.highlightWindow(win, 0.5)
         utils.feedback.playSound("move")
@@ -150,15 +189,15 @@ hs.hotkey.bind(hyperWR, "right", function()
             arrowTimer:stop()
             arrowTimer = nil
         end
-        arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
+        arrowTimer = hs.timer.doAfter(windowConfig.quarterScreen.comboTimeout, resetArrowState)
     end
 end)
 
 -- Modified up arrow with quarter-screen support
-hs.hotkey.bind(hyperWR, "up", function()
-    local win = utils.getActiveWindow()
+hs.hotkey.bind(hyper, "up", function()
+    local win, err = utils.getActiveWindow()
     if not win then
-        hs.alert.show("No window available")
+        utils.feedback.showStatus(err or "No window available")
         return
     end
 
@@ -166,13 +205,20 @@ hs.hotkey.bind(hyperWR, "up", function()
         -- Quarter screen operation
         handleQuarterScreen(lastArrow, "up")
     else
+        -- Validate screen
+        local screen, screenErr = validateScreen(win)
+        if not screen then
+            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            return
+        end
+
         -- Normal top half operation
-        local screen = win:screen():frame()
+        local screenFrame = screen:frame()
         win:setFrame({
-            x = screen.x,
-            y = screen.y,
-            w = screen.w,
-            h = screen.h / 2
+            x = screenFrame.x,
+            y = screenFrame.y,
+            w = screenFrame.w,
+            h = screenFrame.h / 2
         })
         utils.feedback.highlightWindow(win, 0.5)
         utils.feedback.playSound("move")
@@ -183,15 +229,15 @@ hs.hotkey.bind(hyperWR, "up", function()
             arrowTimer:stop()
             arrowTimer = nil
         end
-        arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
+        arrowTimer = hs.timer.doAfter(windowConfig.quarterScreen.comboTimeout, resetArrowState)
     end
 end)
 
 -- Modified down arrow with quarter-screen support
-hs.hotkey.bind(hyperWR, "down", function()
-    local win = utils.getActiveWindow()
+hs.hotkey.bind(hyper, "down", function()
+    local win, err = utils.getActiveWindow()
     if not win then
-        hs.alert.show("No window available")
+        utils.feedback.showStatus(err or "No window available")
         return
     end
 
@@ -199,13 +245,20 @@ hs.hotkey.bind(hyperWR, "down", function()
         -- Quarter screen operation
         handleQuarterScreen(lastArrow, "down")
     else
+        -- Validate screen
+        local screen, screenErr = validateScreen(win)
+        if not screen then
+            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            return
+        end
+
         -- Normal bottom half operation
-        local screen = win:screen():frame()
+        local screenFrame = screen:frame()
         win:setFrame({
-            x = screen.x,
-            y = screen.y + screen.h / 2,
-            w = screen.w,
-            h = screen.h / 2
+            x = screenFrame.x,
+            y = screenFrame.y + screenFrame.h / 2,
+            w = screenFrame.w,
+            h = screenFrame.h / 2
         })
         utils.feedback.highlightWindow(win, 0.5)
         utils.feedback.playSound("move")
@@ -216,43 +269,64 @@ hs.hotkey.bind(hyperWR, "down", function()
             arrowTimer:stop()
             arrowTimer = nil
         end
-        arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
+        arrowTimer = hs.timer.doAfter(windowConfig.quarterScreen.comboTimeout, resetArrowState)
     end
 end)
 
 -- Toggle between center and maximize
-hs.hotkey.bind(hyperWR, "return", function()
-    local win = utils.getActiveWindow()
+hs.hotkey.bind(hyper, "return", function()
+    local win, err = utils.getActiveWindow()
     if not win then
-        hs.alert.show("No window available")
+        utils.feedback.showStatus(err or "No window available")
         return
     end
 
-    local screen = win:screen():frame()
+    -- Validate screen
+    local screen, screenErr = validateScreen(win)
+    if not screen then
+        utils.feedback.showStatus(screenErr or "Screen validation failed")
+        return
+    end
+
+    local screenFrame = screen:frame()
     local currentFrame = win:frame()
 
-    -- Check if window is currently maximized (within 10 pixels tolerance)
-    local isMaximized = math.abs(currentFrame.x - screen.x) < 10 and
-                       math.abs(currentFrame.y - screen.y) < 10 and
-                       math.abs(currentFrame.w - screen.w) < 10 and
-                       math.abs(currentFrame.h - screen.h) < 10
+    -- Check if window is currently maximized (using centralized tolerance)
+    local tolerance = windowConfig.positioning.maximizeTolerance
+    local isMaximized = math.abs(currentFrame.x - screenFrame.x) < tolerance and
+                       math.abs(currentFrame.y - screenFrame.y) < tolerance and
+                       math.abs(currentFrame.w - screenFrame.w) < tolerance and
+                       math.abs(currentFrame.h - screenFrame.h) < tolerance
 
     if isMaximized then
-        -- Currently maximized, center it at 60% width, 70% height
-        local w = screen.w * 0.6
-        local h = screen.h * 0.7
+        -- Currently maximized, center it (using centralized config)
+        local w = screenFrame.w * windowConfig.positioning.centerWidth
+        local h = screenFrame.h * windowConfig.positioning.centerHeight
         win:setFrame({
-            x = screen.x + (screen.w - w) / 2,
-            y = screen.y + (screen.h - h) / 2,
+            x = screenFrame.x + (screenFrame.w - w) / 2,
+            y = screenFrame.y + (screenFrame.h - h) / 2,
             w = w,
             h = h
         })
     else
         -- Not maximized, maximize it
-        win:setFrame(screen)
+        win:setFrame(screenFrame)
     end
     utils.feedback.highlightWindow(win, 0.5)
     utils.feedback.playSound("move")
 end)
 
 -- ==============================================
+-- Module export with cleanup function
+local module = {}
+
+-- Cleanup function for module reload
+function module.cleanup()
+    if arrowTimer then
+        arrowTimer:stop()
+        arrowTimer = nil
+    end
+    lastArrow = nil
+end
+
+return module

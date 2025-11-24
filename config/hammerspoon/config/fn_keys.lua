@@ -18,3 +18,7 @@ hs.hotkey.bind(hyper, "f10", function()
     hs.eventtap.event.newSystemKeyEvent("MUTE", true):post()
     hs.eventtap.event.newSystemKeyEvent("MUTE", false):post()
 end)
+
+-- Module export
+local module = {}
+return module

@@ -12,7 +12,8 @@
       "Bash(LinuxNotes.md)",
       "Bash(python3:*)",
       "Bash(/Users/vibin.joseph/Code/jcl/toolbox/notes/LinuxNotes.md)",
-      "Bash(open -g hammerspoon://reload)"
+      "Bash(open -g hammerspoon://reload)",
+      "Bash(log show:*)"
     ],
     "deny": [],
     "ask": []

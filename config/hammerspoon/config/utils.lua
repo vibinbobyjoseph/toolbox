@@ -4,18 +4,21 @@
 
 local utils = {}
 
--- Helper function to get active window with fallback methods
+-- Load centralized settings
+local settings = require('config.settings.init')
+
+-- Get the currently focused window
+-- Returns: window object or nil, error message
 function utils.getActiveWindow()
-    return hs.window.focusedWindow()
+    local win = hs.window.focusedWindow()
         or hs.window.frontmostWindow()
         or hs.window.orderedWindows()[1]
-end
 
--- Configuration for mouse movement
-utils.mouseConfig = {
-    moveAmount = 5,        -- Number of pixels to move per interval
-    moveInterval = 0.02    -- Time interval for continuous movement (in seconds) - optimized from 0.01
-}
+    if not win then
+        return nil, "No focused window"
+    end
+    return win, nil
+end
 
 -- Load visual feedback module
 local feedback = require("config.visual_feedback")
@@ -23,6 +26,7 @@ local feedback = require("config.visual_feedback")
 -- Export modules
 return {
     getActiveWindow = utils.getActiveWindow,
-    mouseConfig = utils.mouseConfig,
+    mouseConfig = settings.mouseConfig,  -- Use centralized config
+    settings = settings,                  -- Export all settings
     feedback = feedback
 }

@@ -1,13 +1,17 @@
 -- Visual Feedback: Highlights, sounds, and overlays
 local feedback = {}
 
--- Configuration
+-- Load centralized settings
+local settings = require('config.settings.init')
+local visualConfig = settings.visual
+
+-- Maintain config reference for backward compatibility
 feedback.config = {
-    highlightColor = {red = 0.2, green = 0.6, blue = 1.0, alpha = 0.8},
-    highlightDuration = 0.5,
-    highlightWidth = 4,
-    soundEnabled = true,
-    overlayDuration = 1.5
+    highlightColor = visualConfig.highlight.color,
+    highlightDuration = visualConfig.highlight.duration,
+    highlightWidth = visualConfig.highlight.width,
+    soundEnabled = visualConfig.sound.enabled,
+    overlayDuration = visualConfig.overlay.duration
 }
 
 -- Track active canvases for cleanup
@@ -49,18 +53,21 @@ local function returnCanvas(type, canvas)
     -- In future, could keep in pool: table.insert(canvasPool[type], canvas)
 end
 
--- System sounds
+-- System sounds (using centralized config)
 local sounds = {
-    success = hs.sound.getByName("Tink"),
-    move = hs.sound.getByName("Pop"),
-    error = hs.sound.getByName("Basso")
+    success = hs.sound.getByName(visualConfig.sound.success),
+    move = hs.sound.getByName(visualConfig.sound.move),
+    error = hs.sound.getByName(visualConfig.sound.error)
 }
 
 -- Window highlight overlay
 local highlightCanvas = nil
 
 function feedback.highlightWindow(win, duration)
-    if not win then return end
+    -- Validate input
+    if not win then
+        return false, "No window provided"
+    end
 
     -- Clean up previous highlight if it exists
     if activeCanvases.highlight then
@@ -101,12 +108,19 @@ function feedback.highlightWindow(win, duration)
             end)
         end
     end)
+
+    return true, nil
 end
 
 -- Status overlay (replaces hs.alert for less intrusion)
 local statusOverlay = nil
 
 function feedback.showStatus(message, duration)
+    -- Validate input
+    if not message or message == "" then
+        return false, "No message provided"
+    end
+
     -- Clean up previous status if it exists
     if activeCanvases.status then
         activeCanvases.status:delete()
@@ -162,15 +176,24 @@ function feedback.showStatus(message, duration)
             end)
         end
     end)
+
+    return true, nil
 end
 
 -- Play sound feedback
 function feedback.playSound(soundType)
-    if not feedback.config.soundEnabled then return end
-
-    if sounds[soundType] then
-        sounds[soundType]:play()
+    -- Validate sound is enabled
+    if not feedback.config.soundEnabled then
+        return false, "Sound feedback disabled"
     end
+
+    -- Validate sound type exists
+    if not sounds[soundType] then
+        return false, "Unknown sound type: " .. tostring(soundType)
+    end
+
+    sounds[soundType]:play()
+    return true, nil
 end
 
 -- Cleanup function for module reload

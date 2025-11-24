@@ -8,8 +8,8 @@ local _ = hs.alert        -- Force load alert extension
 local _ = hs.keycodes     -- Force load keycodes extension
 local _ = hs.fnutils      -- Force load fnutils extension
 
--- Show a message to indicate Hammerspoon config has been loaded
-hs.notify.new({title="Hammerspoon", informativeText="Configuration loaded successfully!"}):send()
+-- Show a message to indicate Hammerspoon config has been loaded (commented to reduce notification spam)
+-- hs.notify.new({title="Hammerspoon", informativeText="Configuration loaded successfully!"}):send()
 
 -- Manual reload hotkey
 hs.hotkey.bind({"cmd", "alt", "ctrl"}, "r", function()

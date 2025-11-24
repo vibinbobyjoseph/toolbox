@@ -4,6 +4,8 @@ local caffeine = {
     active = false
 }
 
+local utils = require("config.utils")
+
 local function updateMenubar()
     if caffeine.active then
         caffeine.menubar:setTitle("☕")
@@ -18,11 +20,11 @@ local function toggleCaffeine()
     if caffeine.active then
         hs.caffeinate.set("displayIdle", true, true)
         hs.caffeinate.set("systemIdle", true, true)
-        hs.alert.show("Caffeine: System will stay awake")
+        utils.feedback.showStatus("Caffeine: System will stay awake")
     else
         hs.caffeinate.set("displayIdle", false, true)
         hs.caffeinate.set("systemIdle", false, true)
-        hs.alert.show("Caffeine: Normal sleep behavior")
+        utils.feedback.showStatus("Caffeine: Normal sleep behavior")
     end
 
     updateMenubar()

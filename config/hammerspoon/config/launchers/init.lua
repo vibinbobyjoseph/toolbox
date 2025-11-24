@@ -19,17 +19,18 @@ function launcher.findApp(appData)
         if app then return app end
     end
 
-    -- Try by name
-    if appData.name then
-        app = hs.application.get(appData.name)
+    -- Try by name or app field (support both for compatibility)
+    local appName = appData.name or appData.app
+    if appName then
+        app = hs.application.get(appName)
         if app then return app end
     end
 
     -- Try by path (least common)
     if appData.path then
-        local bundleID = hs.application.bundleID(appData.path)
-        if bundleID then
-            app = hs.application.get(bundleID)
+        local info = hs.application.infoForBundlePath(appData.path)
+        if info and info.CFBundleIdentifier then
+            app = hs.application.get(info.CFBundleIdentifier)
         end
     end
 
@@ -43,20 +44,22 @@ function launcher.launchApp(appData)
         return false, "No app data provided"
     end
 
-    local identifier = appData.bundleID or appData.path or appData.name
-    if not identifier then
-        return false, "App data missing identifier"
+    -- Get display name for logging
+    local displayName = appData.app or appData.name or "unknown"
+
+    -- Use the fastest, most reliable method: launchOrFocus with app name
+    -- This is what the original Phase 1 code effectively did
+    local appName = appData.app or appData.name or appData.bundleID
+    if appName then
+        local success = hs.application.launchOrFocus(appName)
+        if success then
+            return true, "Launched successfully"
+        end
     end
 
-    -- Try to launch using native API (secure, no command injection)
-    local app = hs.application.open(identifier)
-
-    if app then
-        return true, "Launched successfully"
-    else
-        logger:e("Failed to launch app: " .. (appData.name or identifier))
-        return false, "Failed to launch"
-    end
+    -- Fallback failed
+    logger:e("Failed to launch app: " .. tostring(displayName))
+    return false, "Failed to launch"
 end
 
 -- Focus an existing application or launch it if not running
@@ -157,9 +160,9 @@ function launcher.validateAppData(appData)
         return false, errors
     end
 
-    -- Must have at least one identifier
-    if not (appData.name or appData.bundleID or appData.path) then
-        table.insert(errors, "App data must have name, bundleID, or path")
+    -- Must have at least one identifier (support both 'app' and 'name' fields)
+    if not (appData.app or appData.name or appData.bundleID or appData.path) then
+        table.insert(errors, "App data must have app, name, bundleID, or path")
     end
 
     -- Validate browser preference if specified

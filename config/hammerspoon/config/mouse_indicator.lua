@@ -84,14 +84,15 @@ local function toggleMouseIndicator()
         coordinates = {}
     }
 
-    -- Circle
+    -- Circle (initialize with a valid center position)
+    local initPos = hs.mouse.absolutePosition()
     mouseIndicator[3] = {
         type = "circle",
         action = "stroke",
         strokeColor = {red = 1, green = 0, blue = 0, alpha = 0.7},
         strokeWidth = 2,
         radius = 20,
-        center = {}
+        center = {x = initPos.x, y = initPos.y}
     }
 
     mouseIndicator:show()

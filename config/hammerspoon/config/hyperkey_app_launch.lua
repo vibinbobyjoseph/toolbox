@@ -3,6 +3,7 @@
 -- Define the hyper key (ctrl + shift + option + command)
 local hyperKey = {"ctrl", "shift", "option", "command"}
 local launcher = require('config.launchers.init')
+local utils = require('config.utils')
 
 -- Define a table of applications and their corresponding keys
 -- You can now specify custom paths for apps not in the default Applications directory
@@ -38,16 +39,16 @@ local function launchURL(url, browser, key, description)
 
     local bundleID = browserBundle[browser]
     if not bundleID then
-        hs.alert.show("Unsupported browser: " .. browser .. " (Key: " .. key .. ")")
+        utils.feedback.showStatus("Unsupported browser: " .. browser .. " (Key: " .. key .. ")")
         return
     end
 
     -- Use hs.urlevent.openURLWithBundle to open URL in specific browser
     local success = hs.urlevent.openURLWithBundle(url, bundleID)
     if success then
-        hs.alert.show("Opened: " .. (description or url) .. " in " .. browser .. " (Key: " .. key .. ")")
+        utils.feedback.showStatus("Opened: " .. (description or url) .. " in " .. browser .. " (Key: " .. key .. ")")
     else
-        hs.alert.show("Failed to open URL in " .. browser .. " (Key: " .. key .. ")")
+        utils.feedback.showStatus("Failed to open URL in " .. browser .. " (Key: " .. key .. ")")
     end
 end
 
@@ -67,7 +68,7 @@ end
 local function launchApp(key, modifiers)
     local itemData = appList[key]
     if not itemData then
-        hs.alert.show("No app configured for this key")
+        utils.feedback.showStatus("No app configured for this key")
         return
     end
 
@@ -75,7 +76,7 @@ local function launchApp(key, modifiers)
     local success, message = launcher.launchOrFocus(itemData)
 
     if not success then
-        hs.alert.show("Failed to launch: " .. (itemData.name or itemData.app or key))
+        utils.feedback.showStatus("Failed to launch: " .. (itemData.name or itemData.app or key))
     end
 end
 
@@ -89,16 +90,49 @@ local function handleLaunch(key, itemData)
         launchApp(key)
     else
         -- Handle error case
-        hs.alert.show("Invalid configuration for key: " .. key)
+        utils.feedback.showStatus("Invalid configuration for key: " .. key)
     end
 end
 
--- Bind the hotkeys to launch apps/URLs based on the list (using native Hammerspoon hotkeys - more efficient)
-for key, itemData in pairs(appList) do
-    hs.hotkey.bind(hyperKey, key, function()
-        handleLaunch(key, itemData)
-    end)
+-- Validate configuration at startup
+local function validateConfig()
+    local errors = {}
+    for key, itemData in pairs(appList) do
+        if not itemData then
+            table.insert(errors, "Key '" .. key .. "' has nil configuration")
+        elseif itemData.type == "url" then
+            -- Validate URL configuration
+            if not itemData.url or itemData.url == "" then
+                table.insert(errors, "Key '" .. key .. "' URL type missing url field")
+            end
+            if not itemData.browser or itemData.browser == "" then
+                table.insert(errors, "Key '" .. key .. "' URL type missing browser field")
+            end
+        else
+            -- Validate app configuration
+            if not (itemData.app or itemData.name or itemData.bundleID or itemData.path) then
+                table.insert(errors, "Key '" .. key .. "' missing app identifier (app/name/bundleID/path)")
+            end
+        end
+    end
+
+    if #errors > 0 then
+        local errorMsg = "Hyperkey launcher config errors:\n" .. table.concat(errors, "\n")
+        hs.notify.new({title="Config Error", informativeText=errorMsg}):send()
+        return false
+    end
+    return true
 end
 
--- Show a notification when Hammerspoon loads, to let you know the script is active
-hs.notify.new({title="Hammerspoon", informativeText="App launcher script is active!"}):send()
+-- Validate before binding hotkeys
+if validateConfig() then
+    -- Bind the hotkeys to launch apps/URLs based on the list (using native Hammerspoon hotkeys - more efficient)
+    for key, itemData in pairs(appList) do
+        hs.hotkey.bind(hyperKey, key, function()
+            handleLaunch(key, itemData)
+        end)
+    end
+end
+
+-- Show a notification when Hammerspoon loads, to let you know the script is active (commented to reduce notification spam)
+-- hs.notify.new({title="Hammerspoon", informativeText="App launcher script is active!"}):send()
