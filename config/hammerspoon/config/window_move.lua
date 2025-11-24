@@ -12,11 +12,13 @@ hs.hotkey.bind(hyperWM, "right", function()
         local nextScreen = currentScreen:toEast() -- Strictly get the screen to the right
         if nextScreen then
             win:moveToScreen(nextScreen)
+            utils.feedback.highlightWindow(win, 0.5)
+            utils.feedback.playSound("move")
         else
-            hs.alert.show("No screen to the right")
+            utils.feedback.showStatus("No screen to the right")
         end
     else
-        hs.alert.show("No window available")
+        utils.feedback.showStatus("No window available")
     end
 end)
 
@@ -28,11 +30,13 @@ hs.hotkey.bind(hyperWM, "left", function()
         local prevScreen = currentScreen:toWest() -- Strictly get the screen to the left
         if prevScreen then
             win:moveToScreen(prevScreen)
+            utils.feedback.highlightWindow(win, 0.5)
+            utils.feedback.playSound("move")
         else
-            hs.alert.show("No screen to the left")
+            utils.feedback.showStatus("No screen to the left")
         end
     else
-        hs.alert.show("No window available")
+        utils.feedback.showStatus("No window available")
     end
 end)
 -- ==============================================

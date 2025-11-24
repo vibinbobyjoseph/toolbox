@@ -56,6 +56,8 @@ local function handleQuarterScreen(firstArrow, secondArrow)
         win:setFrame({x = x + w, y = y + h, w = w, h = h})
     end
 
+    utils.feedback.highlightWindow(win, 0.5)
+    utils.feedback.playSound("move")
     resetArrowState()
 end
 
@@ -79,6 +81,8 @@ hs.hotkey.bind(hyperWR, "left", function()
             w = screen.w / 2,
             h = screen.h
         })
+        utils.feedback.highlightWindow(win, 0.5)
+        utils.feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "left"
@@ -107,6 +111,8 @@ hs.hotkey.bind(hyperWR, "right", function()
             w = screen.w / 2,
             h = screen.h
         })
+        utils.feedback.highlightWindow(win, 0.5)
+        utils.feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "right"
@@ -135,6 +141,8 @@ hs.hotkey.bind(hyperWR, "up", function()
             w = screen.w,
             h = screen.h / 2
         })
+        utils.feedback.highlightWindow(win, 0.5)
+        utils.feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "up"
@@ -163,6 +171,8 @@ hs.hotkey.bind(hyperWR, "down", function()
             w = screen.w,
             h = screen.h / 2
         })
+        utils.feedback.highlightWindow(win, 0.5)
+        utils.feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "down"
@@ -202,6 +212,8 @@ hs.hotkey.bind(hyperWR, "return", function()
         -- Not maximized, maximize it
         win:setFrame(screen)
     end
+    utils.feedback.highlightWindow(win, 0.5)
+    utils.feedback.playSound("move")
 end)
 
 -- ==============================================

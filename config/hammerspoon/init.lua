@@ -13,6 +13,8 @@ hs.notify.new({title="Hammerspoon", informativeText="Configuration loaded succes
 
 -- Include separate Lua files for different functionality
 require("config.utils")
+require("config.visual_feedback")
+require("config.menubar_status")
 require("config.hyperkey_app_launch")
 require("config.singlekey_app_launch")
 require("config.window_move")

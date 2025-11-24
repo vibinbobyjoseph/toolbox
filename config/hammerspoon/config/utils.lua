@@ -17,4 +17,12 @@ utils.mouseConfig = {
     moveInterval = 0.01    -- Time interval for continuous movement (in seconds)
 }
 
-return utils
+-- Load visual feedback module
+local feedback = require("config.visual_feedback")
+
+-- Export modules
+return {
+    getActiveWindow = utils.getActiveWindow,
+    mouseConfig = utils.mouseConfig,
+    feedback = feedback
+}
