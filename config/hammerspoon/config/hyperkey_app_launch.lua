@@ -50,6 +50,42 @@ local function launchURL(url, browser, key, description)
     end
 end
 
+-- Function to cycle through multiple windows of an app
+local function cycleAppWindows(app)
+    local windows = app:visibleWindows()
+
+    if #windows == 0 then
+        app:activate()
+        return
+    end
+
+    if #windows == 1 then
+        if app:isFrontmost() then
+            app:hide()
+        else
+            app:activate()
+        end
+        return
+    end
+
+    local focusedWin = hs.window.focusedWindow()
+    local currentIndex = nil
+
+    for i, win in ipairs(windows) do
+        if win == focusedWin then
+            currentIndex = i
+            break
+        end
+    end
+
+    if currentIndex then
+        local nextIndex = (currentIndex % #windows) + 1
+        windows[nextIndex]:focus()
+    else
+        windows[1]:focus()
+    end
+end
+
 -- Function to launch an app with toggle functionality
 local function launchApp(appName, key, itemData)
     -- Safety check for appName
@@ -64,15 +100,9 @@ local function launchApp(appName, key, itemData)
         app = hs.application.get(itemData.bundleID)
     end
 
-    -- If app is running, handle toggle behavior
+    -- If app is running, handle multi-window cycling
     if app then
-        if app:isFrontmost() then
-            -- If app is focused, hide it
-            app:hide()
-        else
-            -- If app is hidden/background, bring it to front
-            app:activate()
-        end
+        cycleAppWindows(app)
         return
     end
 
