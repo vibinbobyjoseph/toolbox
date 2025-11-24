@@ -93,28 +93,12 @@ local function handleLaunch(key, itemData)
     end
 end
 
--- Bind the hotkeys to launch apps/URLs based on the list
+-- Bind the hotkeys to launch apps/URLs based on the list (using native Hammerspoon hotkeys - more efficient)
 for key, itemData in pairs(appList) do
     hs.hotkey.bind(hyperKey, key, function()
         handleLaunch(key, itemData)
     end)
 end
-
--- Catch all key presses with the hyper key and check for unmapped keys
-hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
-    local keyCode = event:getKeyCode()
-    local keyPressed = hs.keycodes.map[keyCode]
-    local flags = event:getFlags()
-
-    -- Check if ALL hyper key modifiers are pressed
-    local hyperKeyPressed = flags.ctrl and flags.shift and flags.alt and flags.cmd
-
-    -- Only show alert if hyper key combo is pressed AND the key is not in our appList
-    if hyperKeyPressed and keyPressed and appList[keyPressed] == nil then
-        -- Show an alert if no mapping is found for this hyper key combination
-        hs.alert.show("No mapping found for Hyper+" .. keyPressed)
-    end
-end):start()
 
 -- Show a notification when Hammerspoon loads, to let you know the script is active
 hs.notify.new({title="Hammerspoon", informativeText="App launcher script is active!"}):send()

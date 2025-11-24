@@ -14,7 +14,7 @@ end
 -- Configuration for mouse movement
 utils.mouseConfig = {
     moveAmount = 5,        -- Number of pixels to move per interval
-    moveInterval = 0.01    -- Time interval for continuous movement (in seconds)
+    moveInterval = 0.02    -- Time interval for continuous movement (in seconds) - optimized from 0.01
 }
 
 -- Load visual feedback module

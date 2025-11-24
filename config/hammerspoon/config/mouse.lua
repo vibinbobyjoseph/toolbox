@@ -130,7 +130,7 @@ local scrollAmount = 3
 local function startScrolling(direction)
     if scrollTimers[direction] then return end
 
-    scrollTimers[direction] = hs.timer.doEvery(0.05, function()
+    scrollTimers[direction] = hs.timer.doEvery(0.1, function()  -- Optimized from 0.05 to 0.1
         local scrollValues = {x = 0, y = 0}
 
         if direction == "up" then

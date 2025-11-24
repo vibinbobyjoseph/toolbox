@@ -16,6 +16,39 @@ local activeCanvases = {
     status = nil
 }
 
+-- Add canvas pool for reuse
+local canvasPool = {
+    highlight = {},
+    status = {}
+}
+
+-- Helper: Get canvas from pool or create new one
+local function getCanvas(type, frame)
+    local pool = canvasPool[type]
+    local canvas = nil
+
+    -- Try to reuse from pool
+    if #pool > 0 then
+        canvas = table.remove(pool)
+        canvas:frame(frame)
+        canvas:show()
+    else
+        -- Create new if pool is empty
+        canvas = hs.canvas.new(frame)
+    end
+
+    return canvas
+end
+
+-- Helper: Return canvas to pool
+local function returnCanvas(type, canvas)
+    if not canvas then return end
+
+    canvas:hide()
+    canvas:delete()  -- Still delete for now to avoid complexity
+    -- In future, could keep in pool: table.insert(canvasPool[type], canvas)
+end
+
 -- System sounds
 local sounds = {
     success = hs.sound.getByName("Tink"),

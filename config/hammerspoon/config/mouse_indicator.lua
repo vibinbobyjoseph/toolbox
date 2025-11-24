@@ -2,6 +2,52 @@
 local mouseIndicator = nil
 local updateTimer = nil
 
+-- Add screen frame cache
+local screenFrameCache = {
+    frame = nil,
+    lastUpdate = 0,
+    screens = {}
+}
+
+-- Helper: Get total screen frame with caching
+local function getTotalScreenFrame()
+    local screens = hs.screen.allScreens()
+    local currentScreenCount = #screens
+
+    -- Check if cache is valid
+    local screensChanged = false
+    if #screenFrameCache.screens ~= currentScreenCount then
+        screensChanged = true
+    else
+        -- Check if screen IDs changed
+        for i, screen in ipairs(screens) do
+            if not screenFrameCache.screens[i] or
+               screenFrameCache.screens[i]:id() ~= screen:id() then
+                screensChanged = true
+                break
+            end
+        end
+    end
+
+    -- Return cached frame if screens haven't changed
+    if not screensChanged and screenFrameCache.frame then
+        return screenFrameCache.frame
+    end
+
+    -- Recalculate frame
+    local totalFrame = screens[1]:fullFrame()
+    for i = 2, #screens do
+        totalFrame = totalFrame:union(screens[i]:fullFrame())
+    end
+
+    -- Update cache
+    screenFrameCache.frame = totalFrame
+    screenFrameCache.screens = screens
+    screenFrameCache.lastUpdate = hs.timer.secondsSinceEpoch()
+
+    return totalFrame
+end
+
 local function toggleMouseIndicator()
     if mouseIndicator then
         if updateTimer then
@@ -13,13 +59,8 @@ local function toggleMouseIndicator()
         return
     end
 
-    local allScreens = hs.screen.allScreens()
-    local totalFrame = allScreens[1]:fullFrame()
-
-    for _, screen in ipairs(allScreens) do
-        local frame = screen:fullFrame()
-        totalFrame = totalFrame:union(frame)
-    end
+    -- Use cached screen frame calculation
+    local totalFrame = getTotalScreenFrame()
 
     mouseIndicator = hs.canvas.new(totalFrame)
     mouseIndicator:level("overlay")
@@ -55,7 +96,8 @@ local function toggleMouseIndicator()
 
     mouseIndicator:show()
 
-    updateTimer = hs.timer.doEvery(0.02, function()
+    -- Update canvas position to follow mouse (reduced frequency from 0.02 to 0.05)
+    updateTimer = hs.timer.doEvery(0.05, function()
         if not mouseIndicator then return end
 
         local pos = hs.mouse.absolutePosition()
@@ -89,6 +131,13 @@ local function cleanup()
         updateTimer = nil
     end
 end
+
+-- Watch for screen changes to invalidate cache
+local screenWatcher = hs.screen.watcher.new(function()
+    screenFrameCache.frame = nil
+    screenFrameCache.screens = {}
+end)
+screenWatcher:start()
 
 hs.hotkey.bind({"ctrl", "alt", "cmd", "shift"}, "m", toggleMouseIndicator)
 
