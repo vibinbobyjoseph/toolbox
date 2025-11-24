@@ -73,13 +73,13 @@ local function launchOrFocusApp(appConfig)
             app:activate()
         end
     else
-        -- App not running - launch using path (same as hyperkey method)
+        -- App not running - launch using safe API (SAFE - no command injection)
         if appConfig.path then
-            hs.execute('open "' .. appConfig.path .. '"')
+            hs.application.open(appConfig.path)
         elseif appConfig.bundleID then
-            hs.execute('open -b "' .. appConfig.bundleID .. '"')
+            hs.application.open(appConfig.bundleID)
         else
-            hs.execute('open -a "' .. appConfig.app .. '"')
+            hs.application.open(appConfig.app)
         end
     end
 end

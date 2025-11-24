@@ -1,5 +1,5 @@
 -- Function to toggle microphone mute/unmute
-function toggleMic()
+local function toggleMic()
     local script = [[
         set inputVolume to input volume of (get volume settings)
         if inputVolume > 0 then

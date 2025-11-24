@@ -1,7 +1,7 @@
 -- Menubar Status Indicator
 local menubarItem = hs.menubar.new()
 
-function updateMenubarStatus(text, duration)
+local function updateMenubarStatus(text, duration)
     if menubarItem then
         menubarItem:setTitle(text)
 

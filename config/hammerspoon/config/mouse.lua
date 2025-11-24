@@ -88,23 +88,34 @@ local function mouseDoubleClick(button)
     end)
 end
 
--- Track for double-click detection
-local lastClickTime = 0
-local doubleClickThreshold = 0.5  -- 500ms
+-- Use table for better double-click state management
+local clickState = {
+    lastTime = 0,
+    threshold = 0.5,
+    pending = false
+}
 
 -- Bind keys for mouse clicks
 -- Note: Using forwarddelete (Fn+Delete on Mac) since many MacBooks don't have End key
 hs.hotkey.bind(hyperKey, "forwarddelete", function()
-    local now = hs.timer.secondsSinceEpoch()
+    local currentTime = hs.timer.secondsSinceEpoch()
+    local timeSinceLastClick = currentTime - clickState.lastTime
 
-    if (now - lastClickTime) < doubleClickThreshold then
+    if timeSinceLastClick < clickState.threshold and not clickState.pending then
+        clickState.pending = true
         -- Double click detected - send two clicks in rapid succession
         mouseDoubleClick("left")
-        lastClickTime = 0  -- Reset to prevent triple-click
+
+        -- Reset after handling
+        hs.timer.doAfter(0.1, function()
+            clickState.pending = false
+            clickState.lastTime = 0
+        end)
     else
         -- Single click
         mouseClick("left")
-        lastClickTime = now
+        clickState.lastTime = currentTime
+        clickState.pending = false
     end
 end)
 
@@ -157,3 +168,25 @@ hs.hotkey.bind(scrollMod, "left",
 hs.hotkey.bind(scrollMod, "right",
     function() startScrolling("right") end,
     function() stopScrolling("right") end)
+
+-- Cleanup function for module reload
+local function cleanup()
+    -- Stop all movement timers
+    for direction, timer in pairs(mouseState.timers) do
+        if timer then
+            timer:stop()
+        end
+    end
+    mouseState.timers = {}
+
+    -- Stop all scroll timers
+    for direction, timer in pairs(scrollTimers) do
+        if timer then
+            timer:stop()
+        end
+    end
+    scrollTimers = {}
+end
+
+-- Call cleanup on module load to prevent leaks from previous loads
+cleanup()

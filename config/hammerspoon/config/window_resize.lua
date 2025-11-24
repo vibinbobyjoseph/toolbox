@@ -86,7 +86,10 @@ hs.hotkey.bind(hyperWR, "left", function()
 
         -- Set state for potential quarter screen
         lastArrow = "left"
-        if arrowTimer then arrowTimer:stop() end
+        if arrowTimer then
+            arrowTimer:stop()
+            arrowTimer = nil
+        end
         arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
     end
 end)
@@ -116,7 +119,10 @@ hs.hotkey.bind(hyperWR, "right", function()
 
         -- Set state for potential quarter screen
         lastArrow = "right"
-        if arrowTimer then arrowTimer:stop() end
+        if arrowTimer then
+            arrowTimer:stop()
+            arrowTimer = nil
+        end
         arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
     end
 end)
@@ -146,7 +152,10 @@ hs.hotkey.bind(hyperWR, "up", function()
 
         -- Set state for potential quarter screen
         lastArrow = "up"
-        if arrowTimer then arrowTimer:stop() end
+        if arrowTimer then
+            arrowTimer:stop()
+            arrowTimer = nil
+        end
         arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
     end
 end)
@@ -176,7 +185,10 @@ hs.hotkey.bind(hyperWR, "down", function()
 
         -- Set state for potential quarter screen
         lastArrow = "down"
-        if arrowTimer then arrowTimer:stop() end
+        if arrowTimer then
+            arrowTimer:stop()
+            arrowTimer = nil
+        end
         arrowTimer = hs.timer.doAfter(0.5, resetArrowState)
     end
 end)

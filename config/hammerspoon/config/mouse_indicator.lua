@@ -2,7 +2,7 @@
 local mouseIndicator = nil
 local updateTimer = nil
 
-function toggleMouseIndicator()
+local function toggleMouseIndicator()
     if mouseIndicator then
         if updateTimer then
             updateTimer:stop()
@@ -78,8 +78,21 @@ function toggleMouseIndicator()
     end)
 end
 
+-- Cleanup function for module reload
+local function cleanup()
+    if mouseIndicator then
+        mouseIndicator:delete()
+        mouseIndicator = nil
+    end
+    if updateTimer then
+        updateTimer:stop()
+        updateTimer = nil
+    end
+end
+
 hs.hotkey.bind({"ctrl", "alt", "cmd", "shift"}, "m", toggleMouseIndicator)
 
 return {
-    toggle = toggleMouseIndicator
+    toggle = toggleMouseIndicator,
+    cleanup = cleanup
 }

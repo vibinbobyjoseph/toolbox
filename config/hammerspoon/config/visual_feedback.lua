@@ -10,6 +10,12 @@ feedback.config = {
     overlayDuration = 1.5
 }
 
+-- Track active canvases for cleanup
+local activeCanvases = {
+    highlight = nil,
+    status = nil
+}
+
 -- System sounds
 local sounds = {
     success = hs.sound.getByName("Tink"),
@@ -23,6 +29,12 @@ local highlightCanvas = nil
 function feedback.highlightWindow(win, duration)
     if not win then return end
 
+    -- Clean up previous highlight if it exists
+    if activeCanvases.highlight then
+        activeCanvases.highlight:delete()
+        activeCanvases.highlight = nil
+    end
+
     local frame = win:frame()
     duration = duration or feedback.config.highlightDuration
 
@@ -31,6 +43,7 @@ function feedback.highlightWindow(win, duration)
     end
 
     highlightCanvas = hs.canvas.new(frame)
+    activeCanvases.highlight = highlightCanvas
     highlightCanvas[1] = {
         type = "rectangle",
         frame = {x = 0, y = 0, w = "100%", h = "100%"},
@@ -49,6 +62,9 @@ function feedback.highlightWindow(win, duration)
                     highlightCanvas:delete()
                     highlightCanvas = nil
                 end
+                if activeCanvases.highlight == highlightCanvas then
+                    activeCanvases.highlight = nil
+                end
             end)
         end
     end)
@@ -58,6 +74,12 @@ end
 local statusOverlay = nil
 
 function feedback.showStatus(message, duration)
+    -- Clean up previous status if it exists
+    if activeCanvases.status then
+        activeCanvases.status:delete()
+        activeCanvases.status = nil
+    end
+
     local screen = hs.screen.mainScreen():frame()
     local width = 400
     local height = 80
@@ -73,6 +95,7 @@ function feedback.showStatus(message, duration)
         w = width,
         h = height
     })
+    activeCanvases.status = statusOverlay
 
     statusOverlay[1] = {
         type = "rectangle",
@@ -100,6 +123,9 @@ function feedback.showStatus(message, duration)
                     statusOverlay:delete()
                     statusOverlay = nil
                 end
+                if activeCanvases.status == statusOverlay then
+                    activeCanvases.status = nil
+                end
             end)
         end
     end)
@@ -111,6 +137,18 @@ function feedback.playSound(soundType)
 
     if sounds[soundType] then
         sounds[soundType]:play()
+    end
+end
+
+-- Cleanup function for module reload
+function feedback.cleanup()
+    if activeCanvases.highlight then
+        activeCanvases.highlight:delete()
+        activeCanvases.highlight = nil
+    end
+    if activeCanvases.status then
+        activeCanvases.status:delete()
+        activeCanvases.status = nil
     end
 end
 

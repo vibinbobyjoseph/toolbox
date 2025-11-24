@@ -108,8 +108,10 @@ local function launchApp(appName, key, itemData)
 
     -- App is not running, launch it
     if itemData.path then
-        -- Try to launch from specified custom path
-        local success, output, descriptor = hs.execute('open "' .. itemData.path .. '"')
+        -- Try to launch from specified custom path (SAFE - no command injection)
+        local app = hs.application.open(itemData.path)
+        local success = (app ~= nil)
+        local output = success and "Launched via path" or "Failed to launch"
         if success then
             hs.alert.show("Launched: " .. appName .. " (Key: " .. key .. ")")
         else
@@ -119,8 +121,10 @@ local function launchApp(appName, key, itemData)
             hs.logger.new('hyperkey', 'debug'):e("Launch error for " .. appName .. ": " .. (output or "unknown error"))
         end
     elseif itemData.bundleID then
-        -- Try to launch by bundle ID
-        local success, output, descriptor = hs.execute('open -b "' .. itemData.bundleID .. '"')
+        -- Try to launch by bundle ID (SAFE - no command injection)
+        local app = hs.application.open(itemData.bundleID)
+        local success = (app ~= nil)
+        local output = success and "Launched via bundle ID" or "Failed to launch"
         if not success then
             hs.alert.show("Failed to launch: " .. appName .. " (Key: " .. key .. ")")
             hs.logger.new('hyperkey', 'debug'):e("Launch error for " .. appName .. ": " .. (output or "unknown error"))

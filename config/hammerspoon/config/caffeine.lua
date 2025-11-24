@@ -12,7 +12,7 @@ local function updateMenubar()
     end
 end
 
-function toggleCaffeine()
+local function toggleCaffeine()
     caffeine.active = not caffeine.active
 
     if caffeine.active then
