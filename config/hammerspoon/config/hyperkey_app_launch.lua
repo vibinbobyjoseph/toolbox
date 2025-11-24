@@ -2,6 +2,7 @@
 -- Launch Applications hyperKey + key
 -- Define the hyper key (ctrl + shift + option + command)
 local hyperKey = {"ctrl", "shift", "option", "command"}
+local launcher = require('config.launchers.init')
 
 -- Define a table of applications and their corresponding keys
 -- You can now specify custom paths for apps not in the default Applications directory
@@ -51,94 +52,30 @@ local function launchURL(url, browser, key, description)
 end
 
 -- Function to cycle through multiple windows of an app
-local function cycleAppWindows(app)
-    local windows = app:visibleWindows()
+local function cycleAppWindows(key)
+    local itemData = appList[key]
+    if not itemData then return end
 
-    if #windows == 0 then
-        app:activate()
-        return
-    end
-
-    if #windows == 1 then
-        if app:isFrontmost() then
-            app:hide()
-        else
-            app:activate()
-        end
-        return
-    end
-
-    local focusedWin = hs.window.focusedWindow()
-    local currentIndex = nil
-
-    for i, win in ipairs(windows) do
-        if win == focusedWin then
-            currentIndex = i
-            break
-        end
-    end
-
-    if currentIndex then
-        local nextIndex = (currentIndex % #windows) + 1
-        windows[nextIndex]:focus()
-    else
-        windows[1]:focus()
+    local success = launcher.cycleAppWindows(itemData)
+    if not success then
+        -- If cycling failed, try to launch/focus instead
+        launcher.launchOrFocus(itemData)
     end
 end
 
 -- Function to launch an app with toggle functionality
-local function launchApp(appName, key, itemData)
-    -- Safety check for appName
-    if not appName then
-        hs.alert.show("Error: No app name specified (Key: " .. key .. ")")
+local function launchApp(key, modifiers)
+    local itemData = appList[key]
+    if not itemData then
+        hs.alert.show("No app configured for this key")
         return
     end
 
-    -- Try to find running app using bundle ID first (fastest)
-    local app = nil
-    if itemData.bundleID then
-        app = hs.application.get(itemData.bundleID)
-    end
+    -- Use shared launcher module
+    local success, message = launcher.launchOrFocus(itemData)
 
-    -- If app is running, handle multi-window cycling
-    if app then
-        cycleAppWindows(app)
-        return
-    end
-
-    -- App is not running, launch it
-    if itemData.path then
-        -- Try to launch from specified custom path (SAFE - no command injection)
-        local app = hs.application.open(itemData.path)
-        local success = (app ~= nil)
-        local output = success and "Launched via path" or "Failed to launch"
-        if success then
-            hs.alert.show("Launched: " .. appName .. " (Key: " .. key .. ")")
-        else
-            -- If the app is not found at the custom path, show an alert with error
-            hs.alert.show("Failed to launch: " .. appName .. " (Key: " .. key .. ")")
-            -- Log the error for debugging
-            hs.logger.new('hyperkey', 'debug'):e("Launch error for " .. appName .. ": " .. (output or "unknown error"))
-        end
-    elseif itemData.bundleID then
-        -- Try to launch by bundle ID (SAFE - no command injection)
-        local app = hs.application.open(itemData.bundleID)
-        local success = (app ~= nil)
-        local output = success and "Launched via bundle ID" or "Failed to launch"
-        if not success then
-            hs.alert.show("Failed to launch: " .. appName .. " (Key: " .. key .. ")")
-            hs.logger.new('hyperkey', 'debug'):e("Launch error for " .. appName .. ": " .. (output or "unknown error"))
-        else
-            hs.alert.show("Launched: " .. appName .. " (Key: " .. key .. ")")
-        end
-    else
-        -- Try to launch the app by name (fallback)
-        app = hs.application.find(appName)
-        if app then
-            app:activate()
-        else
-            hs.alert.show("Application not found: " .. appName .. " (Key: " .. key .. ")")
-        end
+    if not success then
+        hs.alert.show("Failed to launch: " .. (itemData.name or itemData.app or key))
     end
 end
 
@@ -147,9 +84,9 @@ local function handleLaunch(key, itemData)
     if itemData.type == "url" then
         -- Handle URL launch
         launchURL(itemData.url, itemData.browser, key, itemData.description)
-    elseif itemData.app then
+    elseif itemData.app or itemData.name or itemData.bundleID or itemData.path then
         -- Handle regular app launch with toggle functionality
-        launchApp(itemData.app, key, itemData)
+        launchApp(key)
     else
         -- Handle error case
         hs.alert.show("Invalid configuration for key: " .. key)

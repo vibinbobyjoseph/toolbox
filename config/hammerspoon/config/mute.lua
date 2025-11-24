@@ -1,3 +1,6 @@
+-- Create module-level logger
+local logger = hs.logger.new('mute', 'info')
+
 -- Function to toggle microphone mute/unmute
 local function toggleMic()
     local script = [[
@@ -23,7 +26,7 @@ local function toggleMic()
         end
         hs.alert.show(errorMsg)
         -- Log the error for debugging
-        hs.logger.new('mute', 'debug'):e("AppleScript error: " .. (output or "unknown error"))
+        logger:e("AppleScript error: " .. (output or "unknown error"))
     end
 end
 

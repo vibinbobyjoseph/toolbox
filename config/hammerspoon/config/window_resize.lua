@@ -19,6 +19,44 @@ local function resetArrowState()
     end
 end
 
+-- Helper: Check if two arrows form a quarter-screen combination
+local function isQuarterScreenCombo(first, second)
+    local validCombos = {
+        up = {left = true, right = true},
+        down = {left = true, right = true},
+        left = {up = true, down = true},
+        right = {up = true, down = true}
+    }
+
+    return validCombos[first] and validCombos[first][second]
+end
+
+-- Helper: Calculate quarter screen frame
+local function getQuarterScreenFrame(screen, vertical, horizontal)
+    local max = screen:frame()
+    local width = max.w / 2
+    local height = max.h / 2
+
+    local frame = {
+        w = width,
+        h = height,
+        x = max.x,
+        y = max.y
+    }
+
+    -- Adjust X position for left/right
+    if horizontal == "right" then
+        frame.x = max.x + width
+    end
+
+    -- Adjust Y position for up/down
+    if vertical == "down" then
+        frame.y = max.y + height
+    end
+
+    return frame
+end
+
 local function handleQuarterScreen(firstArrow, secondArrow)
     local win = utils.getActiveWindow()
     if not win then
@@ -26,35 +64,24 @@ local function handleQuarterScreen(firstArrow, secondArrow)
         return
     end
 
-    local screen = win:screen():frame()
-    local x, y, w, h = screen.x, screen.y, screen.w / 2, screen.h / 2
-
-    -- Determine position based on arrow combination
-    if firstArrow == "left" and secondArrow == "up" then
-        -- Top-left
-        win:setFrame({x = x, y = y, w = w, h = h})
-    elseif firstArrow == "right" and secondArrow == "up" then
-        -- Top-right
-        win:setFrame({x = x + w, y = y, w = w, h = h})
-    elseif firstArrow == "left" and secondArrow == "down" then
-        -- Bottom-left
-        win:setFrame({x = x, y = y + h, w = w, h = h})
-    elseif firstArrow == "right" and secondArrow == "down" then
-        -- Bottom-right
-        win:setFrame({x = x + w, y = y + h, w = w, h = h})
-    elseif firstArrow == "up" and secondArrow == "left" then
-        -- Top-left (reverse order)
-        win:setFrame({x = x, y = y, w = w, h = h})
-    elseif firstArrow == "up" and secondArrow == "right" then
-        -- Top-right (reverse order)
-        win:setFrame({x = x + w, y = y, w = w, h = h})
-    elseif firstArrow == "down" and secondArrow == "left" then
-        -- Bottom-left (reverse order)
-        win:setFrame({x = x, y = y + h, w = w, h = h})
-    elseif firstArrow == "down" and secondArrow == "right" then
-        -- Bottom-right (reverse order)
-        win:setFrame({x = x + w, y = y + h, w = w, h = h})
+    -- Check if this is a valid quarter-screen combo
+    if not isQuarterScreenCombo(firstArrow, secondArrow) then
+        return
     end
+
+    -- Determine vertical and horizontal positions
+    local vertical, horizontal
+    if firstArrow == "up" or firstArrow == "down" then
+        vertical = firstArrow
+        horizontal = secondArrow
+    else
+        vertical = secondArrow
+        horizontal = firstArrow
+    end
+
+    -- Calculate and set the frame
+    local frame = getQuarterScreenFrame(win:screen(), vertical, horizontal)
+    win:setFrame(frame)
 
     utils.feedback.highlightWindow(win, 0.5)
     utils.feedback.playSound("move")

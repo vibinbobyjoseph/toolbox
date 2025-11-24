@@ -2,6 +2,8 @@
 -- Launch Apps with Single Keys (no modifiers)
 -- For apps you want to access quickly without hyper key combinations
 
+local launcher = require('config.launchers.init')
+
 -- Define single-key app mappings
 local singleKeyApps = {
     -- § key (keycode 10) for WezTerm
@@ -30,57 +32,15 @@ local singleKeyApps = {
     -- }
 }
 
--- Function to find app by bundle ID or name
-local function findApp(appConfig)
-    local app = nil
-
-    -- Try bundle ID first (most reliable)
-    if appConfig.bundleID then
-        app = hs.application.get(appConfig.bundleID)
-    end
-
-    -- Fall back to app name
-    if not app then
-        app = hs.application.find(appConfig.app)
-    end
-
-    -- Try alternate names
-    if not app and appConfig.alternateNames then
-        for _, altName in ipairs(appConfig.alternateNames) do
-            app = hs.application.find(altName)
-            if app then break end
-        end
-    end
-
-    return app
-end
-
 -- Function to launch or focus an app with toggle behavior
 local function launchOrFocusApp(appConfig)
-    -- Quick check using bundle ID (fast, no Spotlight search)
-    local app = nil
-    if appConfig.bundleID then
-        app = hs.application.get(appConfig.bundleID)
-    end
+    if not appConfig then return end
 
-    if app then
-        -- App is running - handle toggle behavior
-        if app:isFrontmost() then
-            -- If app is focused, hide it
-            app:hide()
-        else
-            -- If app is hidden/background, bring it to front
-            app:activate()
-        end
-    else
-        -- App not running - launch using safe API (SAFE - no command injection)
-        if appConfig.path then
-            hs.application.open(appConfig.path)
-        elseif appConfig.bundleID then
-            hs.application.open(appConfig.bundleID)
-        else
-            hs.application.open(appConfig.app)
-        end
+    -- Use shared launcher module
+    local success, message = launcher.launchOrFocus(appConfig)
+
+    if not success then
+        hs.alert.show("Failed: " .. (appConfig.app or appConfig.name or "unknown app"))
     end
 end
 
