@@ -79,8 +79,32 @@ function launcher.launchOrFocus(appData)
             app:hide()
             return true, "Hidden"
         else
-            -- Bring to front
-            app:activate()
+            -- Edge case: Check if app has fullscreen windows
+            -- Fullscreen apps need special handling for space transitions
+            local windows = app:allWindows()
+            local hasFullscreen = false
+            for _, win in ipairs(windows) do
+                if win:isFullScreen() then
+                    hasFullscreen = true
+                    break
+                end
+            end
+
+            if hasFullscreen then
+                -- Fullscreen apps need delayed focus after space transition
+                app:activate()
+                hs.timer.doAfter(0.2, function()
+                    -- Give time for space transition, then ensure window is focused
+                    local mainWin = app:mainWindow()
+                    if mainWin then
+                        mainWin:focus()
+                    end
+                end)
+            else
+                -- Normal activation
+                app:activate()
+            end
+
             return true, "Activated"
         end
     else

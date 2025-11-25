@@ -20,13 +20,10 @@ function utils.getActiveWindow()
     return win, nil
 end
 
--- Load visual feedback module
-local feedback = require("config.visual_feedback")
-
--- Export modules
+-- Export modules (removed feedback to break circular dependency)
+-- Note: Modules should require 'config.visual_feedback' directly if needed
 return {
     getActiveWindow = utils.getActiveWindow,
     mouseConfig = settings.mouseConfig,  -- Use centralized config
-    settings = settings,                  -- Export all settings
-    feedback = feedback
+    settings = settings                   -- Export all settings
 }

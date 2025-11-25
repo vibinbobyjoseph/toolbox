@@ -3,6 +3,7 @@
 -- Define the hyper-key
 local hyper = {"ctrl", "alt"}
 local utils = require("config.utils")
+local feedback = require("config.visual_feedback")
 local windowConfig = utils.settings.window
 
 -- Quarter-screen positioning using arrow key combinations
@@ -78,14 +79,14 @@ end
 local function handleQuarterScreen(firstArrow, secondArrow)
     local win, err = utils.getActiveWindow()
     if not win then
-        utils.feedback.showStatus(err or "No window available")
+        feedback.showStatus(err or "No window available")
         return
     end
 
     -- Validate screen
     local screen, screenErr = validateScreen(win)
     if not screen then
-        utils.feedback.showStatus(screenErr or "Screen validation failed")
+        feedback.showStatus(screenErr or "Screen validation failed")
         return
     end
 
@@ -108,8 +109,8 @@ local function handleQuarterScreen(firstArrow, secondArrow)
     local frame = getQuarterScreenFrame(screen, vertical, horizontal)
     win:setFrame(frame)
 
-    utils.feedback.highlightWindow(win, 0.5)
-    utils.feedback.playSound("move")
+    feedback.highlightWindow(win, 0.5)
+    feedback.playSound("move")
     resetArrowState()
 end
 
@@ -117,7 +118,7 @@ end
 hs.hotkey.bind(hyper, "left", function()
     local win, err = utils.getActiveWindow()
     if not win then
-        utils.feedback.showStatus(err or "No window available")
+        feedback.showStatus(err or "No window available")
         return
     end
 
@@ -128,7 +129,7 @@ hs.hotkey.bind(hyper, "left", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
-            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
 
@@ -140,8 +141,8 @@ hs.hotkey.bind(hyper, "left", function()
             w = screenFrame.w / 2,
             h = screenFrame.h
         })
-        utils.feedback.highlightWindow(win, 0.5)
-        utils.feedback.playSound("move")
+        feedback.highlightWindow(win, 0.5)
+        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "left"
@@ -157,7 +158,7 @@ end)
 hs.hotkey.bind(hyper, "right", function()
     local win, err = utils.getActiveWindow()
     if not win then
-        utils.feedback.showStatus(err or "No window available")
+        feedback.showStatus(err or "No window available")
         return
     end
 
@@ -168,7 +169,7 @@ hs.hotkey.bind(hyper, "right", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
-            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
 
@@ -180,8 +181,8 @@ hs.hotkey.bind(hyper, "right", function()
             w = screenFrame.w / 2,
             h = screenFrame.h
         })
-        utils.feedback.highlightWindow(win, 0.5)
-        utils.feedback.playSound("move")
+        feedback.highlightWindow(win, 0.5)
+        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "right"
@@ -197,7 +198,7 @@ end)
 hs.hotkey.bind(hyper, "up", function()
     local win, err = utils.getActiveWindow()
     if not win then
-        utils.feedback.showStatus(err or "No window available")
+        feedback.showStatus(err or "No window available")
         return
     end
 
@@ -208,7 +209,7 @@ hs.hotkey.bind(hyper, "up", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
-            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
 
@@ -220,8 +221,8 @@ hs.hotkey.bind(hyper, "up", function()
             w = screenFrame.w,
             h = screenFrame.h / 2
         })
-        utils.feedback.highlightWindow(win, 0.5)
-        utils.feedback.playSound("move")
+        feedback.highlightWindow(win, 0.5)
+        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "up"
@@ -237,7 +238,7 @@ end)
 hs.hotkey.bind(hyper, "down", function()
     local win, err = utils.getActiveWindow()
     if not win then
-        utils.feedback.showStatus(err or "No window available")
+        feedback.showStatus(err or "No window available")
         return
     end
 
@@ -248,7 +249,7 @@ hs.hotkey.bind(hyper, "down", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
-            utils.feedback.showStatus(screenErr or "Screen validation failed")
+            feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
 
@@ -260,8 +261,8 @@ hs.hotkey.bind(hyper, "down", function()
             w = screenFrame.w,
             h = screenFrame.h / 2
         })
-        utils.feedback.highlightWindow(win, 0.5)
-        utils.feedback.playSound("move")
+        feedback.highlightWindow(win, 0.5)
+        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "down"
@@ -277,14 +278,14 @@ end)
 hs.hotkey.bind(hyper, "return", function()
     local win, err = utils.getActiveWindow()
     if not win then
-        utils.feedback.showStatus(err or "No window available")
+        feedback.showStatus(err or "No window available")
         return
     end
 
     -- Validate screen
     local screen, screenErr = validateScreen(win)
     if not screen then
-        utils.feedback.showStatus(screenErr or "Screen validation failed")
+        feedback.showStatus(screenErr or "Screen validation failed")
         return
     end
 
@@ -312,8 +313,8 @@ hs.hotkey.bind(hyper, "return", function()
         -- Not maximized, maximize it
         win:setFrame(screenFrame)
     end
-    utils.feedback.highlightWindow(win, 0.5)
-    utils.feedback.playSound("move")
+    feedback.highlightWindow(win, 0.5)
+    feedback.playSound("move")
 end)
 
 -- ==============================================
