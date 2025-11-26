@@ -30,6 +30,17 @@ local function validateScreen(win)
     return screen, nil
 end
 
+-- Helper: Check if window is already at target position
+local function isWindowAtPosition(win, targetFrame)
+    local currentFrame = win:frame()
+    local tolerance = windowConfig.positioning.maximizeTolerance
+
+    return math.abs(currentFrame.x - targetFrame.x) < tolerance and
+           math.abs(currentFrame.y - targetFrame.y) < tolerance and
+           math.abs(currentFrame.w - targetFrame.w) < tolerance and
+           math.abs(currentFrame.h - targetFrame.h) < tolerance
+end
+
 local function resetArrowState()
     lastArrow = nil
     if arrowTimer then
@@ -110,7 +121,6 @@ local function handleQuarterScreen(firstArrow, secondArrow)
     win:setFrame(frame)
 
     feedback.highlightWindow(win, 0.5)
-    feedback.playSound("move")
     resetArrowState()
 end
 
@@ -135,14 +145,22 @@ hs.hotkey.bind(hyper, "left", function()
 
         -- Normal left half operation
         local screenFrame = screen:frame()
-        win:setFrame({
+        local targetFrame = {
             x = screenFrame.x,
             y = screenFrame.y,
             w = screenFrame.w / 2,
             h = screenFrame.h
-        })
+        }
+
+        -- Check if already at target position
+        if isWindowAtPosition(win, targetFrame) then
+            feedback.showStatus("Window already at left half")
+            feedback.playSound("error")
+            return
+        end
+
+        win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
-        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "left"
@@ -175,14 +193,22 @@ hs.hotkey.bind(hyper, "right", function()
 
         -- Normal right half operation
         local screenFrame = screen:frame()
-        win:setFrame({
+        local targetFrame = {
             x = screenFrame.x + screenFrame.w / 2,
             y = screenFrame.y,
             w = screenFrame.w / 2,
             h = screenFrame.h
-        })
+        }
+
+        -- Check if already at target position
+        if isWindowAtPosition(win, targetFrame) then
+            feedback.showStatus("Window already at right half")
+            feedback.playSound("error")
+            return
+        end
+
+        win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
-        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "right"
@@ -215,14 +241,22 @@ hs.hotkey.bind(hyper, "up", function()
 
         -- Normal top half operation
         local screenFrame = screen:frame()
-        win:setFrame({
+        local targetFrame = {
             x = screenFrame.x,
             y = screenFrame.y,
             w = screenFrame.w,
             h = screenFrame.h / 2
-        })
+        }
+
+        -- Check if already at target position
+        if isWindowAtPosition(win, targetFrame) then
+            feedback.showStatus("Window already at top half")
+            feedback.playSound("error")
+            return
+        end
+
+        win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
-        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "up"
@@ -255,14 +289,22 @@ hs.hotkey.bind(hyper, "down", function()
 
         -- Normal bottom half operation
         local screenFrame = screen:frame()
-        win:setFrame({
+        local targetFrame = {
             x = screenFrame.x,
             y = screenFrame.y + screenFrame.h / 2,
             w = screenFrame.w,
             h = screenFrame.h / 2
-        })
+        }
+
+        -- Check if already at target position
+        if isWindowAtPosition(win, targetFrame) then
+            feedback.showStatus("Window already at bottom half")
+            feedback.playSound("error")
+            return
+        end
+
+        win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
-        feedback.playSound("move")
 
         -- Set state for potential quarter screen
         lastArrow = "down"
@@ -314,7 +356,6 @@ hs.hotkey.bind(hyper, "return", function()
         win:setFrame(screenFrame)
     end
     feedback.highlightWindow(win, 0.5)
-    feedback.playSound("move")
 end)
 
 -- ==============================================
