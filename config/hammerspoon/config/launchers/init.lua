@@ -6,24 +6,30 @@ local launcher = {}
 -- Create module-level logger (fixes Issue #8)
 local logger = hs.logger.new('launcher', 'info')
 
+-- Load timing settings
+local settings = require('config.settings.init')
+local timing = settings.timing.launcher
+
 -- Track apps currently being launched to prevent duplicates
 local launchingApps = {}
 
 -- Track recently launched apps to prevent duplicate launches (debouncing)
 local recentlyLaunched = {}
 
--- Cleanup old launch tracking entries (older than 2 seconds)
+-- Cleanup old launch tracking entries (older than cleanupDelay seconds)
 local function cleanupLaunchTracking()
     local now = hs.timer.secondsSinceEpoch()
     for appName, timestamp in pairs(recentlyLaunched) do
-        if now - timestamp > 2.0 then
+        if now - timestamp > timing.cleanupDelay then
             recentlyLaunched[appName] = nil
         end
     end
 end
 
--- Find an application by name, bundle ID, or path
--- Returns: application object or nil
+--- Find a running application by name, bundle ID, or path
+--- Tries bundle ID first (most reliable), then name, then path
+--- @param appData table Configuration with name, bundleID, or path fields
+--- @return application|nil The running application, or nil if not found
 function launcher.findApp(appData)
     if not appData then return nil end
 
@@ -52,9 +58,10 @@ function launcher.findApp(appData)
     return app
 end
 
---- Launch an application
+--- Launch an application using the most reliable method available
+--- Prevents duplicate launches by tracking launch state
 --- @param appData table Configuration with bundleID, path, or name
---- @return application|nil The launched app, or nil on failure
+--- @return application|nil The launched application, or nil on failure
 --- @return string|nil Error message if launch failed
 function launcher.launchApp(appData)
     if not appData then
@@ -75,7 +82,7 @@ function launcher.launchApp(appData)
     launchingApps[identifier] = true
     local app = hs.application.open(identifier)
 
-    hs.timer.doAfter(2.0, function()
+    hs.timer.doAfter(timing.cleanupDelay, function()
         launchingApps[identifier] = nil
     end)
 
@@ -150,7 +157,7 @@ function launcher.launchOrFocus(appData)
             if hasFullscreen then
                 -- Fullscreen apps need delayed focus after space transition
                 logger:i("App has fullscreen windows, using delayed focus")
-                hs.timer.doAfter(0.2, function()
+                hs.timer.doAfter(timing.fullscreenDelay, function()
                     local mainWin = app:mainWindow()
                     if mainWin then
                         mainWin:focus()
@@ -158,7 +165,7 @@ function launcher.launchOrFocus(appData)
                 end)
             else
                 -- Normal activation with brief delay for window to appear
-                hs.timer.doAfter(0.05, function()
+                hs.timer.doAfter(timing.focusDelay, function()
                     local mainWin = app:mainWindow()
                     if mainWin then
                         logger:i("Focusing main window")
@@ -187,7 +194,7 @@ function launcher.launchOrFocus(appData)
 
         if recentlyLaunched[appIdentifier] then
             local timeSinceLaunch = now - recentlyLaunched[appIdentifier]
-            if timeSinceLaunch < 1.0 then
+            if timeSinceLaunch < timing.debounceWindow then
                 -- App is currently launching, don't trigger another launch
                 logger:i("App already launching: " .. appIdentifier)
                 return nil, "Already launching"
@@ -202,8 +209,10 @@ function launcher.launchOrFocus(appData)
     end
 end
 
--- Get all windows for an application
--- Returns: array of window objects
+--- Get all visible, standard windows for an application
+--- Filters out minimized and non-standard windows
+--- @param app application The application to get windows from
+--- @return table Array of window objects
 function launcher.getAppWindows(app)
     if not app then return {} end
 
@@ -220,8 +229,9 @@ function launcher.getAppWindows(app)
     return visibleWindows
 end
 
--- Cycle through windows of the same application
--- Returns: success (boolean)
+--- Cycle focus through all windows of an application
+--- @param appData table Configuration for the app
+--- @return boolean True if successful, false if no windows
 function launcher.cycleAppWindows(appData)
     local app = launcher.findApp(appData)
     if not app then
@@ -265,8 +275,10 @@ function launcher.cycleAppWindows(appData)
     return true
 end
 
--- Validate app configuration data
--- Returns: valid (boolean), errors (array of strings)
+--- Validate app configuration data
+--- @param appData table Configuration to validate
+--- @return boolean True if valid
+--- @return table Array of error messages (empty if valid)
 function launcher.validateAppData(appData)
     local errors = {}
 

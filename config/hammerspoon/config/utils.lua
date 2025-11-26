@@ -7,8 +7,10 @@ local utils = {}
 -- Load centralized settings
 local settings = require('config.settings.init')
 
--- Get the currently focused window
--- Returns: window object or nil, error message
+--- Get the currently focused window
+--- Falls back to frontmost window, then first ordered window
+--- @return window|nil The focused window, or nil if none found
+--- @return string|nil Error message if no window available
 function utils.getActiveWindow()
     local win = hs.window.focusedWindow()
         or hs.window.frontmostWindow()

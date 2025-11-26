@@ -1,6 +1,31 @@
+--[[
+Module: Mouse Control
+Purpose: Keyboard-based mouse cursor control with acceleration
+
+Public API:
+  - cleanup(): Stop all timers and clean up resources
+
+Features:
+  - Precision mode: 1 pixel/tick for first 0.1 seconds
+  - Acceleration: Quadratic speed increase for longer holds
+  - Multi-click: Double and triple click support
+  - Scrolling: Keyboard-based scroll wheel emulation
+
+Hotkeys:
+  - Hyper + Arrows: Move cursor
+  - Hyper + ForwardDelete: Click (double/triple click with rapid presses)
+  - Hyper + End: Right click
+  - Ctrl+Shift+Cmd + Arrows: Scroll
+
+Dependencies:
+  - config.utils (for settings)
+  - config.settings.mouse (for configuration)
+]]--
+
 local hyperKey = {"ctrl", "alt", "cmd", "shift"}
 local utils = require("config.utils")
 local moveInterval = utils.mouseConfig.moveInterval
+local timing = require('config.settings').timing.mouse
 
 -- Mouse acceleration state
 local mouseState = {
@@ -142,7 +167,7 @@ local function mouseClick(button)
 
     local pos = hs.mouse.absolutePosition()
     hs.eventtap.event.newMouseEvent(eventTypeDown, pos):post()
-    hs.timer.usleep(20000)  -- 20ms delay between down and up
+    hs.timer.usleep(timing.clickDelay * 1000000)  -- Convert seconds to microseconds
     hs.eventtap.event.newMouseEvent(eventTypeUp, pos):post()
 end
 
@@ -172,7 +197,7 @@ local function sendMultipleClicks(button, clickCount)
         local downEvent = hs.eventtap.event.newMouseEvent(eventTypeDown, pos)
         downEvent:setProperty(hs.eventtap.event.properties.mouseEventClickState, i)
         downEvent:post()
-        hs.timer.usleep(20000)  -- 20ms between down and up
+        hs.timer.usleep(timing.clickDelay * 1000000)  -- Convert seconds to microseconds
 
         -- Send mouse up event
         local upEvent = hs.eventtap.event.newMouseEvent(eventTypeUp, pos)
@@ -181,7 +206,7 @@ local function sendMultipleClicks(button, clickCount)
 
         -- Delay between clicks (except after the last one)
         if i < clickCount then
-            hs.timer.usleep(50000)  -- 50ms between clicks
+            hs.timer.usleep(timing.clickInterval * 1000000)  -- Convert seconds to microseconds
         end
     end
 end

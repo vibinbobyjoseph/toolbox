@@ -110,6 +110,12 @@ end
 -- Status overlay (replaces hs.alert for less intrusion)
 local statusOverlay = nil
 
+--- Show a status message overlay on screen
+--- Displays centered text that fades after a short time
+--- @param message string The message to display
+--- @param duration number|nil Display duration in seconds
+--- @return boolean|nil True on success, nil on failure
+--- @return string|nil Error message if failed
 function feedback.showStatus(message, duration)
     -- Validate input
     if not message or message == "" then

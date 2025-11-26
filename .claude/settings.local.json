@@ -15,7 +15,9 @@
       "Bash(open -g hammerspoon://reload)",
       "Bash(log show:*)",
       "Bash(/usr/bin/open:*)",
-      "Bash(luac:*)"
+      "Bash(luac:*)",
+      "Bash(lua:*)",
+      "Bash(test -f:*)"
     ],
     "deny": [],
     "ask": []
