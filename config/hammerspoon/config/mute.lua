@@ -1,6 +1,6 @@
 -- Create module-level logger
 local logger = hs.logger.new('mute', 'info')
-local utils = require('config.utils')
+local feedback = require('config.visual_feedback')
 
 -- Function to toggle microphone mute/unmute
 local function toggleMic()
@@ -18,7 +18,7 @@ local function toggleMic()
     local success, output, rawTable = hs.osascript.applescript(script)
 
     if success and output then
-        utils.feedback.showStatus(output)  -- Show feedback overlay
+        feedback.showStatus(output)  -- Show feedback overlay
     else
         -- Provide more detailed error message
         local errorMsg = "Error toggling mic"
@@ -27,7 +27,7 @@ local function toggleMic()
         elseif output then
             errorMsg = errorMsg .. ": " .. tostring(output)
         end
-        utils.feedback.showStatus(errorMsg)
+        feedback.showStatus(errorMsg)
         -- Log the error for debugging
         logger:e("AppleScript error: " .. (output and tostring(output) or "unknown error"))
     end
