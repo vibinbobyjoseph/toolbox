@@ -266,11 +266,13 @@ function launcher.cycleAppWindows(appData)
     local focusedWindow = hs.window.focusedWindow()
     local currentIndex = nil
 
-    -- Find current window index
-    for i, win in ipairs(windows) do
-        if win:id() == focusedWindow:id() then
-            currentIndex = i
-            break
+    -- Find current window index (only if we have a focused window)
+    if focusedWindow then
+        for i, win in ipairs(windows) do
+            if win:id() == focusedWindow:id() then
+                currentIndex = i
+                break
+            end
         end
     end
 

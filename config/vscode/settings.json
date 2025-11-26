@@ -123,5 +123,8 @@
 
   // Extensions
   "extensions.ignoreRecommendations": false,
-  "extensions.autoUpdate": true
+  "extensions.autoUpdate": true,
+  "chat.tools.terminal.autoApprove": {
+    "./run_tests.py": true
+  }
 }
