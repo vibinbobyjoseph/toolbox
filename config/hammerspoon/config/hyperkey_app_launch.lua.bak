@@ -40,16 +40,16 @@ local function launchURL(url, browser, key, description)
 
     local bundleID = browserBundle[browser]
     if not bundleID then
-        feedback.showStatus("Unsupported browser: " .. browser .. " (Key: " .. key .. ")")
+        utils.feedback.showStatus("Unsupported browser: " .. browser .. " (Key: " .. key .. ")")
         return
     end
 
     -- Use hs.urlevent.openURLWithBundle to open URL in specific browser
     local success = hs.urlevent.openURLWithBundle(url, bundleID)
     if success then
-        feedback.showStatus("Opened: " .. (description or url) .. " in " .. browser .. " (Key: " .. key .. ")")
+        utils.feedback.showStatus("Opened: " .. (description or url) .. " in " .. browser .. " (Key: " .. key .. ")")
     else
-        feedback.showStatus("Failed to open URL in " .. browser .. " (Key: " .. key .. ")")
+        utils.feedback.showStatus("Failed to open URL in " .. browser .. " (Key: " .. key .. ")")
     end
 end
 
@@ -70,7 +70,7 @@ local function launchApp(key, modifiers)
     print("===== HOTKEY PRESSED: " .. key .. " at " .. os.date("%H:%M:%S"))
     local itemData = appList[key]
     if not itemData then
-        feedback.showStatus("No app configured for this key")
+        utils.feedback.showStatus("No app configured for this key")
         return
     end
 
@@ -80,7 +80,7 @@ local function launchApp(key, modifiers)
 
     print("===== launcher.launchOrFocus returned: " .. tostring(app))
     if not app then
-        feedback.showStatus(err or "Failed to launch")
+        utils.feedback.showStatus(err or "Failed to launch")
     end
 end
 
@@ -94,7 +94,7 @@ local function handleLaunch(key, itemData)
         launchApp(key)
     else
         -- Handle error case
-        feedback.showStatus("Invalid configuration for key: " .. key)
+        utils.feedback.showStatus("Invalid configuration for key: " .. key)
     end
 end
 

@@ -16,6 +16,9 @@ local launchingApps = {}
 -- Track recently launched apps to prevent duplicate launches (debouncing)
 local recentlyLaunched = {}
 
+-- Application watcher for tracking app lifecycle
+local appWatcher = nil
+
 -- Cleanup old launch tracking entries (older than cleanupDelay seconds)
 local function cleanupLaunchTracking()
     local now = hs.timer.secondsSinceEpoch()
@@ -24,6 +27,94 @@ local function cleanupLaunchTracking()
             recentlyLaunched[appName] = nil
         end
     end
+end
+
+-- Application lifecycle event handler
+local function onAppEvent(appName, eventType, app)
+    if eventType == hs.application.watcher.launched then
+        -- App successfully launched - clear tracking for this app
+        local bundleID = app:bundleID()
+        local identifier = bundleID or appName
+
+        if launchingApps[identifier] then
+            logger:d("App launched successfully, clearing launch state: " .. identifier)
+            launchingApps[identifier] = nil
+        end
+
+        -- Keep recentlyLaunched for debouncing purposes
+        -- (will be cleared by timer or next cleanup cycle)
+
+    elseif eventType == hs.application.watcher.terminated then
+        -- App terminated - clear all tracking for this app
+        local bundleID = app and app:bundleID()
+        local identifier = bundleID or appName
+
+        if launchingApps[identifier] then
+            logger:d("App terminated, clearing launch state: " .. identifier)
+            launchingApps[identifier] = nil
+        end
+
+        if recentlyLaunched[identifier] then
+            logger:d("App terminated, clearing recent launch tracking: " .. identifier)
+            recentlyLaunched[identifier] = nil
+        end
+
+    elseif eventType == hs.application.watcher.activated then
+        -- App activated - if we were tracking it as launching, clear the state
+        local bundleID = app:bundleID()
+        local identifier = bundleID or appName
+
+        if launchingApps[identifier] then
+            logger:d("App activated, clearing launch state: " .. identifier)
+            launchingApps[identifier] = nil
+        end
+    end
+end
+
+--- Poll for window visibility with timeout (for fullscreen transitions)
+--- @param app application The application to check
+--- @param callback function Function to call when window is visible or timeout
+--- @param maxAttempts number Maximum number of polling attempts (default 20)
+--- @param interval number Polling interval in seconds (default 0.1)
+local function pollForWindowVisibility(app, callback, maxAttempts, interval)
+    maxAttempts = maxAttempts or 20  -- 20 attempts * 0.1s = 2 seconds max
+    interval = interval or 0.1
+
+    local attempts = 0
+
+    local function checkWindow()
+        attempts = attempts + 1
+
+        -- Check if app still exists
+        if not app or not app:isRunning() then
+            logger:w("App is no longer running during window polling")
+            callback(nil)
+            return
+        end
+
+        -- Try to get main window
+        local mainWin = app:mainWindow()
+
+        if mainWin and mainWin:isVisible() then
+            -- Window is visible, we can focus it
+            logger:d("Window became visible after " .. attempts .. " attempts")
+            callback(mainWin)
+            return
+        end
+
+        -- Check if we've exceeded max attempts
+        if attempts >= maxAttempts then
+            logger:w("Window visibility polling timed out after " .. (maxAttempts * interval) .. " seconds")
+            callback(mainWin)  -- Try to focus anyway, might work
+            return
+        end
+
+        -- Schedule next check
+        hs.timer.doAfter(interval, checkWindow)
+    end
+
+    -- Start polling
+    checkWindow()
 end
 
 --- Find a running application by name, bundle ID, or path
@@ -155,18 +246,21 @@ function launcher.launchOrFocus(appData)
             end
 
             if hasFullscreen then
-                -- Fullscreen apps need delayed focus after space transition
-                logger:i("App has fullscreen windows, using delayed focus")
-                hs.timer.doAfter(timing.fullscreenDelay, function()
-                    local mainWin = app:mainWindow()
+                -- Fullscreen apps need to wait for space transition
+                -- Poll for window visibility instead of fixed delay
+                logger:i("App has fullscreen windows, polling for visibility")
+                pollForWindowVisibility(app, function(mainWin)
                     if mainWin then
                         mainWin:focus()
+                        logger:i("Focused fullscreen window")
+                    else
+                        logger:w("Could not focus fullscreen window after polling")
                     end
-                end)
+                end, 20, 0.1)  -- 2 second timeout for fullscreen transitions
             else
-                -- Normal activation with brief delay for window to appear
-                hs.timer.doAfter(timing.focusDelay, function()
-                    local mainWin = app:mainWindow()
+                -- Normal activation - poll for window with shorter timeout
+                logger:i("Polling for window visibility")
+                pollForWindowVisibility(app, function(mainWin)
                     if mainWin then
                         logger:i("Focusing main window")
                         mainWin:focus()
@@ -182,7 +276,7 @@ function launcher.launchOrFocus(appData)
                             logger:i("Relaunched " .. appIdentifier .. " to open window")
                         end
                     end
-                end)
+                end, 10, 0.05)  -- 0.5 second timeout for normal windows (10 * 0.05s)
             end
 
             return app, nil
@@ -210,23 +304,33 @@ function launcher.launchOrFocus(appData)
 end
 
 --- Get all visible, standard windows for an application
+--- Uses hs.window.filter API for efficient window filtering
 --- Filters out minimized and non-standard windows
 --- @param app application The application to get windows from
 --- @return table Array of window objects
 function launcher.getAppWindows(app)
     if not app then return {} end
 
-    local windows = app:allWindows()
-    local visibleWindows = {}
+    -- Use hs.window.filter API for efficient filtering
+    -- Creates a filter that only matches:
+    -- - Windows belonging to this app
+    -- - Standard windows (excludes utility panels, etc.)
+    -- - Visible windows (excludes minimized)
+    local appFilter = hs.window.filter.new(false)
+        :setAppFilter(app:name(), {visible = true, currentSpace = nil})
 
-    -- Filter to visible, standard windows
+    -- Get filtered windows
+    local windows = appFilter:getWindows()
+
+    -- Further filter to only standard windows
+    local standardWindows = {}
     for _, win in ipairs(windows) do
-        if win:isStandard() and win:isVisible() then
-            table.insert(visibleWindows, win)
+        if win:isStandard() then
+            table.insert(standardWindows, win)
         end
     end
 
-    return visibleWindows
+    return standardWindows
 end
 
 --- Cycle focus through all windows of an application
@@ -306,6 +410,29 @@ end
 -- Cleanup function for module reload
 function launcher.cleanup()
     launchingApps = {}
+    recentlyLaunched = {}
+
+    -- Stop application watcher
+    if appWatcher then
+        appWatcher:stop()
+        appWatcher = nil
+        logger:d("Application watcher stopped")
+    end
 end
+
+-- Initialize application watcher to track app lifecycle
+local function initializeAppWatcher()
+    if appWatcher then
+        logger:w("Application watcher already initialized")
+        return
+    end
+
+    appWatcher = hs.application.watcher.new(onAppEvent)
+    appWatcher:start()
+    logger:i("Application watcher started - tracking app launches and terminations")
+end
+
+-- Start the application watcher when module loads
+initializeAppWatcher()
 
 return launcher

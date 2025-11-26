@@ -4,6 +4,7 @@
 
 local launcher = require('config.launchers.init')
 local utils = require('config.utils')
+local feedback = require('config.visual_feedback')
 
 -- Define single-key app mappings
 local singleKeyApps = {
@@ -41,7 +42,7 @@ local function launchOrFocusApp(appConfig)
     local app, err = launcher.launchOrFocus(appConfig)
 
     if not app then
-        utils.feedback.showStatus(err or "Failed to launch")
+        feedback.showStatus(err or "Failed to launch")
     end
 end
 

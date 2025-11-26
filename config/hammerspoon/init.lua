@@ -45,6 +45,10 @@ require("config.mute")
 -- Screen configuration watcher (repositions windows on monitor changes)
 local screenWatcher = require('config.screen_watcher')
 
+-- Window event watcher (optional auto-tiling on app launch - disabled by default)
+-- To enable: Edit config/window_rules.lua and set enabled = true
+local windowEventWatcher = require('config.window_event_watcher')
+
 -- Periodically check if permissions are still granted
 hs.timer.doEvery(300, function()  -- Check every 5 minutes
     if not hs.accessibilityState() then
