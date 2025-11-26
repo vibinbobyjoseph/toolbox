@@ -38,10 +38,10 @@ local function launchOrFocusApp(appConfig)
     if not appConfig then return end
 
     -- Use shared launcher module
-    local success, message = launcher.launchOrFocus(appConfig)
+    local app, err = launcher.launchOrFocus(appConfig)
 
-    if not success then
-        utils.feedback.showStatus("Failed: " .. (appConfig.app or appConfig.name or "unknown app"))
+    if not app then
+        utils.feedback.showStatus(err or "Failed to launch")
     end
 end
 

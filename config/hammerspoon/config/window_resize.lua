@@ -5,6 +5,7 @@ local hyper = {"ctrl", "alt"}
 local utils = require("config.utils")
 local feedback = require("config.visual_feedback")
 local windowConfig = utils.settings.window
+local logger = hs.logger.new('window_resize', 'info')
 
 -- Quarter-screen positioning using arrow key combinations
 -- Hold Ctrl+Alt, then press Left+Up for top-left, etc.
@@ -90,6 +91,7 @@ end
 local function handleQuarterScreen(firstArrow, secondArrow)
     local win, err = utils.getActiveWindow()
     if not win then
+        logger:w("No active window found")
         feedback.showStatus(err or "No window available")
         return
     end
@@ -97,6 +99,7 @@ local function handleQuarterScreen(firstArrow, secondArrow)
     -- Validate screen
     local screen, screenErr = validateScreen(win)
     if not screen then
+        logger:w("Screen validation failed: " .. (screenErr or "unknown"))
         feedback.showStatus(screenErr or "Screen validation failed")
         return
     end
@@ -119,6 +122,7 @@ local function handleQuarterScreen(firstArrow, secondArrow)
     -- Calculate and set the frame
     local frame = getQuarterScreenFrame(screen, vertical, horizontal)
     win:setFrame(frame)
+    logger:d("Resizing window to quarter screen: " .. vertical .. "-" .. horizontal)
 
     feedback.highlightWindow(win, 0.5)
     resetArrowState()
@@ -128,6 +132,7 @@ end
 hs.hotkey.bind(hyper, "left", function()
     local win, err = utils.getActiveWindow()
     if not win then
+        logger:w("No active window found for left resize")
         feedback.showStatus(err or "No window available")
         return
     end
@@ -139,6 +144,7 @@ hs.hotkey.bind(hyper, "left", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
+            logger:w("Screen validation failed for left resize")
             feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
@@ -154,12 +160,14 @@ hs.hotkey.bind(hyper, "left", function()
 
         -- Check if already at target position
         if isWindowAtPosition(win, targetFrame) then
+            logger:d("Window already at left half")
             feedback.showStatus("Window already at left half")
             feedback.playSound("error")
             return
         end
 
         win:setFrame(targetFrame)
+        logger:d("Resizing window to left half")
         feedback.highlightWindow(win, 0.5)
 
         -- Set state for potential quarter screen
@@ -176,6 +184,7 @@ end)
 hs.hotkey.bind(hyper, "right", function()
     local win, err = utils.getActiveWindow()
     if not win then
+        logger:w("No active window found for right resize")
         feedback.showStatus(err or "No window available")
         return
     end
@@ -187,6 +196,7 @@ hs.hotkey.bind(hyper, "right", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
+            logger:w("Screen validation failed for right resize")
             feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
@@ -202,11 +212,13 @@ hs.hotkey.bind(hyper, "right", function()
 
         -- Check if already at target position
         if isWindowAtPosition(win, targetFrame) then
+            logger:d("Window already at right half")
             feedback.showStatus("Window already at right half")
             feedback.playSound("error")
             return
         end
 
+        logger:d("Resizing window to right half")
         win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
 
@@ -224,6 +236,7 @@ end)
 hs.hotkey.bind(hyper, "up", function()
     local win, err = utils.getActiveWindow()
     if not win then
+        logger:w("No active window found for up resize")
         feedback.showStatus(err or "No window available")
         return
     end
@@ -235,6 +248,7 @@ hs.hotkey.bind(hyper, "up", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
+            logger:w("Screen validation failed for up resize")
             feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
@@ -250,11 +264,13 @@ hs.hotkey.bind(hyper, "up", function()
 
         -- Check if already at target position
         if isWindowAtPosition(win, targetFrame) then
+            logger:d("Window already at top half")
             feedback.showStatus("Window already at top half")
             feedback.playSound("error")
             return
         end
 
+        logger:d("Resizing window to top half")
         win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
 
@@ -272,6 +288,7 @@ end)
 hs.hotkey.bind(hyper, "down", function()
     local win, err = utils.getActiveWindow()
     if not win then
+        logger:w("No active window found for down resize")
         feedback.showStatus(err or "No window available")
         return
     end
@@ -283,6 +300,7 @@ hs.hotkey.bind(hyper, "down", function()
         -- Validate screen
         local screen, screenErr = validateScreen(win)
         if not screen then
+            logger:w("Screen validation failed for down resize")
             feedback.showStatus(screenErr or "Screen validation failed")
             return
         end
@@ -298,11 +316,13 @@ hs.hotkey.bind(hyper, "down", function()
 
         -- Check if already at target position
         if isWindowAtPosition(win, targetFrame) then
+            logger:d("Window already at bottom half")
             feedback.showStatus("Window already at bottom half")
             feedback.playSound("error")
             return
         end
 
+        logger:d("Resizing window to bottom half")
         win:setFrame(targetFrame)
         feedback.highlightWindow(win, 0.5)
 
@@ -320,6 +340,7 @@ end)
 hs.hotkey.bind(hyper, "return", function()
     local win, err = utils.getActiveWindow()
     if not win then
+        logger:w("No active window found for maximize/center toggle")
         feedback.showStatus(err or "No window available")
         return
     end
@@ -327,6 +348,7 @@ hs.hotkey.bind(hyper, "return", function()
     -- Validate screen
     local screen, screenErr = validateScreen(win)
     if not screen then
+        logger:w("Screen validation failed for maximize/center toggle")
         feedback.showStatus(screenErr or "Screen validation failed")
         return
     end
@@ -343,6 +365,7 @@ hs.hotkey.bind(hyper, "return", function()
 
     if isMaximized then
         -- Currently maximized, center it (using centralized config)
+        logger:d("Centering window")
         local w = screenFrame.w * windowConfig.positioning.centerWidth
         local h = screenFrame.h * windowConfig.positioning.centerHeight
         win:setFrame({
@@ -353,22 +376,23 @@ hs.hotkey.bind(hyper, "return", function()
         })
     else
         -- Not maximized, maximize it
+        logger:d("Maximizing window")
         win:setFrame(screenFrame)
     end
     feedback.highlightWindow(win, 0.5)
 end)
 
 -- ==============================================
--- Module export with cleanup function
-local module = {}
-
--- Cleanup function for module reload
-function module.cleanup()
-    if arrowTimer then
-        arrowTimer:stop()
-        arrowTimer = nil
+-- Module export
+local windowResize = {
+    cleanup = function()
+        -- Stop arrow timer if active
+        if arrowTimer then
+            arrowTimer:stop()
+            arrowTimer = nil
+        end
+        lastArrow = nil
     end
-    lastArrow = nil
-end
+}
 
-return module
+return windowResize

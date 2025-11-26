@@ -14,7 +14,8 @@
       "Bash(/Users/vibin.joseph/Code/jcl/toolbox/notes/LinuxNotes.md)",
       "Bash(open -g hammerspoon://reload)",
       "Bash(log show:*)",
-      "Bash(/usr/bin/open:*)"
+      "Bash(/usr/bin/open:*)",
+      "Bash(luac:*)"
     ],
     "deny": [],
     "ask": []

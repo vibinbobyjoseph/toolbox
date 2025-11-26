@@ -5,15 +5,6 @@ local feedback = {}
 local settings = require('config.settings.init')
 local visualConfig = settings.visual
 
--- Maintain config reference for backward compatibility
-feedback.config = {
-    highlightColor = visualConfig.highlight.color,
-    highlightDuration = visualConfig.highlight.duration,
-    highlightWidth = visualConfig.highlight.width,
-    soundEnabled = visualConfig.sound.enabled,
-    overlayDuration = visualConfig.overlay.duration
-}
-
 -- Track active canvases for cleanup
 local activeCanvases = {
     highlight = nil,
@@ -63,10 +54,14 @@ local sounds = {
 -- Window highlight overlay
 local highlightCanvas = nil
 
+--- Highlight a window with animated border
+--- @param win window The window to highlight
+--- @param duration number|nil Duration in seconds (default from settings)
+--- @return boolean|nil True on success, nil on failure
+--- @return string|nil Error message if failed
 function feedback.highlightWindow(win, duration)
-    -- Validate input
     if not win then
-        return false, "No window provided"
+        return nil, "Window required"
     end
 
     -- Clean up previous highlight if it exists
@@ -76,7 +71,7 @@ function feedback.highlightWindow(win, duration)
     end
 
     local frame = win:frame()
-    duration = duration or feedback.config.highlightDuration
+    duration = duration or visualConfig.highlight.duration
 
     if highlightCanvas then
         highlightCanvas:delete()
@@ -87,8 +82,8 @@ function feedback.highlightWindow(win, duration)
     highlightCanvas[1] = {
         type = "rectangle",
         frame = {x = 0, y = 0, w = "100%", h = "100%"},
-        strokeColor = feedback.config.highlightColor,
-        strokeWidth = feedback.config.highlightWidth,
+        strokeColor = visualConfig.highlight.color,
+        strokeWidth = visualConfig.highlight.width,
         action = "stroke",
         roundedRectRadii = {xRadius = 8, yRadius = 8}
     }
@@ -130,7 +125,7 @@ function feedback.showStatus(message, duration)
     local screen = hs.screen.mainScreen():frame()
     local width = 400
     local height = 80
-    duration = duration or feedback.config.overlayDuration
+    duration = duration or visualConfig.overlay.duration
 
     if statusOverlay then
         statusOverlay:delete()
@@ -183,7 +178,7 @@ end
 -- Play sound feedback
 function feedback.playSound(soundType)
     -- Validate sound is enabled
-    if not feedback.config.soundEnabled then
+    if not visualConfig.sound.enabled then
         return false, "Sound feedback disabled"
     end
 

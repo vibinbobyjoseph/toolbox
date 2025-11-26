@@ -36,4 +36,11 @@ updateMenubar()
 
 hs.hotkey.bind({"ctrl", "alt", "cmd"}, "c", toggleCaffeine)
 
-return caffeine
+-- Module export
+local caffeineModule = {
+    cleanup = function()
+        -- Could stop caffeine if active, but not needed on reload
+    end
+}
+
+return caffeineModule

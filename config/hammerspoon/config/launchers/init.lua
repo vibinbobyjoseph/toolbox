@@ -52,51 +52,50 @@ function launcher.findApp(appData)
     return app
 end
 
--- Launch an application with proper activation and window verification
--- Returns: success (boolean), message (string)
+--- Launch an application
+--- @param appData table Configuration with bundleID, path, or name
+--- @return application|nil The launched app, or nil on failure
+--- @return string|nil Error message if launch failed
 function launcher.launchApp(appData)
     if not appData then
-        return false, "No app data provided"
+        return nil, "No app data provided"
     end
 
-    -- Get unique identifier for this app
     local identifier = appData.bundleID or appData.path or appData.name
     if not identifier then
-        return false, "App data missing identifier"
+        return nil, "App data missing identifier"
     end
 
-    -- Check if already launching
+    -- Check if already launching (from Phase 7)
     if launchingApps[identifier] then
         logger:d("App already launching: " .. identifier)
-        return true, "Already launching"
+        return nil, "Already launching"
     end
 
-    -- Mark as launching
     launchingApps[identifier] = true
-    logger:d("Launching app: " .. identifier)
-
-    -- Try to launch using native API
     local app = hs.application.open(identifier)
 
-    -- Clear launching flag after delay (app should be launched by then)
     hs.timer.doAfter(2.0, function()
         launchingApps[identifier] = nil
     end)
 
     if app then
-        return true, "Launched successfully"
+        return app, nil  -- ✓ Return app object
     else
-        launchingApps[identifier] = nil  -- Clear immediately on failure
-        logger:e("Failed to launch app: " .. identifier)
-        return false, "Failed to launch"
+        launchingApps[identifier] = nil
+        logger:e("Failed to launch: " .. identifier)
+        return nil, "Failed to launch"  -- ✓ Return error
     end
 end
 
--- Focus an existing application or launch it if not running
--- Returns: success (boolean), message (string)
+--- Focus an existing application or launch it if not running
+--- Provides toggle behavior: hides app if already focused
+--- @param appData table Configuration with name, bundleID, or path
+--- @return application|nil The application, or nil on failure
+--- @return string|nil Error message or status ("Hidden", "Activated", etc.)
 function launcher.launchOrFocus(appData)
     if not appData then
-        return false, "No app data provided"
+        return nil, "No app data provided"
     end
 
     -- Get identifier for debouncing
@@ -125,7 +124,7 @@ function launcher.launchOrFocus(appData)
             -- Already focused, hide it (toggle behavior)
             logger:i("App is frontmost, hiding it")
             app:hide()
-            return true, "Hidden"
+            return app, nil
         else
             logger:i("App is not frontmost, activating it")
 
@@ -179,7 +178,7 @@ function launcher.launchOrFocus(appData)
                 end)
             end
 
-            return true, "Activated"
+            return app, nil
         end
     else
         -- App not running - check if we recently tried to launch it (debouncing)
@@ -191,7 +190,7 @@ function launcher.launchOrFocus(appData)
             if timeSinceLaunch < 1.0 then
                 -- App is currently launching, don't trigger another launch
                 logger:i("App already launching: " .. appIdentifier)
-                return true, "Already launching"
+                return nil, "Already launching"
             end
         end
 

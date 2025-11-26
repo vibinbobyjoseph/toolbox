@@ -35,3 +35,12 @@ end
 
 -- Bind F14 to toggle microphone
 hs.hotkey.bind({}, "F14", toggleMic)
+
+-- Module export
+local muteModule = {
+    cleanup = function()
+        -- No cleanup needed
+    end
+}
+
+return muteModule

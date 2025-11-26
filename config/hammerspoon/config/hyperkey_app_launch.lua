@@ -75,11 +75,11 @@ local function launchApp(key, modifiers)
 
     print("===== CALLING launcher.launchOrFocus for: " .. (itemData.app or "unknown"))
     -- Use shared launcher module
-    local success, message = launcher.launchOrFocus(itemData)
+    local app, err = launcher.launchOrFocus(itemData)
 
-    print("===== launcher.launchOrFocus returned: " .. tostring(success))
-    if not success then
-        utils.feedback.showStatus("Failed to launch: " .. (itemData.name or itemData.app or key))
+    print("===== launcher.launchOrFocus returned: " .. tostring(app))
+    if not app then
+        utils.feedback.showStatus(err or "Failed to launch")
     end
 end
 
