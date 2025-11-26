@@ -1,5 +1,23 @@
 -- Init.lua: Main entry point for your Hammerspoon configuration
 
+-- Check for required macOS accessibility permissions
+-- Without these, window management and hotkeys won't work
+if not hs.accessibilityState() then
+    hs.notify.new({
+        title = "Hammerspoon Needs Permissions",
+        informativeText = "Please grant Accessibility access in System Settings → Privacy & Security → Accessibility",
+        actionButtonTitle = "Open Settings",
+        hasActionButton = true
+    }, function(notification)
+        if notification:activationType() == hs.notify.activationTypes.actionButtonClicked then
+            hs.execute("open 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'")
+        end
+    end):send()
+
+    -- Log the issue
+    hs.logger.new('init', 'warning'):w("Accessibility permissions not granted")
+end
+
 -- Preload commonly used extensions to avoid lazy-loading delays on first keypress
 -- This prevents the 10-second delay when launching apps for the first time
 local _ = hs.application  -- Force load application extension
@@ -29,3 +47,16 @@ require("config.mouse")
 -- require("config.mouse_indicator")  -- Disabled: crosshairs not needed
 require("config.fn_keys")
 require("config.mute")
+
+-- Screen configuration watcher (repositions windows on monitor changes)
+local screenWatcher = require('config.screen_watcher')
+
+-- Periodically check if permissions are still granted
+hs.timer.doEvery(300, function()  -- Check every 5 minutes
+    if not hs.accessibilityState() then
+        hs.notify.new({
+            title = "Hammerspoon Permissions Lost",
+            informativeText = "Accessibility access was revoked. Features disabled."
+        }):send()
+    end
+end)

@@ -11,6 +11,16 @@ local mouseState = {
     accelerationRate = utils.settings.mouse.movement.accelerationRate
 }
 
+-- Screen bounds cache to avoid recalculating 50x/second
+local screenBoundsCache = {
+    minX = nil,
+    minY = nil,
+    maxX = nil,
+    maxY = nil,
+    lastUpdate = 0,
+    screens = {}
+}
+
 local function calculateSpeed(direction)
     local duration = mouseState.holdDuration[direction] or 0
     local speed
@@ -34,14 +44,12 @@ local function calculateSpeed(direction)
     return math.min(speed, mouseState.maxSpeed)
 end
 
--- Helper: Clamp mouse position within all screens bounds (allows cross-monitor movement)
-local function clampPosition(pos)
-    if not pos then return pos end
-
-    -- Calculate the total desktop bounds across all screens
+-- Update screen bounds cache (called on screen changes or periodically)
+local function updateScreenBoundsCache()
+    local screens = hs.screen.allScreens()
     local minX, minY, maxX, maxY = math.huge, math.huge, -math.huge, -math.huge
 
-    for _, screen in ipairs(hs.screen.allScreens()) do
+    for _, screen in ipairs(screens) do
         local frame = screen:fullFrame()
         minX = math.min(minX, frame.x)
         minY = math.min(minY, frame.y)
@@ -49,9 +57,26 @@ local function clampPosition(pos)
         maxY = math.max(maxY, frame.y + frame.h)
     end
 
-    -- Clamp to total desktop bounds (with 1px margin to avoid edge issues)
-    pos.x = math.max(minX + 1, math.min(pos.x, maxX - 1))
-    pos.y = math.max(minY + 1, math.min(pos.y, maxY - 1))
+    screenBoundsCache.minX = minX
+    screenBoundsCache.minY = minY
+    screenBoundsCache.maxX = maxX
+    screenBoundsCache.maxY = maxY
+    screenBoundsCache.lastUpdate = hs.timer.secondsSinceEpoch()
+    screenBoundsCache.screens = screens
+end
+
+-- Helper: Clamp mouse position within all screens bounds (allows cross-monitor movement)
+local function clampPosition(pos)
+    if not pos then return pos end
+
+    -- Use cached bounds (updated only when screens change)
+    if not screenBoundsCache.minX then
+        updateScreenBoundsCache()
+    end
+
+    -- Clamp to cached desktop bounds (with 1px margin)
+    pos.x = math.max(screenBoundsCache.minX + 1, math.min(pos.x, screenBoundsCache.maxX - 1))
+    pos.y = math.max(screenBoundsCache.minY + 1, math.min(pos.y, screenBoundsCache.maxY - 1))
 
     return pos
 end
@@ -324,10 +349,25 @@ local function cleanup()
         clickState.resetTimer:stop()
         clickState.resetTimer = nil
     end
+
+    -- Stop screen watcher
+    if screenWatcher then
+        screenWatcher:stop()
+        screenWatcher = nil
+    end
 end
 
 -- Call cleanup on module load to prevent leaks from previous loads
 cleanup()
+
+-- Watch for screen configuration changes and invalidate cache
+local screenWatcher = hs.screen.watcher.new(function()
+    updateScreenBoundsCache()
+end)
+screenWatcher:start()
+
+-- Initialize cache on module load
+updateScreenBoundsCache()
 
 -- Module export
 local module = {

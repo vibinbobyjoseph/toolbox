@@ -6,6 +6,9 @@ local launcher = {}
 -- Create module-level logger (fixes Issue #8)
 local logger = hs.logger.new('launcher', 'info')
 
+-- Track apps currently being launched to prevent duplicates
+local launchingApps = {}
+
 -- Track recently launched apps to prevent duplicate launches (debouncing)
 local recentlyLaunched = {}
 
@@ -56,62 +59,37 @@ function launcher.launchApp(appData)
         return false, "No app data provided"
     end
 
-    -- Get display name for logging
-    local displayName = appData.app or appData.name or "unknown"
-
-    -- If a path is provided, use 'open' command for immediate launch
-    -- Match the old working code's behavior exactly
-    if appData.path then
-        logger:i("Launching via path: " .. appData.path)
-
-        -- Escape the path properly to handle spaces and special characters
-        -- Use single quotes to avoid issues with spaces in app names
-        local escapedPath = appData.path:gsub("'", "'\\''")
-        local command = "/usr/bin/open '" .. escapedPath .. "'"
-
-        -- Use hs.execute for synchronous execution (like the old code)
-        local success, output, exitCode = hs.execute(command, true)
-
-        if success then
-            logger:i("Successfully launched: " .. tostring(displayName))
-            return true, "Launched successfully"
-        else
-            logger:e("Failed to launch " .. tostring(displayName) .. " - exit code: " .. tostring(exitCode) .. ", output: " .. tostring(output))
-            return false, "Failed to launch"
-        end
-    end
-
-    -- Fallback: use bundleID or name
-    local identifier = appData.bundleID or appData.app or appData.name
-
+    -- Get unique identifier for this app
+    local identifier = appData.bundleID or appData.path or appData.name
     if not identifier then
-        logger:e("No valid identifier found for app: " .. tostring(displayName))
-        return false, "No app identifier"
+        return false, "App data missing identifier"
     end
 
-    -- Launch the app using hs.application.open()
+    -- Check if already launching
+    if launchingApps[identifier] then
+        logger:d("App already launching: " .. identifier)
+        return true, "Already launching"
+    end
+
+    -- Mark as launching
+    launchingApps[identifier] = true
+    logger:d("Launching app: " .. identifier)
+
+    -- Try to launch using native API
     local app = hs.application.open(identifier)
 
-    if not app then
-        logger:e("Failed to launch app: " .. tostring(displayName))
-        return false, "Failed to launch"
-    end
-
-    -- Immediately activate the app
-    app:activate()
-
-    -- Brief delay to ensure window is ready, then focus it
-    hs.timer.doAfter(0.1, function()
-        local runningApp = launcher.findApp(appData)
-        if runningApp then
-            local mainWin = runningApp:mainWindow()
-            if mainWin then
-                mainWin:focus()
-            end
-        end
+    -- Clear launching flag after delay (app should be launched by then)
+    hs.timer.doAfter(2.0, function()
+        launchingApps[identifier] = nil
     end)
 
-    return true, "Launched successfully"
+    if app then
+        return true, "Launched successfully"
+    else
+        launchingApps[identifier] = nil  -- Clear immediately on failure
+        logger:e("Failed to launch app: " .. identifier)
+        return false, "Failed to launch"
+    end
 end
 
 -- Focus an existing application or launch it if not running
@@ -312,6 +290,11 @@ function launcher.validateAppData(appData)
     end
 
     return #errors == 0, errors
+end
+
+-- Cleanup function for module reload
+function launcher.cleanup()
+    launchingApps = {}
 end
 
 return launcher
