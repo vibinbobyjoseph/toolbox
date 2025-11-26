@@ -104,21 +104,62 @@ local function mouseClick(button)
     hs.eventtap.event.newMouseEvent(eventTypeUp, pos):post()
 end
 
--- Function to simulate double-click by sending two clicks in rapid succession
-local function mouseDoubleClick(button)
-    -- First click
-    mouseClick(button)
-    -- Wait 150ms then send second click
-    hs.timer.doAfter(0.15, function()
-        mouseClick(button)
-    end)
+-- Function to send multiple clicks with proper clickCount property
+-- This handles single, double, and triple clicks
+local function sendMultipleClicks(button, clickCount)
+    local eventTypeDown, eventTypeUp
+
+    if button == "left" then
+        eventTypeDown = hs.eventtap.event.types.leftMouseDown
+        eventTypeUp = hs.eventtap.event.types.leftMouseUp
+    elseif button == "middle" then
+        eventTypeDown = hs.eventtap.event.types.otherMouseDown
+        eventTypeUp = hs.eventtap.event.types.otherMouseUp
+    elseif button == "right" then
+        eventTypeDown = hs.eventtap.event.types.rightMouseDown
+        eventTypeUp = hs.eventtap.event.types.rightMouseUp
+    else
+        return
+    end
+
+    local pos = hs.mouse.absolutePosition()
+
+    -- Send the sequence of clicks
+    for i = 1, clickCount do
+        -- Send mouse down event
+        local downEvent = hs.eventtap.event.newMouseEvent(eventTypeDown, pos)
+        downEvent:setProperty(hs.eventtap.event.properties.mouseEventClickState, i)
+        downEvent:post()
+        hs.timer.usleep(20000)  -- 20ms between down and up
+
+        -- Send mouse up event
+        local upEvent = hs.eventtap.event.newMouseEvent(eventTypeUp, pos)
+        upEvent:setProperty(hs.eventtap.event.properties.mouseEventClickState, i)
+        upEvent:post()
+
+        -- Delay between clicks (except after the last one)
+        if i < clickCount then
+            hs.timer.usleep(50000)  -- 50ms between clicks
+        end
+    end
 end
 
--- Use table for better double-click state management
+-- Convenience functions for specific click types
+local function mouseDoubleClick(button)
+    sendMultipleClicks(button, 2)
+end
+
+local function mouseTripleClick(button)
+    sendMultipleClicks(button, 3)
+end
+
+-- State management for detecting single/double/triple clicks
 local clickState = {
     lastTime = 0,
-    threshold = 0.5,
-    pending = false
+    threshold = 0.5,  -- 500ms window to detect multiple clicks (matches macOS default)
+    clickCount = 0,   -- Track number of clicks in sequence
+    singleClickTimer = nil,
+    resetTimer = nil
 }
 
 -- Bind keys for mouse clicks
@@ -127,21 +168,63 @@ hs.hotkey.bind(hyperKey, "forwarddelete", function()
     local currentTime = hs.timer.secondsSinceEpoch()
     local timeSinceLastClick = currentTime - clickState.lastTime
 
-    if timeSinceLastClick < clickState.threshold and not clickState.pending then
-        clickState.pending = true
-        -- Double click detected - send two clicks in rapid succession
-        mouseDoubleClick("left")
+    -- Check if this is part of a multi-click sequence
+    if timeSinceLastClick < clickState.threshold and clickState.clickCount > 0 then
+        -- This is a continuation of the click sequence
+        clickState.clickCount = clickState.clickCount + 1
+        clickState.lastTime = currentTime  -- Update lastTime for next click
 
-        -- Reset after handling
-        hs.timer.doAfter(0.1, function()
-            clickState.pending = false
+        -- Cancel any pending single-click timer
+        if clickState.singleClickTimer then
+            clickState.singleClickTimer:stop()
+            clickState.singleClickTimer = nil
+        end
+
+        -- Cancel any pending reset timer
+        if clickState.resetTimer then
+            clickState.resetTimer:stop()
+            clickState.resetTimer = nil
+        end
+
+        -- Send the appropriate multi-click based on count
+        if clickState.clickCount == 2 then
+            -- Double-click
+            sendMultipleClicks("left", 2)
+        elseif clickState.clickCount == 3 then
+            -- Triple-click
+            sendMultipleClicks("left", 3)
+        elseif clickState.clickCount > 3 then
+            -- Beyond triple-click, just send single clicks
+            mouseClick("left")
+        end
+
+        -- Set timer to reset click count after threshold
+        clickState.resetTimer = hs.timer.doAfter(clickState.threshold, function()
+            clickState.clickCount = 0
             clickState.lastTime = 0
+            clickState.resetTimer = nil
         end)
     else
-        -- Single click
-        mouseClick("left")
+        -- This is the start of a new click sequence
+        clickState.clickCount = 1
         clickState.lastTime = currentTime
-        clickState.pending = false
+
+        -- Cancel any existing timers
+        if clickState.singleClickTimer then
+            clickState.singleClickTimer:stop()
+        end
+        if clickState.resetTimer then
+            clickState.resetTimer:stop()
+        end
+
+        -- Set up delayed single click (in case no second click comes)
+        clickState.singleClickTimer = hs.timer.doAfter(clickState.threshold, function()
+            -- No second press came, send single click
+            mouseClick("left")
+            clickState.singleClickTimer = nil
+            -- Reset the click sequence (but keep lastTime for potential future sequence)
+            clickState.clickCount = 0
+        end)
     end
 end)
 
@@ -212,6 +295,18 @@ local function cleanup()
         end
     end
     scrollTimers = {}
+
+    -- Stop pending single-click timer
+    if clickState.singleClickTimer then
+        clickState.singleClickTimer:stop()
+        clickState.singleClickTimer = nil
+    end
+
+    -- Stop pending reset timer
+    if clickState.resetTimer then
+        clickState.resetTimer:stop()
+        clickState.resetTimer = nil
+    end
 end
 
 -- Call cleanup on module load to prevent leaks from previous loads
