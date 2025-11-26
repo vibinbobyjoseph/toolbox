@@ -15,16 +15,20 @@ local function calculateSpeed(direction)
     local duration = mouseState.holdDuration[direction] or 0
     local speed
 
-    -- Precision mode: stay at 1 pixel/tick for first 0.3 seconds
-    local precisionDelay = 0.3
+    -- Two-phase acceleration for best of both worlds:
+    -- Phase 1 (0.0-0.1s): Precision mode at 1 pixel/tick
+    -- Phase 2 (0.1s+): Aggressive quadratic acceleration
+    local precisionDelay = 0.1  -- Reduced from 0.3s for faster response
+
     if duration < precisionDelay then
         speed = 1  -- Ultra-precise movement for small adjustments
     else
-        -- After precision delay, use quadratic acceleration
-        -- Subtract the precision delay to start acceleration from 0
+        -- After brief precision window, accelerate rapidly
+        -- Subtract precision delay and use aggressive multiplier
         local accelDuration = duration - precisionDelay
-        local acceleration = mouseState.accelerationRate * accelDuration * accelDuration
-        speed = 1 + acceleration  -- Start from 1 pixel and accelerate
+        -- Using higher multiplier (30) for faster acceleration
+        local acceleration = 30 * accelDuration * accelDuration
+        speed = 1 + acceleration
     end
 
     return math.min(speed, mouseState.maxSpeed)
