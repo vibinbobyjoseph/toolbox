@@ -1,6 +1,15 @@
 -- ==============================================
 -- Shared utility functions for Hammerspoon config
 -- ==============================================
+--
+-- DEPENDENCY LEVEL: 3 (Core Utilities)
+-- Dependencies: Level 2 (config.settings.init)
+-- Required by: Level 4+ (feature modules)
+--
+-- IMPORTANT: This module MUST NOT require:
+-- - config.visual_feedback (same level, would cause coupling)
+-- - Any feature modules (Level 4+)
+-- See DEPENDENCY_HIERARCHY.md for details.
 
 local utils = {}
 

@@ -2,6 +2,10 @@
 Module: Mouse Control
 Purpose: Keyboard-based mouse cursor control with acceleration
 
+DEPENDENCY LEVEL: 4 (Feature Module)
+Dependencies: Level 2 (settings), Level 3 (utils)
+Required by: None (loaded by init.lua)
+
 Public API:
   - cleanup(): Stop all timers and clean up resources
 

@@ -1,5 +1,9 @@
 -- Shared App Launcher Module
 -- Provides common functionality for launching and managing applications
+--
+-- DEPENDENCY LEVEL: 4 (Feature Module)
+-- Dependencies: Level 2 (config.settings.init)
+-- Required by: Level 5 (hyperkey_app_launch, singlekey_app_launch)
 
 local launcher = {}
 
@@ -18,6 +22,9 @@ local recentlyLaunched = {}
 
 -- Application watcher for tracking app lifecycle
 local appWatcher = nil
+
+-- Track active timers for cleanup (Issue #11.2)
+local activeTimers = {}
 
 -- Cleanup old launch tracking entries (older than cleanupDelay seconds)
 local function cleanupLaunchTracking()
@@ -109,8 +116,9 @@ local function pollForWindowVisibility(app, callback, maxAttempts, interval)
             return
         end
 
-        -- Schedule next check
-        hs.timer.doAfter(interval, checkWindow)
+        -- Schedule next check (track timer for cleanup - Issue #11.2)
+        local timer = hs.timer.doAfter(interval, checkWindow)
+        table.insert(activeTimers, timer)
     end
 
     -- Start polling
@@ -173,9 +181,18 @@ function launcher.launchApp(appData)
     launchingApps[identifier] = true
     local app = hs.application.open(identifier)
 
-    hs.timer.doAfter(timing.cleanupDelay, function()
+    -- Track timer for cleanup (Issue #11.2)
+    local cleanupTimer = hs.timer.doAfter(timing.cleanupDelay, function()
         launchingApps[identifier] = nil
+        -- Remove timer from tracking after it fires
+        for i, t in ipairs(activeTimers) do
+            if t == cleanupTimer then
+                table.remove(activeTimers, i)
+                break
+            end
+        end
     end)
+    table.insert(activeTimers, cleanupTimer)
 
     if app then
         return app, nil  -- ✓ Return app object
@@ -409,6 +426,15 @@ end
 
 -- Cleanup function for module reload
 function launcher.cleanup()
+    -- Stop all active timers (Issue #11.2)
+    for _, timer in ipairs(activeTimers) do
+        if timer then
+            timer:stop()
+        end
+    end
+    activeTimers = {}
+
+    -- Clear launch tracking
     launchingApps = {}
     recentlyLaunched = {}
 

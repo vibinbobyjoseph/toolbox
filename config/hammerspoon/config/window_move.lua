@@ -1,5 +1,10 @@
 -- ==============================================
 -- Move a window from one screen to another (strict direction)
+--
+-- DEPENDENCY LEVEL: 4 (Feature Module)
+-- Dependencies: Level 3 (utils, visual_feedback)
+-- Required by: None (loaded by init.lua)
+
 -- Define the hyper-key
 local hyper = {"ctrl", "alt", "shift"}
 local utils = require("config.utils")

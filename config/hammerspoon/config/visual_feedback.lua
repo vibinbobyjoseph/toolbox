@@ -1,4 +1,14 @@
 -- Visual Feedback: Highlights, sounds, and overlays
+--
+-- DEPENDENCY LEVEL: 3 (Core Utilities)
+-- Dependencies: Level 2 (config.settings.init)
+-- Required by: Level 4+ (feature modules)
+--
+-- IMPORTANT: This module MUST NOT require:
+-- - config.utils (same level, would cause coupling)
+-- - Any feature modules (Level 4+)
+-- See DEPENDENCY_HIERARCHY.md for details.
+
 local feedback = {}
 
 -- Load centralized settings
@@ -9,6 +19,12 @@ local visualConfig = settings.visual
 local activeCanvases = {
     highlight = nil,
     status = nil
+}
+
+-- Track active timers for cleanup (Issue #11.2)
+local activeTimers = {
+    highlight = {},  -- Array of timers for highlight fade animations
+    status = {}      -- Array of timers for status overlay animations
 }
 
 -- Add canvas pool for reuse
@@ -89,10 +105,11 @@ function feedback.highlightWindow(win, duration)
     }
     highlightCanvas:show(0.2)
 
-    hs.timer.doAfter(duration, function()
+    -- Track timers for cleanup (Issue #11.2)
+    local timer1 = hs.timer.doAfter(duration, function()
         if highlightCanvas then
             highlightCanvas:hide(0.2)
-            hs.timer.doAfter(0.3, function()
+            local timer2 = hs.timer.doAfter(0.3, function()
                 if highlightCanvas then
                     highlightCanvas:delete()
                     highlightCanvas = nil
@@ -100,9 +117,25 @@ function feedback.highlightWindow(win, duration)
                 if activeCanvases.highlight == highlightCanvas then
                     activeCanvases.highlight = nil
                 end
+                -- Remove timer2 from tracking
+                for i, t in ipairs(activeTimers.highlight) do
+                    if t == timer2 then
+                        table.remove(activeTimers.highlight, i)
+                        break
+                    end
+                end
             end)
+            table.insert(activeTimers.highlight, timer2)
+        end
+        -- Remove timer1 from tracking
+        for i, t in ipairs(activeTimers.highlight) do
+            if t == timer1 then
+                table.remove(activeTimers.highlight, i)
+                break
+            end
         end
     end)
+    table.insert(activeTimers.highlight, timer1)
 
     return true, nil
 end
@@ -163,10 +196,11 @@ function feedback.showStatus(message, duration)
 
     statusOverlay:show(0.2)
 
-    hs.timer.doAfter(duration, function()
+    -- Track timers for cleanup (Issue #11.2)
+    local timer1 = hs.timer.doAfter(duration, function()
         if statusOverlay then
             statusOverlay:hide(0.2)
-            hs.timer.doAfter(0.3, function()
+            local timer2 = hs.timer.doAfter(0.3, function()
                 if statusOverlay then
                     statusOverlay:delete()
                     statusOverlay = nil
@@ -174,9 +208,25 @@ function feedback.showStatus(message, duration)
                 if activeCanvases.status == statusOverlay then
                     activeCanvases.status = nil
                 end
+                -- Remove timer2 from tracking
+                for i, t in ipairs(activeTimers.status) do
+                    if t == timer2 then
+                        table.remove(activeTimers.status, i)
+                        break
+                    end
+                end
             end)
+            table.insert(activeTimers.status, timer2)
+        end
+        -- Remove timer1 from tracking
+        for i, t in ipairs(activeTimers.status) do
+            if t == timer1 then
+                table.remove(activeTimers.status, i)
+                break
+            end
         end
     end)
+    table.insert(activeTimers.status, timer1)
 
     return true, nil
 end
@@ -199,6 +249,22 @@ end
 
 -- Cleanup function for module reload
 function feedback.cleanup()
+    -- Stop all active timers (Issue #11.2)
+    for _, timer in ipairs(activeTimers.highlight) do
+        if timer then
+            timer:stop()
+        end
+    end
+    activeTimers.highlight = {}
+
+    for _, timer in ipairs(activeTimers.status) do
+        if timer then
+            timer:stop()
+        end
+    end
+    activeTimers.status = {}
+
+    -- Clean up canvases
     if activeCanvases.highlight then
         activeCanvases.highlight:delete()
         activeCanvases.highlight = nil

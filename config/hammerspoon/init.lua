@@ -1,4 +1,12 @@
 -- Init.lua: Main entry point for your Hammerspoon configuration
+--
+-- DEPENDENCY LEVEL: 7 (Main Entry Point)
+-- This is the top-level loader - it requires all modules but is never required by them
+-- Module load order follows the dependency hierarchy (see DEPENDENCY_HIERARCHY.md):
+--   1. Settings (pure data)
+--   2. Core utilities (utils, visual_feedback)
+--   3. Feature modules (window, mouse, launchers, etc.)
+--   4. Watchers and system integration
 
 -- Check for required macOS accessibility permissions
 -- Without these, window management and hotkeys won't work
@@ -49,8 +57,8 @@ local screenWatcher = require('config.screen_watcher')
 -- To enable: Edit config/window_rules.lua and set enabled = true
 local windowEventWatcher = require('config.window_event_watcher')
 
--- Periodically check if permissions are still granted
-hs.timer.doEvery(300, function()  -- Check every 5 minutes
+-- Periodically check if permissions are still granted (track timer for cleanup - Issue #11.2)
+local permissionsCheckTimer = hs.timer.doEvery(300, function()  -- Check every 5 minutes
     if not hs.accessibilityState() then
         hs.notify.new({
             title = "Hammerspoon Permissions Lost",

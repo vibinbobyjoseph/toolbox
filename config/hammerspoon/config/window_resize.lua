@@ -1,5 +1,10 @@
 -- ==============================================
 -- Resize a window
+--
+-- DEPENDENCY LEVEL: 4 (Feature Module)
+-- Dependencies: Level 3 (utils, visual_feedback)
+-- Required by: None (loaded by init.lua)
+
 -- Define the hyper-key
 local hyper = {"ctrl", "alt"}
 local utils = require("config.utils")
@@ -13,6 +18,15 @@ local logger = hs.logger.new('window_resize', 'info')
 -- Track last arrow pressed for compound operations
 local lastArrow = nil
 local arrowTimer = nil
+
+-- Position cache to reduce redundant frame queries (Issue #11.3)
+local positionCache = {
+    windowID = nil,      -- Window identifier
+    frame = nil,         -- Cached frame
+    screenID = nil,      -- Screen identifier
+    timestamp = 0        -- Cache timestamp
+}
+local CACHE_TIMEOUT = 0.5  -- Cache valid for 0.5 seconds
 
 -- Helper: Validate window screen
 local function validateScreen(win)
@@ -31,9 +45,45 @@ local function validateScreen(win)
     return screen, nil
 end
 
+-- Helper: Get cached window frame or fetch if needed (Issue #11.3)
+local function getCachedFrame(win)
+    local now = hs.timer.secondsSinceEpoch()
+    local winID = win:id()
+    local screenID = win:screen() and win:screen():id()
+
+    -- Check if cache is valid
+    if positionCache.windowID == winID and
+       positionCache.screenID == screenID and
+       (now - positionCache.timestamp) < CACHE_TIMEOUT and
+       positionCache.frame then
+        logger:d("Using cached frame for window " .. winID)
+        return positionCache.frame
+    end
+
+    -- Cache miss or expired, fetch fresh frame
+    logger:d("Fetching fresh frame for window " .. winID)
+    local frame = win:frame()
+
+    -- Update cache
+    positionCache.windowID = winID
+    positionCache.frame = frame
+    positionCache.screenID = screenID
+    positionCache.timestamp = now
+
+    return frame
+end
+
+-- Helper: Invalidate position cache when window moves (Issue #11.3)
+local function invalidateCache()
+    positionCache.windowID = nil
+    positionCache.frame = nil
+    positionCache.screenID = nil
+    positionCache.timestamp = 0
+end
+
 -- Helper: Check if window is already at target position
 local function isWindowAtPosition(win, targetFrame)
-    local currentFrame = win:frame()
+    local currentFrame = getCachedFrame(win)
     local tolerance = windowConfig.positioning.maximizeTolerance
 
     return math.abs(currentFrame.x - targetFrame.x) < tolerance and
@@ -122,6 +172,7 @@ local function handleQuarterScreen(firstArrow, secondArrow)
     -- Calculate and set the frame
     local frame = getQuarterScreenFrame(screen, vertical, horizontal)
     win:setFrame(frame)
+    invalidateCache()  -- Issue #11.3: Clear cache after position change
     logger:d("Resizing window to quarter screen: " .. vertical .. "-" .. horizontal)
 
     feedback.highlightWindow(win, 0.5)
@@ -167,6 +218,7 @@ hs.hotkey.bind(hyper, "left", function()
         end
 
         win:setFrame(targetFrame)
+        invalidateCache()  -- Issue #11.3: Clear cache after position change
         logger:d("Resizing window to left half")
         feedback.highlightWindow(win, 0.5)
 
@@ -220,6 +272,7 @@ hs.hotkey.bind(hyper, "right", function()
 
         logger:d("Resizing window to right half")
         win:setFrame(targetFrame)
+        invalidateCache()  -- Issue #11.3: Clear cache after position change
         feedback.highlightWindow(win, 0.5)
 
         -- Set state for potential quarter screen
@@ -272,6 +325,7 @@ hs.hotkey.bind(hyper, "up", function()
 
         logger:d("Resizing window to top half")
         win:setFrame(targetFrame)
+        invalidateCache()  -- Issue #11.3: Clear cache after position change
         feedback.highlightWindow(win, 0.5)
 
         -- Set state for potential quarter screen
@@ -324,6 +378,7 @@ hs.hotkey.bind(hyper, "down", function()
 
         logger:d("Resizing window to bottom half")
         win:setFrame(targetFrame)
+        invalidateCache()  -- Issue #11.3: Clear cache after position change
         feedback.highlightWindow(win, 0.5)
 
         -- Set state for potential quarter screen
@@ -374,10 +429,12 @@ hs.hotkey.bind(hyper, "return", function()
             w = w,
             h = h
         })
+        invalidateCache()  -- Issue #11.3: Clear cache after position change
     else
         -- Not maximized, maximize it
         logger:d("Maximizing window")
         win:setFrame(screenFrame)
+        invalidateCache()  -- Issue #11.3: Clear cache after position change
     end
     feedback.highlightWindow(win, 0.5)
 end)
@@ -392,6 +449,8 @@ local windowResize = {
             arrowTimer = nil
         end
         lastArrow = nil
+        -- Clear position cache (Issue #11.3)
+        invalidateCache()
     end
 }
 
