@@ -4,7 +4,7 @@ local caffeine = {
     active = false
 }
 
-local utils = require("config.utils")
+local feedback = require("config.visual_feedback")
 
 local function updateMenubar()
     if caffeine.active then
@@ -20,11 +20,11 @@ local function toggleCaffeine()
     if caffeine.active then
         hs.caffeinate.set("displayIdle", true, true)
         hs.caffeinate.set("systemIdle", true, true)
-        utils.feedback.showStatus("Caffeine: System will stay awake")
+        feedback.showStatus("Caffeine: System will stay awake")
     else
         hs.caffeinate.set("displayIdle", false, true)
         hs.caffeinate.set("systemIdle", false, true)
-        utils.feedback.showStatus("Caffeine: Normal sleep behavior")
+        feedback.showStatus("Caffeine: Normal sleep behavior")
     end
 
     updateMenubar()
@@ -32,11 +32,6 @@ end
 
 caffeine.menubar = hs.menubar.new()
 caffeine.menubar:setClickCallback(toggleCaffeine)
-caffeine.menubar:setMenu({
-    {title = "Toggle Caffeine", fn = toggleCaffeine},
-    {title = "-"},
-    {title = "Prevents system from sleeping", disabled = true}
-})
 updateMenubar()
 
 hs.hotkey.bind({"ctrl", "alt", "cmd"}, "c", toggleCaffeine)

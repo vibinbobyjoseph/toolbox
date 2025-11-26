@@ -17,19 +17,24 @@ local function calculateSpeed(direction)
     return math.min(speed, mouseState.maxSpeed)
 end
 
--- Helper: Clamp mouse position within screen bounds
+-- Helper: Clamp mouse position within all screens bounds (allows cross-monitor movement)
 local function clampPosition(pos)
     if not pos then return pos end
 
-    local screen = hs.mouse.getCurrentScreen()
-    if not screen then return pos end
+    -- Calculate the total desktop bounds across all screens
+    local minX, minY, maxX, maxY = math.huge, math.huge, -math.huge, -math.huge
 
-    local frame = screen:fullFrame()
-    if not frame then return pos end
+    for _, screen in ipairs(hs.screen.allScreens()) do
+        local frame = screen:fullFrame()
+        minX = math.min(minX, frame.x)
+        minY = math.min(minY, frame.y)
+        maxX = math.max(maxX, frame.x + frame.w)
+        maxY = math.max(maxY, frame.y + frame.h)
+    end
 
-    -- Clamp to screen bounds (with 1px margin to avoid edge issues)
-    pos.x = math.max(frame.x + 1, math.min(pos.x, frame.x + frame.w - 1))
-    pos.y = math.max(frame.y + 1, math.min(pos.y, frame.y + frame.h - 1))
+    -- Clamp to total desktop bounds (with 1px margin to avoid edge issues)
+    pos.x = math.max(minX + 1, math.min(pos.x, maxX - 1))
+    pos.y = math.max(minY + 1, math.min(pos.y, maxY - 1))
 
     return pos
 end
@@ -44,7 +49,8 @@ local function startMouseMove(direction)
         mouseState.holdDuration[direction] = hs.timer.secondsSinceEpoch() - startTime
         local speed = calculateSpeed(direction)
 
-        local pos = hs.mouse.getRelativePosition()
+        -- Use absolute position for cross-monitor support
+        local pos = hs.mouse.absolutePosition()
         if direction == "up" then
             pos.y = pos.y - speed
         elseif direction == "down" then
@@ -55,9 +61,9 @@ local function startMouseMove(direction)
             pos.x = pos.x + speed
         end
 
-        -- Clamp position to screen bounds
+        -- Clamp position to total desktop bounds
         pos = clampPosition(pos)
-        hs.mouse.setRelativePosition(pos)
+        hs.mouse.absolutePosition(pos)
     end)
 end
 
@@ -139,7 +145,7 @@ hs.hotkey.bind(hyperKey, "forwarddelete", function()
     end
 end)
 
-hs.hotkey.bind(hyperKey, "pagedown", function()
+hs.hotkey.bind(hyperKey, "end", function()
     mouseClick("right")
 end)
 

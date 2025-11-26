@@ -26,6 +26,6 @@ require("config.singlekey_app_launch")
 require("config.window_move")
 require("config.window_resize")
 require("config.mouse")
-require("config.mouse_indicator")
+-- require("config.mouse_indicator")  -- Disabled: crosshairs not needed
 require("config.fn_keys")
 require("config.mute")

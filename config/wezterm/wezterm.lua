@@ -102,10 +102,13 @@ end)
 -- KEY BINDINGS
 -- ========================================
 
-config.keys = {-- Split panes
-  { key = '|', mods = 'CMD|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain',
-  {key="Enter", mods="SHIFT", action=wezterm.action{SendString="\x1b\r"}},} },
+config.keys = {
+  -- Split panes
+  { key = '|', mods = 'CMD|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
   { key = '_', mods = 'CMD|SHIFT', action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
+
+  -- Send Shift+Enter as escape sequence
+  { key = 'Enter', mods = 'SHIFT', action = wezterm.action.SendString "\x1b\r" },
 
   -- Navigate panes (vim-style hjkl)
   { key = 'j', mods = 'CMD|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
