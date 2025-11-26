@@ -6,14 +6,27 @@ local moveInterval = utils.mouseConfig.moveInterval
 local mouseState = {
     timers = {up = nil, down = nil, left = nil, right = nil},
     holdDuration = {},
-    baseSpeed = utils.mouseConfig.moveAmount,
-    maxSpeed = 80,
-    accelerationRate = 3
+    baseSpeed = utils.settings.mouse.movement.baseSpeed,
+    maxSpeed = utils.settings.mouse.movement.maxSpeed,
+    accelerationRate = utils.settings.mouse.movement.accelerationRate
 }
 
 local function calculateSpeed(direction)
     local duration = mouseState.holdDuration[direction] or 0
-    local speed = mouseState.baseSpeed + (duration * mouseState.accelerationRate)
+    local speed
+
+    -- Precision mode: stay at 1 pixel/tick for first 0.3 seconds
+    local precisionDelay = 0.3
+    if duration < precisionDelay then
+        speed = 1  -- Ultra-precise movement for small adjustments
+    else
+        -- After precision delay, use quadratic acceleration
+        -- Subtract the precision delay to start acceleration from 0
+        local accelDuration = duration - precisionDelay
+        local acceleration = mouseState.accelerationRate * accelDuration * accelDuration
+        speed = 1 + acceleration  -- Start from 1 pixel and accelerate
+    end
+
     return math.min(speed, mouseState.maxSpeed)
 end
 

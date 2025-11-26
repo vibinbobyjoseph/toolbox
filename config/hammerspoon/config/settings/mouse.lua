@@ -5,9 +5,9 @@ local mouse = {}
 
 -- Mouse movement settings
 mouse.movement = {
-    baseSpeed = 5,           -- Pixels per interval
+    baseSpeed = 5,           -- Pixels per interval (starting speed)
     maxSpeed = 80,           -- Maximum speed with acceleration
-    accelerationRate = 3,    -- Speed increase per second
+    accelerationRate = 15,   -- Acceleration multiplier (used with duration²)
     moveInterval = 0.02      -- Update frequency in seconds (50 FPS)
 }
 
