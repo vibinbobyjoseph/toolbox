@@ -66,15 +66,18 @@ end
 
 -- Function to launch an app with toggle functionality
 local function launchApp(key, modifiers)
+    print("===== HOTKEY PRESSED: " .. key .. " at " .. os.date("%H:%M:%S"))
     local itemData = appList[key]
     if not itemData then
         utils.feedback.showStatus("No app configured for this key")
         return
     end
 
+    print("===== CALLING launcher.launchOrFocus for: " .. (itemData.app or "unknown"))
     -- Use shared launcher module
     local success, message = launcher.launchOrFocus(itemData)
 
+    print("===== launcher.launchOrFocus returned: " .. tostring(success))
     if not success then
         utils.feedback.showStatus("Failed to launch: " .. (itemData.name or itemData.app or key))
     end

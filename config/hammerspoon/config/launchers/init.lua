@@ -6,6 +6,19 @@ local launcher = {}
 -- Create module-level logger (fixes Issue #8)
 local logger = hs.logger.new('launcher', 'info')
 
+-- Track recently launched apps to prevent duplicate launches (debouncing)
+local recentlyLaunched = {}
+
+-- Cleanup old launch tracking entries (older than 2 seconds)
+local function cleanupLaunchTracking()
+    local now = hs.timer.secondsSinceEpoch()
+    for appName, timestamp in pairs(recentlyLaunched) do
+        if now - timestamp > 2.0 then
+            recentlyLaunched[appName] = nil
+        end
+    end
+end
+
 -- Find an application by name, bundle ID, or path
 -- Returns: application object or nil
 function launcher.findApp(appData)
@@ -13,7 +26,7 @@ function launcher.findApp(appData)
 
     local app = nil
 
-    -- Try by bundle ID first (most reliable)
+    -- Try by bundle ID first (most reliable and fastest)
     if appData.bundleID then
         app = hs.application.get(appData.bundleID)
         if app then return app end
@@ -26,18 +39,17 @@ function launcher.findApp(appData)
         if app then return app end
     end
 
-    -- Try by path (least common)
-    if appData.path then
-        local info = hs.application.infoForBundlePath(appData.path)
-        if info and info.CFBundleIdentifier then
-            app = hs.application.get(info.CFBundleIdentifier)
-        end
+    -- Try by path only if we have bundleID to look up
+    -- Skip the expensive infoForBundlePath call if app is not running
+    -- This prevents 6-8s delays when checking for non-running apps
+    if appData.path and appData.bundleID then
+        app = hs.application.get(appData.bundleID)
     end
 
     return app
 end
 
--- Launch an application using the most reliable method
+-- Launch an application with proper activation and window verification
 -- Returns: success (boolean), message (string)
 function launcher.launchApp(appData)
     if not appData then
@@ -47,19 +59,59 @@ function launcher.launchApp(appData)
     -- Get display name for logging
     local displayName = appData.app or appData.name or "unknown"
 
-    -- Use the fastest, most reliable method: launchOrFocus with app name
-    -- This is what the original Phase 1 code effectively did
-    local appName = appData.app or appData.name or appData.bundleID
-    if appName then
-        local success = hs.application.launchOrFocus(appName)
+    -- If a path is provided, use 'open' command for immediate launch
+    -- Match the old working code's behavior exactly
+    if appData.path then
+        logger:i("Launching via path: " .. appData.path)
+
+        -- Escape the path properly to handle spaces and special characters
+        -- Use single quotes to avoid issues with spaces in app names
+        local escapedPath = appData.path:gsub("'", "'\\''")
+        local command = "/usr/bin/open '" .. escapedPath .. "'"
+
+        -- Use hs.execute for synchronous execution (like the old code)
+        local success, output, exitCode = hs.execute(command, true)
+
         if success then
+            logger:i("Successfully launched: " .. tostring(displayName))
             return true, "Launched successfully"
+        else
+            logger:e("Failed to launch " .. tostring(displayName) .. " - exit code: " .. tostring(exitCode) .. ", output: " .. tostring(output))
+            return false, "Failed to launch"
         end
     end
 
-    -- Fallback failed
-    logger:e("Failed to launch app: " .. tostring(displayName))
-    return false, "Failed to launch"
+    -- Fallback: use bundleID or name
+    local identifier = appData.bundleID or appData.app or appData.name
+
+    if not identifier then
+        logger:e("No valid identifier found for app: " .. tostring(displayName))
+        return false, "No app identifier"
+    end
+
+    -- Launch the app using hs.application.open()
+    local app = hs.application.open(identifier)
+
+    if not app then
+        logger:e("Failed to launch app: " .. tostring(displayName))
+        return false, "Failed to launch"
+    end
+
+    -- Immediately activate the app
+    app:activate()
+
+    -- Brief delay to ensure window is ready, then focus it
+    hs.timer.doAfter(0.1, function()
+        local runningApp = launcher.findApp(appData)
+        if runningApp then
+            local mainWin = runningApp:mainWindow()
+            if mainWin then
+                mainWin:focus()
+            end
+        end
+    end)
+
+    return true, "Launched successfully"
 end
 
 -- Focus an existing application or launch it if not running
@@ -69,18 +121,46 @@ function launcher.launchOrFocus(appData)
         return false, "No app data provided"
     end
 
-    -- Check if app is already running
-    local app = launcher.findApp(appData)
+    -- Get identifier for debouncing
+    local appIdentifier = appData.bundleID or appData.app or appData.name or "unknown"
+
+    -- FASTEST check: use hs.application.applicationsForBundleID()
+    -- This is instant and only checks running apps, no Spotlight queries
+    local app = nil
+    if appData.bundleID then
+        local apps = hs.application.applicationsForBundleID(appData.bundleID)
+        if apps and #apps > 0 then
+            app = apps[1]
+        end
+    end
+
+    -- Fallback to find() only if no bundleID (rare case)
+    if not app and (appData.app or appData.name) then
+        app = hs.application.find(appData.app or appData.name)
+    end
 
     if app then
+        logger:i("App is already running: " .. appIdentifier)
+
         -- App is running, bring to front
         if app:isFrontmost() then
             -- Already focused, hide it (toggle behavior)
+            logger:i("App is frontmost, hiding it")
             app:hide()
             return true, "Hidden"
         else
-            -- Edge case: Check if app has fullscreen windows
-            -- Fullscreen apps need special handling for space transitions
+            logger:i("App is not frontmost, activating it")
+
+            -- Check if app is hidden
+            if app:isHidden() then
+                logger:i("App is hidden, unhiding it")
+                app:unhide()
+            end
+
+            -- Activate the app (brings to front)
+            app:activate()
+
+            -- Check if app has fullscreen windows
             local windows = app:allWindows()
             local hasFullscreen = false
             for _, win in ipairs(windows) do
@@ -92,23 +172,55 @@ function launcher.launchOrFocus(appData)
 
             if hasFullscreen then
                 -- Fullscreen apps need delayed focus after space transition
-                app:activate()
+                logger:i("App has fullscreen windows, using delayed focus")
                 hs.timer.doAfter(0.2, function()
-                    -- Give time for space transition, then ensure window is focused
                     local mainWin = app:mainWindow()
                     if mainWin then
                         mainWin:focus()
                     end
                 end)
             else
-                -- Normal activation
-                app:activate()
+                -- Normal activation with brief delay for window to appear
+                hs.timer.doAfter(0.05, function()
+                    local mainWin = app:mainWindow()
+                    if mainWin then
+                        logger:i("Focusing main window")
+                        mainWin:focus()
+                    else
+                        logger:w("No main window found for " .. appIdentifier .. ", relaunching via path")
+
+                        -- Some apps (like WhatsApp) run hidden without windows
+                        -- The most reliable fix: just relaunch the app via its path
+                        if appData.path then
+                            local escapedPath = appData.path:gsub("'", "'\\''")
+                            local command = "/usr/bin/open '" .. escapedPath .. "'"
+                            hs.execute(command, true)
+                            logger:i("Relaunched " .. appIdentifier .. " to open window")
+                        end
+                    end
+                end)
             end
 
             return true, "Activated"
         end
     else
-        -- App not running, launch it
+        -- App not running - check if we recently tried to launch it (debouncing)
+        cleanupLaunchTracking()
+        local now = hs.timer.secondsSinceEpoch()
+
+        if recentlyLaunched[appIdentifier] then
+            local timeSinceLaunch = now - recentlyLaunched[appIdentifier]
+            if timeSinceLaunch < 1.0 then
+                -- App is currently launching, don't trigger another launch
+                logger:i("App already launching: " .. appIdentifier)
+                return true, "Already launching"
+            end
+        end
+
+        -- Mark app as being launched
+        recentlyLaunched[appIdentifier] = now
+
+        -- Launch the app
         return launcher.launchApp(appData)
     end
 end
