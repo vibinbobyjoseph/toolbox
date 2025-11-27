@@ -8,7 +8,8 @@ timing.launcher = {
     cleanupDelay = 2.0,        -- Seconds to wait before clearing launch state
     focusDelay = 0.1,          -- Delay before focusing window
     fullscreenDelay = 0.2,     -- Delay for fullscreen transitions
-    debounceWindow = 1.0       -- Time window for detecting rapid launches
+    debounceWindow = 1.0,      -- Time window for detecting rapid launches
+    quickRelaunchDelay = 0.15  -- Fast relaunch delay for slow-window apps
 }
 
 -- Mouse click timings

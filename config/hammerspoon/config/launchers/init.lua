@@ -79,17 +79,33 @@ local function onAppEvent(appName, eventType, app)
 end
 
 --- Poll for window visibility with timeout (for fullscreen transitions)
+--- Returns a table with cancel() method to stop polling early
 --- @param app application The application to check
 --- @param callback function Function to call when window is visible or timeout
 --- @param maxAttempts number Maximum number of polling attempts (default 20)
 --- @param interval number Polling interval in seconds (default 0.1)
+--- @return table Poller object with cancel() method
 local function pollForWindowVisibility(app, callback, maxAttempts, interval)
     maxAttempts = maxAttempts or 20  -- 20 attempts * 0.1s = 2 seconds max
     interval = interval or 0.1
 
     local attempts = 0
+    local cancelled = false
+    local currentTimer = nil
+
+    local poller = {
+        cancel = function()
+            cancelled = true
+            if currentTimer then
+                currentTimer:stop()
+                currentTimer = nil
+            end
+        end
+    }
 
     local function checkWindow()
+        if cancelled then return end
+
         attempts = attempts + 1
 
         -- Check if app still exists
@@ -117,12 +133,14 @@ local function pollForWindowVisibility(app, callback, maxAttempts, interval)
         end
 
         -- Schedule next check (track timer for cleanup - Issue #11.2)
-        local timer = hs.timer.doAfter(interval, checkWindow)
-        table.insert(activeTimers, timer)
+        currentTimer = hs.timer.doAfter(interval, checkWindow)
+        table.insert(activeTimers, currentTimer)
     end
 
     -- Start polling
     checkWindow()
+
+    return poller
 end
 
 --- Find a running application by name, bundle ID, or path
@@ -178,8 +196,40 @@ function launcher.launchApp(appData)
         return nil, "Already launching"
     end
 
+    -- Enhanced diagnostics: Check if app exists at path before attempting launch
+    if appData.path then
+        local fileExists = hs.fs.attributes(appData.path) ~= nil
+        if not fileExists then
+            local appName = appData.app or appData.name or "Unknown"
+            local errorMsg = "App not found: " .. appName .. " at path: " .. appData.path
+            logger:e(errorMsg)
+            return nil, errorMsg
+        end
+    end
+
     launchingApps[identifier] = true
-    local app = hs.application.open(identifier)
+
+    -- Try to launch - prefer bundle ID first, then path
+    local app = nil
+    local attemptedMethod = ""
+
+    if appData.bundleID then
+        attemptedMethod = "bundle ID: " .. appData.bundleID
+        app = hs.application.open(appData.bundleID)
+    end
+
+    -- Fallback to path if bundle ID failed
+    if not app and appData.path then
+        attemptedMethod = attemptedMethod .. (attemptedMethod ~= "" and ", then " or "") .. "path: " .. appData.path
+        app = hs.application.open(appData.path)
+    end
+
+    -- Fallback to name if both failed
+    if not app and (appData.name or appData.app) then
+        local appName = appData.name or appData.app
+        attemptedMethod = attemptedMethod .. (attemptedMethod ~= "" and ", then " or "") .. "name: " .. appName
+        app = hs.application.open(appName)
+    end
 
     -- Track timer for cleanup (Issue #11.2)
     local cleanupTimer = hs.timer.doAfter(timing.cleanupDelay, function()
@@ -195,11 +245,13 @@ function launcher.launchApp(appData)
     table.insert(activeTimers, cleanupTimer)
 
     if app then
+        logger:i("Successfully launched via " .. attemptedMethod)
         return app, nil  -- ✓ Return app object
     else
         launchingApps[identifier] = nil
-        logger:e("Failed to launch: " .. identifier)
-        return nil, "Failed to launch"  -- ✓ Return error
+        local errorMsg = "Failed to launch via " .. attemptedMethod
+        logger:e(errorMsg)
+        return nil, errorMsg  -- ✓ Return detailed error
     end
 end
 
@@ -264,7 +316,7 @@ function launcher.launchOrFocus(appData)
 
             if hasFullscreen then
                 -- Fullscreen apps need to wait for space transition
-                -- Poll for window visibility instead of fixed delay
+                -- Poll for window visibility with reduced timeout
                 logger:i("App has fullscreen windows, polling for visibility")
                 pollForWindowVisibility(app, function(mainWin)
                     if mainWin then
@@ -273,27 +325,51 @@ function launcher.launchOrFocus(appData)
                     else
                         logger:w("Could not focus fullscreen window after polling")
                     end
-                end, 20, 0.1)  -- 2 second timeout for fullscreen transitions
+                end, 10, 0.1)  -- 1.0 second timeout for fullscreen transitions (reduced from 2.0s)
             else
-                -- Normal activation - poll for window with shorter timeout
-                logger:i("Polling for window visibility")
-                pollForWindowVisibility(app, function(mainWin)
-                    if mainWin then
-                        logger:i("Focusing main window")
-                        mainWin:focus()
-                    else
-                        logger:w("No main window found for " .. appIdentifier .. ", relaunching via path")
+                -- Normal activation with parallel relaunch strategy
+                -- Strategy: Start polling AND schedule a quick relaunch in parallel
+                -- If window appears during polling, cancel the relaunch
+                -- If no window appears, relaunch fires automatically
+                logger:i("Polling for window visibility with parallel relaunch strategy")
 
-                        -- Some apps (like WhatsApp) run hidden without windows
-                        -- The most reliable fix: just relaunch the app via its path
-                        if appData.path then
+                local relaunchTimer = nil
+                local poller = nil
+                local windowFound = false
+
+                -- Schedule a relaunch timer that fires if window doesn't appear quickly
+                if appData.path then
+                    relaunchTimer = hs.timer.doAfter(timing.quickRelaunchDelay, function()
+                        if not windowFound then
+                            logger:i("Quick relaunch triggered for " .. appIdentifier)
                             local escapedPath = appData.path:gsub("'", "'\\''")
                             local command = "/usr/bin/open '" .. escapedPath .. "'"
                             hs.execute(command, true)
-                            logger:i("Relaunched " .. appIdentifier .. " to open window")
+                            if poller then poller.cancel() end  -- Stop polling, relaunch is handling it
+                        end
+                    end)
+                    table.insert(activeTimers, relaunchTimer)
+                end
+
+                -- Start polling for window (reduced timeout: 4 attempts × 0.025s = 0.1s)
+                poller = pollForWindowVisibility(app, function(mainWin)
+                    if mainWin then
+                        windowFound = true
+                        -- Window appeared! Cancel the relaunch timer
+                        if relaunchTimer then
+                            relaunchTimer:stop()
+                            logger:d("Window found, cancelled relaunch timer")
+                        end
+                        logger:i("Focusing main window")
+                        mainWin:focus()
+                    else
+                        -- Polling timed out, but relaunch timer should handle it
+                        -- Only warn if we don't have a path to relaunch
+                        if not appData.path then
+                            logger:w("No main window found for " .. appIdentifier .. " and no path configured")
                         end
                     end
-                end, 10, 0.05)  -- 0.5 second timeout for normal windows (10 * 0.05s)
+                end, 4, 0.025)  -- 0.1 second timeout for normal windows (reduced from 0.5s)
             end
 
             return app, nil

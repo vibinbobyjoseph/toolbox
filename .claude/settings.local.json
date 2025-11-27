@@ -17,7 +17,8 @@
       "Bash(/usr/bin/open:*)",
       "Bash(luac:*)",
       "Bash(lua:*)",
-      "Bash(test -f:*)"
+      "Bash(test -f:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
