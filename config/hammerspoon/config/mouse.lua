@@ -19,7 +19,7 @@ Hotkeys:
   - Hyper + Arrows: Move cursor
   - Hyper + ForwardDelete: Click (double/triple click with rapid presses)
   - Hyper + End: Right click
-  - Ctrl+Shift+Cmd + Arrows: Scroll
+  - Hyper + PageUp/PageDown: Scroll vertically
 
 Dependencies:
   - config.utils (for settings)
@@ -305,25 +305,35 @@ end)
 
 -- Scroll wheel emulation
 local scrollTimers = {up = nil, down = nil, left = nil, right = nil}
-local scrollAmount = 3
+local scrollAmount = 2  -- Reduced from 3 for smoother scrolling
+local scrollInterval = 0.03  -- Faster updates (30ms instead of 100ms)
+
+local function performScroll(direction)
+    local scrollEvent
+    if direction == "up" then
+        scrollEvent = hs.eventtap.event.newScrollEvent({0, scrollAmount}, {}, "line")
+    elseif direction == "down" then
+        scrollEvent = hs.eventtap.event.newScrollEvent({0, -scrollAmount}, {}, "line")
+    elseif direction == "left" then
+        scrollEvent = hs.eventtap.event.newScrollEvent({scrollAmount, 0}, {}, "line")
+    elseif direction == "right" then
+        scrollEvent = hs.eventtap.event.newScrollEvent({-scrollAmount, 0}, {}, "line")
+    end
+
+    if scrollEvent then
+        scrollEvent:post()
+    end
+end
 
 local function startScrolling(direction)
     if scrollTimers[direction] then return end
 
-    scrollTimers[direction] = hs.timer.doEvery(0.1, function()  -- Optimized from 0.05 to 0.1
-        local scrollValues = {x = 0, y = 0}
+    -- Immediately fire once for instant feedback
+    performScroll(direction)
 
-        if direction == "up" then
-            scrollValues.y = scrollAmount
-        elseif direction == "down" then
-            scrollValues.y = -scrollAmount
-        elseif direction == "left" then
-            scrollValues.x = scrollAmount
-        elseif direction == "right" then
-            scrollValues.x = -scrollAmount
-        end
-
-        hs.eventtap.scrollWheel(scrollValues, {}, "line")
+    -- Create timer with doEvery and it will start automatically
+    scrollTimers[direction] = hs.timer.doEvery(scrollInterval, function()
+        performScroll(direction)
     end)
 end
 
@@ -334,20 +344,13 @@ local function stopScrolling(direction)
     end
 end
 
--- Use different modifier to avoid conflict with mouse movement
-local scrollMod = {"ctrl", "shift", "cmd"}
-hs.hotkey.bind(scrollMod, "up",
+-- Scroll with Hyper + Page Up/Down
+hs.hotkey.bind(hyperKey, "pageup",
     function() startScrolling("up") end,
     function() stopScrolling("up") end)
-hs.hotkey.bind(scrollMod, "down",
+hs.hotkey.bind(hyperKey, "pagedown",
     function() startScrolling("down") end,
     function() stopScrolling("down") end)
-hs.hotkey.bind(scrollMod, "left",
-    function() startScrolling("left") end,
-    function() stopScrolling("left") end)
-hs.hotkey.bind(scrollMod, "right",
-    function() startScrolling("right") end,
-    function() stopScrolling("right") end)
 
 -- Cleanup function for module reload
 local function cleanup()
